@@ -8,14 +8,12 @@ int main(int argc, char **argv)
     // Montar disco
     //os_mount()
 
-    // Declarar master boot table
     Mbt* mbt;
     Disk* disk;
+    char* particion_montada;
 
-    // Inicializar master boot table con info leida desde el disco
-    disk = init_disk();
-    mbt = disk->mbt;
-
+    os_mount(argv[1], argv[2]);
+    
     mbt->entradas[10][0] = 0b10001010;
 
     if (is_partition_valid(mbt, 10)){

@@ -3,6 +3,11 @@
 #include <stdlib.h>
 
 
+void os_mount(char* diskname, int partition){
+    Disk* disk = init_disk(diskname);
+    particion_montada = disk->mbt->entradas[partition];
+}
+
 Disk* init_disk(char* filename){
     Disk disk = {
         .file_pointer = fopen(filename, 'r+b'),
@@ -40,6 +45,7 @@ int is_partition_valid(Mbt* mbt, int index){
     }
     return bit;
 }
+
 int os_delete_partition(Mbt* mbt, int id){
     int identificador;
     int primer_byte_entrada;

@@ -2,6 +2,8 @@
 // Tells the compiler to compile this file once
 #pragma once
 
+char * particion_montada;
+
 typedef struct mbt
 {
     char entradas[128][8];
@@ -17,8 +19,8 @@ typedef struct disk
 } Disk;
 
 // Functions
-
-Disk* init_disk();
+void os_mount(char* diskname, int partition);
+Disk* init_disk(char* filename);
 
 Mbt* init_mbt();
 int is_partition_valid(Mbt* mbt, int index);
