@@ -67,6 +67,24 @@ int modify_directory_entry(Directory* directory, int index, char* filename, char
 
 };
 
+
+int print_nombre_archivo(Directory directory, int index){
+    if(index > 64 || index < 0){
+        printf("Indice invalido, Directorios tienen maximo 64 entradas\n");
+        return 1;
+    }
+    char nombre_archivo[28];
+
+    for (int i=0; i<28; i++){
+        nombre_archivo[i] = directory.structure[index][i+4];
+    }
+    /*Se puede modificar para que el formato de la funcion ls de la api sea mejor*/
+    printf("%s\n", nombre_archivo);
+
+    return 0;
+
+}
+
 int print_entry(Directory directory, int index){
     if(index > 64 || index < 0){
         printf("Indice invalido, Directorios tienen maximo 64 entradas\n");
@@ -83,15 +101,10 @@ int print_entry(Directory directory, int index){
 
 
     //Imprimimos el nombre del archivo
-    //Creamos un char array para imprimir el nombre
-    char nombre_archivo[28];
+    print_nombre_archivo(directory,index);
 
-    for (int i=0; i<28; i++){
-        nombre_archivo[i] = directory.structure[index][i+4];
-    }
-    printf("Nombre Archivo: %s\n", nombre_archivo);
     //No es necesario agregar 0 manualmente, eso ya se hizo al declarar structure[64][32]
-    printf("Imprimir caracter 30, %i\n", nombre_archivo[27]);
+    // printf("Imprimir caracter 30, %i\n", nombre_archivo[27]);
 
     
     return 0;

@@ -28,7 +28,9 @@ int is_valid_directory_entry(Directory directory, int index);
 int modify_directory_entry(Directory* directory, int index, char* filename, char bit_validez);
 
 /*Metodo para representar una entrada*/
-
 int print_entry(Directory directory, int index);
+
+/*Metodo para imprimir solamente el nombre de archivo en una entrada*/
+int print_nombre_archivo(Directory directory, int index);
 
 /**/
