@@ -3,3 +3,4 @@
 *.o
 osfs
 disk_test
+*.vscode/*
