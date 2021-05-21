@@ -10,9 +10,11 @@ int main(int argc, char **argv)
 
     // Declarar master boot table
     Mbt* mbt;
+    Disk* disk;
 
     // Inicializar master boot table con info leida desde el disco
-    mbt = init_mbt();
+    disk = init_disk();
+    mbt = disk->mbt;
 
     mbt->entradas[10][0] = 0b10001010;
 
