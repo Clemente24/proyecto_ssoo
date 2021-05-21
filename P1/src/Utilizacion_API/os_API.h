@@ -1,4 +1,6 @@
-
+#include <stdio.h>  // FILE, fopen, fclose, etc.
+#include <string.h> // strtok, strcpy, etc.
+#include <stdlib.h> // malloc, calloc, free, etc.
 // Tells the compiler to compile this file once
 #pragma once
 
