@@ -8,19 +8,25 @@ int main(int argc, char **argv)
     // Montar disco
     //os_mount()
 
-    Mbt* mbt;
-    Disk* disk;
-    char* particion_montada;
 
-    os_mount(argv[1], argv[2]);
+    os_mount(argv[1], atoi(argv[2]));
     
-    mbt->entradas[10][0] = 0b10001010;
+    disk -> mbt->entradas[10][0] = 0b10001010;
 
-    if (is_partition_valid(mbt, 10)){
+    if (is_partition_valid(disk -> mbt, 10)){
         printf("Partition %i is valid", 10);
     }
 
-    os_delete_partition(mbt, 10);
+    os_delete_partition(disk -> mbt, 10);
+
+
+    /*Cerrar archivo*/
+    fclose(disk->file_pointer);
+
+    /*FREE*/
+    free(disk -> mbt);
+    free(disk);
+    
 
     return 0;
 }

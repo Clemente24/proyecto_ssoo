@@ -1,27 +1,32 @@
+#include "directory.h"
 #include "os_API.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 
 void os_mount(char* diskname, int partition){
-    Disk* disk = init_disk(diskname);
-    particion_montada = disk->mbt->entradas[partition];
+    /* Toma las variables globales declaradas en el header y les asigna valor */
+    disk = init_disk(diskname);
+    particion_montada = disk -> mbt->entradas[partition];
+    
 }
 
 Disk* init_disk(char* filename){
-    Disk disk = {
-        .file_pointer = fopen(filename, 'r+b'),
+    printf("FILENAME: %s\n", filename);
+    Disk* disk = malloc(sizeof(Disk));
+    *disk = (Disk) {
+        .file_pointer = fopen(filename, "r+b"),
         .name = filename,
         .mbt = init_mbt()
     };
-    if (disk.file_pointer == NULL){
+    if (disk -> file_pointer == NULL){
         // esta mal 
-        printf('Filename doesnt exist');
+        printf("Filename doesnt exist\n");
         return NULL;
     }
     else
     {
-        return &disk;
+        return disk;
     }
 
 }
@@ -68,4 +73,14 @@ void os_reset_mbt(Mbt* mbt, int id){
     for (int i = 0; i < 128; i++){
        os_delete_partition(mbt, i);
     }
+}
+
+int os_exists(char* filename){
+    /*Cabe recalcar que se busca solo en la partición actual*/
+    
+    //entrada de 8 bytes:
+    //printf("%s", particion_montada);
+
+    return 0;
+
 }
