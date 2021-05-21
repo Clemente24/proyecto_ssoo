@@ -21,3 +21,18 @@ int is_partition_valid(Mbt* mbt, int index){
     }
     return bit;
 }
+
+void os_delete_partition(Mbt* mbt, int id){
+    int identificador;
+    int entrada;
+    for (int i = 0; i < 128; i++){
+        entrada = mbt->entradas[i][0];
+        identificador = entrada & ((1 << 7) - 1);
+        printf("Entrada es: %d\n", entrada);
+        printf("Identificador es: %i\n", identificador);
+        if (identificador == id){
+            entrada = (entrada & ~(1UL << 8)) | (0 << 8);
+            printf("Nueva entrada es: %i\n", entrada);
+        }
+    }
+}

@@ -13,11 +13,13 @@ int main(int argc, char **argv)
     // Inicializar master boot table con info leida desde el disco
     mbt = init_mbt();
 
-    mbt->entradas[10][0] = 0b11111011;
+    mbt->entradas[10][0] = 0b10001010;
 
     if (is_partition_valid(mbt, 10)){
         printf("Partition %i is valid", 10);
     }
+
+    os_delete_partition(mbt, 10);
 
     return 0;
 }
