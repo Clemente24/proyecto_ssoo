@@ -31,6 +31,6 @@ int modify_directory_entry(Directory* directory, int index, char* filename, char
 int print_entry(Directory directory, int index);
 
 /*Metodo para imprimir solamente el nombre de archivo en una entrada*/
-int print_nombre_archivo(Directory directory, int index);
+int nombre_archivo(Directory directory, int index, char nombre[28]);
 
 /**/

@@ -38,3 +38,7 @@ int os_delete_partition(Mbt* mbt,int id);
 /*Función para ver si un archivo existe. Retorna 1 si el archivo existe
 y 0 en caso contrario. */
 int os_exists(char* filename);
+
+/*Función para listar los elementos de la partición actual. Imprime en pantalla los nombres de
+todos los archivos.*/
+void os_ls();

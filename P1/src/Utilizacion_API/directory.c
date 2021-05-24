@@ -13,6 +13,22 @@ Directory directory_init(){
         directory.structure[i][0] = 0b00000000;
     }
 
+    /*Al crear el directorio, se deberia recorrer la particion, y obtener los nombres de los archivos creados correspondientes*/
+        //entrada de MBT de 8 bytes:
+    //Debemos leer los 3 bytes (2do, 3ro y 4to) para obtener el offset inicial y los ultimos 4 bytes para obtener el offset final.
+        // unsigned char particion_montada[8];
+        /* SImulamos los valores hexadecimales, son 8 bytes, por lo tanto 8 pares de valores hexadecimales */
+        // sprintf(particion_montada, "%hhx%hhx%hhx%hhx%hhx%hhx%hhx%hhx", 0x55, 0x64, 0x86, 0x63, 0x40, 0x78, 0x3d, 0xfa);
+        // printf("%s\n", particion_montada);
+
+        /*Por ahora no logro simular bien, asi que usare estos valores default */
+        //Simulamos que el inicio esta en el offset 20000
+        //Simulamos que el final esta en offset + 16384
+        // int inicio = 20000;
+        // int tamano_particion = 16384;
+        // int final = inicio + tamano_particion;
+
+
     /*Metodo con malloc, creo que no es bueno pq un pointer tiene tamaño 8 bytes, esta manera no respetaria el tamaño de 2KB deseados.*/
     // Directory* directory = malloc(sizeof(Directory));
     // directory = (Directory){
@@ -59,7 +75,7 @@ int modify_directory_entry(Directory* directory, int index, char* filename, char
     sprintf(directory -> structure[index], "%c%c%c%c%s", bit_validez, 0b00000000, 0b00000001, 0b00000000, filename);
 
     //Pruebo a ver el tamaño:
-    printf("Entrada de tamaño: %li bytes\n\n", sizeof(directory -> structure[0]));
+    // printf("Entrada de tamaño: %li bytes\n\n", sizeof(directory -> structure[0]));
 
     return 0;
     
@@ -68,18 +84,18 @@ int modify_directory_entry(Directory* directory, int index, char* filename, char
 };
 
 
-int print_nombre_archivo(Directory directory, int index){
+int nombre_archivo(Directory directory, int index, char nombre[28]){
     if(index > 64 || index < 0){
         printf("Indice invalido, Directorios tienen maximo 64 entradas\n");
         return 1;
     }
-    char nombre_archivo[28];
+    // char nombre_archivo[28];
 
     for (int i=0; i<28; i++){
-        nombre_archivo[i] = directory.structure[index][i+4];
+        nombre[i] = directory.structure[index][i+4];
     }
     /*Se puede modificar para que el formato de la funcion ls de la api sea mejor*/
-    printf("%s\n", nombre_archivo);
+    // printf("%s\n", nombre_archivo);
 
     return 0;
 
@@ -101,7 +117,7 @@ int print_entry(Directory directory, int index){
 
 
     //Imprimimos el nombre del archivo
-    print_nombre_archivo(directory,index);
+    // print_nombre_archivo(directory,index);
 
     //No es necesario agregar 0 manualmente, eso ya se hizo al declarar structure[64][32]
     // printf("Imprimir caracter 30, %i\n", nombre_archivo[27]);
