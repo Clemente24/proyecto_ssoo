@@ -37,6 +37,7 @@ Disk *init_disk(char *filename);
 Mbt *init_mbt();
 
 DataBlock *init_data();
+void destroy_block(DataBlock *data_block);
 
 int is_partition_valid(Mbt *mbt, int index);
 

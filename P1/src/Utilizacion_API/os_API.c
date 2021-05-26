@@ -48,6 +48,12 @@ DataBlock *init_data()
     return data_block;
 }
 
+void destroy_block(DataBlock *data_block)
+{
+    free(data_block->datos);
+    free(data_block);
+}
+
 int is_partition_valid(Mbt *mbt, int index)
 {
     int bit;
