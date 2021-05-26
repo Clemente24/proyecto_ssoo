@@ -8,33 +8,40 @@
 typedef struct mbt
 {
     char entradas[128][8];
-  
+
 } Mbt;
 
 typedef struct disk
 {
-    char* name;
-    Mbt* mbt;
-    FILE* file_pointer;
-  
+    char *name;
+    Mbt *mbt;
+    FILE *file_pointer;
+
 } Disk;
+
+typedef struct data_block
+{
+    unsigned char datos[2000];
+} DataBlock;
 
 /* Variables globales */
 
-Mbt* mbt;
+Mbt *mbt;
 Disk *disk;
-char * particion_montada;
-
+char *particion_montada;
 
 // Functions
-void os_mount(char* diskname, int partition);
-Disk* init_disk(char* filename);
+void os_mount(char *diskname, int partition);
+Disk *init_disk(char *filename);
 
-Mbt* init_mbt();
-int is_partition_valid(Mbt* mbt, int index);
+Mbt *init_mbt();
 
-int os_delete_partition(Mbt* mbt,int id);
+DataBlock *init_data();
+
+int is_partition_valid(Mbt *mbt, int index);
+
+int os_delete_partition(Mbt *mbt, int id);
 
 /*Función para ver si un archivo existe. Retorna 1 si el archivo existe
 y 0 en caso contrario. */
-int os_exists(char* filename);
+int os_exists(char *filename);
