@@ -24,7 +24,11 @@ int main(int argc, char **argv)
 
     //Imprimimos solo el nombre, sirve para ls:
     printf("\nImprimimos solo el nombre del archivo en la entrada 0 \n");
-    print_nombre_archivo(prueba, 0);
+    
+    //Creamos la variable a la cual le queremos asignar los valores
+    char nombre[28];
+    nombre_archivo(prueba, 0, nombre);
+    printf("%s\n", nombre);
     //Vemos que en bytes, el resto del archivo tiene 0 escrito
     // printf("%x\n", prueba.structure[0][30]);
 

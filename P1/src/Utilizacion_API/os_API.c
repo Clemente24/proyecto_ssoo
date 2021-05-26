@@ -77,10 +77,49 @@ void os_reset_mbt(Mbt* mbt, int id){
 
 int os_exists(char* filename){
     /*Cabe recalcar que se busca solo en la partición actual*/
+    /*Esta funcion asume que la estructura de directorio ya está creada en la particion*/
+    /*Issue N°208: El unico bloque tipo directorio es el raiz en una particion*/
     
-    //entrada de 8 bytes:
-    //printf("%s", particion_montada);
+    //Supongo que directorio sera una variable global
+    Directory prueba = directory_init();
+    //Creo un directorio simulado por ahora 
+    modify_directory_entry(&prueba, 4,filename, 0b00000001);
+
+    for (int i = 0; i<64; i++){
+        //Creamos variable en la cual guardamos el nombre
+        char nombre_actual[28];
+        //Buscamos el nombre
+        nombre_archivo(prueba, i, nombre_actual);
+        //Retorna solo si la encuentra
+        if (strcmp(nombre_actual, filename) == 0){
+            return 1;
+        }
+    }
 
     return 0;
+
+}
+
+void os_ls(){
+    //Supongo que directorio sera una variable global
+    Directory prueba = directory_init();
+    //Creo muchos directorios para simular por ahora 
+    modify_directory_entry(&prueba, 0,"1.png", 0b00000001);
+    modify_directory_entry(&prueba, 1,"2.png", 0b00000001);
+    modify_directory_entry(&prueba, 2,"3.png", 0b00000001);
+    modify_directory_entry(&prueba, 3,"4.png", 0b00000001);
+    modify_directory_entry(&prueba, 4,"5.png", 0b00000001);
+    modify_directory_entry(&prueba, 5,"6.png", 0b00000001);
+    modify_directory_entry(&prueba, 6,"Tesis.docx", 0b00000001);
+
+    for (int i =0; i<64; i++){
+        if (is_valid_directory_entry(prueba, i)){
+            char nombre_actual[28];
+            //Buscamos el nombre
+            nombre_archivo(prueba, i, nombre_actual);
+            printf("%s\n", nombre_actual);
+        }
+
+    }
 
 }
