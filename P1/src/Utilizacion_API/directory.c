@@ -3,10 +3,38 @@
 
 Directory directory_init(int ubicacion_bytes_particion){
     
+    //MEtodo con memoria del stack: char array[64][32]
     //Asumiendo que la ubicacion particion es la entrada 0, leo los primeros 8 bytes del disco:
     unsigned char particion_montada_directory[8]; /* ES CLAVE USAR UNSIGNED LOL*/
     //Array para guardar pos absoluta de directorio
     unsigned char posicion_absoluta_directorio[3];
+
+    fseek(disk -> file_pointer,ubicacion_bytes_particion, SEEK_SET);
+    //Leo 8 bytes desde la ubicacion_bytes_particion
+    fread(particion_montada_directory, sizeof(char), 8, disk -> file_pointer);
+
+    //Leo los 3 bytes que indican la posicion relativa:
+    fseek(disk -> file_pointer,ubicacion_bytes_particion + 1, SEEK_SET);
+    fread(posicion_absoluta_directorio, sizeof(char), 3, disk -> file_pointer);
+
+    //Debug
+    for (int i = 0; i<8; i++){
+        printf("%x", particion_montada_directory[i]);
+    }
+    printf("\n");
+
+    for (int i = 0; i<3; i++){
+        printf("%x", posicion_absoluta_directorio[i]);
+    }
+
+
+    //Transformamos la posicion a un int: Nos deberia dar 50
+    unsigned long int pos_bloque_directorio = (posicion_absoluta_directorio[0]<<16)|(posicion_absoluta_directorio[1]<<8)|posicion_absoluta_directorio[2];
+    printf("\nPOS DIRECTORIO: %lu", pos_bloque_directorio);
+    printf("\n");
+
+    // char * particion_montada_simulada = "0x820000320001e240";
+    Directory directory = {};
 
     fseek(disk -> file_pointer,8 * ubicacion_bytes_particion, SEEK_SET);
     //Leo 8 bytes desde la ubicacion_bytes_particion

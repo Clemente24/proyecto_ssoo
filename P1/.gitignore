@@ -3,6 +3,6 @@
 *.o
 osfs
 disk_test
-P1/directory_test
+directory_test
 *.vscode/*
 *.bin
