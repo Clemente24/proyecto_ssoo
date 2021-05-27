@@ -8,6 +8,7 @@ void os_mount(char* diskname, int partition){
     /* Toma las variables globales declaradas en el header y les asigna valor */
     disk = init_disk(diskname);
     particion_montada = disk -> mbt->entradas[partition];
+    disk->directory = directory_init(0);
     
 }
 
@@ -18,7 +19,6 @@ Disk* init_disk(char* filename){
         .file_pointer = fopen(filename, "r+b"),
         .name = filename,
         .mbt = init_mbt(),
-        .directory =  directory_init()
     };
     if (disk -> file_pointer == NULL){
         // esta mal 
@@ -82,7 +82,7 @@ int os_exists(char* filename){
     /*Issue N°208: El unico bloque tipo directorio es el raiz en una particion*/
     
     //Supongo que directorio sera una variable global
-    Directory prueba = directory_init();
+    Directory prueba = directory_init(0);
     //Creo un directorio simulado por ahora 
     modify_directory_entry(&prueba, 4,filename, 0b00000001);
 
@@ -122,7 +122,7 @@ void os_ls(){
 
 
     //Supongo que directorio sera una variable global
-    Directory prueba = directory_init();
+    Directory prueba = directory_init(0);
     //Creo muchos directorios para simular por ahora 
     modify_directory_entry(&prueba, 0,"1.png", 0b00000001);
     modify_directory_entry(&prueba, 1,"2.png", 0b00000001);
