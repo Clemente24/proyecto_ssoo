@@ -19,7 +19,7 @@ typedef struct directory {
 
 
 /*Metodo para inicializar un directorio vacio*/
-Directory directory_init();
+Directory directory_init(int ubicacion_bytes_particion);
 
 /*Metodo para verificar si la entrada es valida o no (primer byte de una entrada)*/
 int is_valid_directory_entry(Directory directory, int index);

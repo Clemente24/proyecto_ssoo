@@ -53,12 +53,12 @@ int main(int argc, char **argv)
     os_mbt();
 
     //Test os_exists
-    printf("os_exists\n");
-    printf("Archivo hola.txt existe?: %i\n", os_exists("Hola.txt"));
+    // printf("os_exists\n");
+    // printf("Archivo hola.txt existe?: %i\n", os_exists("Hola.txt"));
 
-    //Test os_ls
-    printf("\n>ls\n");
-    os_ls();
+    // //Test os_ls
+    // printf("\n>ls\n");
+    // os_ls();
 
     printf("\nDelete partition:\n");
 
