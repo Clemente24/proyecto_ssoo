@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 
     // Testeo de lectura de disco real
     // PAra comparar, se puede correr la linea hexdump -n100 simdiskformat.bin, y se puede ver que los bytes son los mismos
-    int c;
+    // int c;
 
     /* Forma para hacer iterando*/
 
