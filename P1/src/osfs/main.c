@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 
     // Testeo de lectura de disco real
     // PAra comparar, se puede correr la linea hexdump -n100 simdiskformat.bin, y se puede ver que los bytes son los mismos
-    int c;
+    // int c;
 
     /* Forma para hacer iterando*/
 
@@ -39,10 +39,9 @@ int main(int argc, char **argv)
 
     /* Forma para hacer con array*/
     //Ponemos el puntero al inicio del archivo
-    fseek(disk -> file_pointer,0, SEEK_SET);
-    char array_de_bytes[6] = {0x80, 0x70, 0x80, 0x90, 0xaa};
-    // sprintf(array_de_bytes, "%x%x%x");
-    fwrite(array_de_bytes, sizeof(char), 6, disk -> file_pointer);
+    // fseek(disk -> file_pointer,0, SEEK_SET);
+    // char array_de_bytes[6] = {0x80, 0x70, 0x80, 0x90, 0xaa};
+    // fwrite(array_de_bytes, sizeof(char), 6, disk -> file_pointer);
 
     if (is_partition_valid(disk -> mbt, 10)){
         printf("Partition %i is valid", 10);

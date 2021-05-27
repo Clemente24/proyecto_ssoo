@@ -1,6 +1,7 @@
 #include <stdio.h>  // FILE, fopen, fclose, etc.
 #include <string.h> // strtok, strcpy, etc.
 #include <stdlib.h> // malloc, calloc, free, etc.
+#include"directory.h"
 // Tells the compiler to compile this file once
 #pragma once
 
@@ -15,6 +16,7 @@ typedef struct disk
 {
     char* name;
     Mbt* mbt;
+    Directory directory;
     FILE* file_pointer;
   
 } Disk;

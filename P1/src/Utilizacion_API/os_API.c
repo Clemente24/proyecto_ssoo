@@ -17,7 +17,8 @@ Disk* init_disk(char* filename){
     *disk = (Disk) {
         .file_pointer = fopen(filename, "r+b"),
         .name = filename,
-        .mbt = init_mbt()
+        .mbt = init_mbt(),
+        .directory =  directory_init()
     };
     if (disk -> file_pointer == NULL){
         // esta mal 
@@ -101,6 +102,25 @@ int os_exists(char* filename){
 }
 
 void os_ls(){
+    // - Para leer en la consola hago hexdump -C -n 1024 simdiskfilled.bin
+    // 	El -C es para mostrar los bytes en el orden que vienen, y segun el enunciado vienen en big endian.
+
+    // -Testeando simdiskfilled: Leo el primer byte: 0x82: 1000 0010 -> Indica que la particion es valida, y el id unico es 2. (Enunciado de la MBT)
+
+    // ID Absoluto del primer bloque: 3Bytes son: 0x00 0x00 0x32 en binario: 0011 0010 = bloque 50.
+
+    // Esto significa que el primer bloque empieza en el byte: 1KB + 2KB*50
+    // 1KB es 2^10 Bytes = 1024 Bytes -> EL bloque directorio empieza en el byte 1024 + 2 * 1024 * 50 = 103424
+
+    // Cantidad de bloques de la particion (Byte 5,6,7,8 de la primera entrada de la MBT): 0x00 0x01 0xe2 0x40 en binario:
+    // 00000000 00000001 11100010 01000000 = 123456
+    // Tambien el numero 0x1e240 es lo mismo y da en decimal = 123456
+
+    // -Para encontrar mi bloque directorio con hexdump hago: hexdump -C -s 103424 -n 2048 simdiskfilled.bin
+    // el -s es para saltarme 103423 bytes y el -n 2048 es para mostrar 2048 Bytes. 
+    // El -C es para mostrar los bytes en el orden que vienen, y segun el enunciado vienen en big endian.
+
+
     //Supongo que directorio sera una variable global
     Directory prueba = directory_init();
     //Creo muchos directorios para simular por ahora 
