@@ -14,11 +14,14 @@ de directorio ocupa 32 Bytes, por lo tanto, puede haber como maximo 64 entradas 
 typedef struct directory {
     //Estructura de 64 entradas de 32 bit. EL identificador relativo se guarda en las entradas.
     unsigned char structure[64][32];
+<<<<<<< HEAD
     //Numero de bloque absoluto en el disco del directorio en la particion actual.
     unsigned long int directory_block_pos;
     //Numero de bytes absoluto en el disco para llegar al bloque directorio de la particion actual.
     unsigned long int directory_byte_pos;
 
+=======
+>>>>>>> Assign values to directory structure from disk
 
 } Directory;
 
