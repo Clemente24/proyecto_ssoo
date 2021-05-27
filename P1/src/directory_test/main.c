@@ -5,7 +5,7 @@
 
 int main(int argc, char **argv)
 {
-    Directory prueba = directory_init();
+    Directory prueba = directory_init(10);
     printf("Tamaño del directorio: %li bytes\n", sizeof(prueba));
 
     //Hago prints de i, pero prueba trabaja con chars de tamaño 1 byte, printf hace la conversion.
