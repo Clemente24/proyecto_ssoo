@@ -13,7 +13,7 @@ de directorio ocupa 32 Bytes, por lo tanto, puede haber como maximo 64 entradas 
 
 typedef struct directory {
     //Estructura de 64 entradas de 32 bit. EL identificador relativo se guarda en las entradas.
-    char structure[64][32];
+    unsigned char structure[64][32];
 
 } Directory;
 
