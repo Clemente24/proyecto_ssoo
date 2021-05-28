@@ -123,3 +123,23 @@ void os_ls(){
     }
 
 }
+
+int bitmap_update(int block){
+  fseek(disk -> file_pointer, 205824, SEEK_SET); //Ponemos el puntero despúes del bloque de directorio 205824=1024+ (2*1024*50)*2
+  int contador = 0;
+  unsigned char * value = malloc(sizeof(unsigned char));
+  for (int i = 0; i < 2048; i++){             //2048 Cantidad de entradas bitmap
+    fread(value, sizeof(unsigned char), 1, disk -> file_pointer);
+    for (int j = 7; j > -1; j--){
+      if (contador == block){
+        fseek(disk -> file_pointer, 1024+i, SEEK_SET);
+        *value += 1 << j; //Para escribir el bit
+        fwrite(value, sizeof(unsigned char), 1, disk -> file_pointer);
+        free(value);
+        return 1;
+      }
+      contador ++;
+    }
+  }
+  return 0;
+}

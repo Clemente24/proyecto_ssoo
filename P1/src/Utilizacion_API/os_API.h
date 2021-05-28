@@ -42,3 +42,5 @@ int os_exists(char* filename);
 /*Función para listar los elementos de la partición actual. Imprime en pantalla los nombres de
 todos los archivos.*/
 void os_ls();
+/*Funcion para hacer update del bitmap en el bloque nro block*/
+int bitmap_update(int block);

@@ -3,4 +3,5 @@
 *.o
 osfs
 disk_test
+simdiskformat.bin
 *.vscode/*
