@@ -8,7 +8,7 @@ int main(int argc, char **argv)
     // Montar disco
     //os_mount()
 
-
+    printf("monto el disco\n");
     os_mount(argv[1], atoi(argv[2]));
     
     // disk -> mbt->entradas[10][0] = 0b10001010;
@@ -35,8 +35,8 @@ int main(int argc, char **argv)
         
 
     // }
-    // printf("\n");
-    bitmap_update(5)
+    printf("vamos\n");
+    bitmap_update(5);
     /* Forma para hacer con array*/
     //Ponemos el puntero al inicio del archivo
     fseek(disk -> file_pointer,0, SEEK_SET);
