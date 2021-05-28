@@ -47,13 +47,25 @@ int main(int argc, char **argv)
         printf("Partition %i is valid", 10);
     }
 
-    //Test os_exists
-    // printf("os_exists\n");
-    // printf("Archivo hola.txt existe?: %i\n", os_exists("Hola.txt"));
+    /**** Tests directorio *****/
 
-    // //Test os_ls
-    // printf("\n>ls\n");
-    // os_ls();
+    //Test is_Valid_entry
+
+    // is_valid_directory_entry(disk -> directory, 0);
+    // is_valid_directory_entry(disk -> directory, 1);
+    // is_valid_directory_entry(disk -> directory, 2);
+
+
+
+    //Test os_exists
+    printf("os_exists\n");
+    printf("Archivo hola.txt existe?: %i\n", os_exists("Hola.txt"));
+    //Archivo de la particion 0 del disco filled
+    printf("Archivo nene.txt existe? : %i\n", os_exists("nene.txt"));
+
+    //Test os_ls
+    printf("\n>ls: \n");
+    os_ls();
 
     printf("\nDelete partition:\n");
 
