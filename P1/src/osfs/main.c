@@ -54,7 +54,10 @@ int main(int argc, char **argv)
 
     // is_valid_directory_entry(disk -> directory, 0);
     // is_valid_directory_entry(disk -> directory, 1);
-    // is_valid_directory_entry(disk -> directory, 2);
+    is_valid_directory_entry(disk -> directory, 2);
+
+    //TEst pos relativa:
+    get_index_relative_position(disk -> directory, 2);
 
 
 
