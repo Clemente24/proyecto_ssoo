@@ -24,13 +24,13 @@ Directory directory_init(int ubicacion_bytes_particion);
 /*Metodo para verificar si la entrada es valida o no (primer byte de una entrada)*/
 int is_valid_directory_entry(Directory directory, int index);
 
-/*Metodo para modificar la entrada*/
+/*Metodo para modificar la entrada, testear con disco formateado, luego de entender implementacion de creacion de archivos*/
 int modify_directory_entry(Directory* directory, int index, char* filename, char bit_validez);
 
 /*Metodo para representar una entrada*/
 int print_entry(Directory directory, int index);
 
-/*Metodo para imprimir solamente el nombre de archivo en una entrada*/
+/*Metodo para imprimir solamente el nombre de archivo en una entrada, no verifica si existe o no*/
 int nombre_archivo(Directory directory, int index, char nombre[28]);
 
 /**/
