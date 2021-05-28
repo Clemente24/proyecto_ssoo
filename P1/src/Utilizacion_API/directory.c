@@ -135,6 +135,16 @@ int modify_directory_entry(Directory* directory, int index, char* filename, char
 
 };
 
+int get_index_relative_position(Directory directory, int index){
+    if (is_valid_directory_entry(directory, index)){
+
+        unsigned long int pos_relativa_archivo = (directory.structure[index][1]<<16)|(directory.structure[index][2]<<8)|directory.structure[index][3];
+        printf("\nPOS Relativa de archivo: %lu\n", pos_relativa_archivo);
+        return pos_relativa_archivo;
+    }
+    return -1;
+
+}
 
 int nombre_archivo(Directory directory, int index, char nombre[28]){
     if(index > 64 || index < 0){

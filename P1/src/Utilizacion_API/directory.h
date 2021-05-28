@@ -33,4 +33,7 @@ int print_entry(Directory directory, int index);
 /*Metodo para imprimir solamente el nombre de archivo en una entrada, no verifica si existe o no*/
 int nombre_archivo(Directory directory, int index, char nombre[28]);
 
+/*Metodo para obtener bloque relativo en la particion de algun archivo, retorna -1 en caso de que no sea valido*/
+int get_index_relative_position(Directory directory, int index);
+
 /**/
