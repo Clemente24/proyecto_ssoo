@@ -8,23 +8,23 @@ Directory directory_init(int ubicacion_bytes_particion){
     //Array para guardar pos absoluta de directorio
     unsigned char posicion_absoluta_directorio[3];
 
-    fseek(disk -> file_pointer,ubicacion_bytes_particion, SEEK_SET);
+    fseek(disk -> file_pointer,8 * ubicacion_bytes_particion, SEEK_SET);
     //Leo 8 bytes desde la ubicacion_bytes_particion
     fread(particion_montada_directory, sizeof(char), 8, disk -> file_pointer);
 
     //Leo los 3 bytes que indican la posicion relativa(Sumo 1 por que parte del segundo byte):
-    fseek(disk -> file_pointer,ubicacion_bytes_particion + 1, SEEK_SET);
+    fseek(disk -> file_pointer,(8 * ubicacion_bytes_particion) + 1, SEEK_SET);
     fread(posicion_absoluta_directorio, sizeof(char), 3, disk -> file_pointer);
 
     //Debug
-    for (int i = 0; i<8; i++){
-        printf("%x", particion_montada_directory[i]);
-    }
-    printf("\n");
+    // for (int i = 0; i<8; i++){
+    //     printf("%x", particion_montada_directory[i]);
+    // }
+    // printf("\n");
 
-    for (int i = 0; i<3; i++){
-        printf("%x", posicion_absoluta_directorio[i]);
-    }
+    // for (int i = 0; i<3; i++){
+    //     printf("%x", posicion_absoluta_directorio[i]);
+    // }
 
 
     //Transformamos la posicion a un int: Nos deberia dar 50
@@ -38,19 +38,19 @@ Directory directory_init(int ubicacion_bytes_particion){
 
     /* TEST */
     //Ubicamos el puntero en el byte inicial del bloque directorio
-    fseek(disk -> file_pointer,directory_byte_pos, SEEK_SET);
+    // fseek(disk -> file_pointer,directory_byte_pos, SEEK_SET);
 
-    //Creamos el array temporal
-    unsigned char entrada[32];
+    // //Creamos el array temporal
+    // unsigned char entrada[32];
 
-    fread(entrada, sizeof(char), 32, disk -> file_pointer);
+    // fread(entrada, sizeof(char), 32, disk -> file_pointer);
 
-    //Debug WORKS :D
-    printf("Entrada (TEST): \n");
-    for (int i = 0; i<32; i++){
-        printf("%x ", entrada[i]);
-    }
-    printf("\n");
+    // //Debug WORKS :D
+    // printf("Entrada (TEST): \n");
+    // for (int i = 0; i<32; i++){
+    //     printf("%x ", entrada[i]);
+    // }
+    // printf("\n");
 
 
     Directory directory = {};
