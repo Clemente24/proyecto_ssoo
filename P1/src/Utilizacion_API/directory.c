@@ -27,6 +27,9 @@ Directory directory_init(int ubicacion_bytes_particion){
     // }
 
 
+
+
+
     //Transformamos la posicion a un int: Nos deberia dar 50
     unsigned long int pos_bloque_directorio = (posicion_absoluta_directorio[0]<<16)|(posicion_absoluta_directorio[1]<<8)|posicion_absoluta_directorio[2];
     printf("\nPOS DIRECTORIO: %lu\n", pos_bloque_directorio);
