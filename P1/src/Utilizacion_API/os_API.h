@@ -21,6 +21,14 @@ typedef struct disk
   
 } Disk;
 
+typedef struct osFILE {
+    char name[28];
+    unsigned int index_ptr;
+    unsigned int directory_ptr;
+    unsigned int size;
+    unsigned int bytes_read;
+}osFILE;
+
 /* Variables globales */
 
 Mbt* mbt;
