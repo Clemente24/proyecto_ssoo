@@ -73,13 +73,13 @@ Directory directory_init(int ubicacion_bytes_particion){
     }
 
     //DEBUG, imprimimos todo el bloque 
-    printf("Bloque Directorio: \n");
-    for (int j = 0;j < 64; j++){
-        for (int i = 0; i<32; i++){
-            printf("%x ", directory.structure[j][i]);
-        }
-        printf("\n");
-    }
+    // printf("Bloque Directorio: \n");
+    // for (int j = 0;j < 64; j++){
+    //     for (int i = 0; i<32; i++){
+    //         printf("%x ", directory.structure[j][i]);
+    //     }
+    //     printf("\n");
+    // }
 
     printf("\n");
 

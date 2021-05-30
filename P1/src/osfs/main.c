@@ -48,6 +48,11 @@ int main(int argc, char **argv)
         printf("Partition %i is valid", 10);
     }
 
+
+    // Test os_mbt();
+    printf("os_mbt()\n");
+    os_mbt();
+
     /**** Tests directorio *****/
 
     //Test is_Valid_entry
