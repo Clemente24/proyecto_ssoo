@@ -20,7 +20,6 @@ Disk* init_disk(char* filename){
         .file_pointer = fp,
         .name = filename,
         .mbt = init_mbt(fp),
-        .directory =  directory_init()
     };
     if (disk -> file_pointer == NULL){
         // Si no existe el archivo 
