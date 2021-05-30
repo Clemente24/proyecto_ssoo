@@ -125,6 +125,7 @@ void os_ls(){
 
     for (int i =0; i<64; i++){
         if (is_valid_directory_entry(disk -> directory, i)){
+            // printf("%x", disk -> directory.structure[i]);
             char nombre_actual[28];
             //Buscamos el nombre
             nombre_archivo(disk -> directory, i, nombre_actual);
