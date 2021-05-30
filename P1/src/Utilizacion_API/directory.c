@@ -12,13 +12,13 @@ Directory directory_init(int ubicacion_bytes_particion){
     //Leo 8 bytes desde la ubicacion_bytes_particion
     fread(particion_montada_directory, sizeof(char), 8, disk -> file_pointer);
 
-    //Leo los 3 bytes que indican la posicion relativa(Sumo 1 por que parte del segundo byte):
+    //Leo los 3 bytes que indican la posicion absoluta(Sumo 1 por que parte del segundo byte):
     fseek(disk -> file_pointer,(8 * ubicacion_bytes_particion) + 1, SEEK_SET);
     fread(posicion_absoluta_directorio, sizeof(char), 3, disk -> file_pointer);
 
     //Debug
     // for (int i = 0; i<8; i++){
-    //     printf("%x", particion_montada_directory[i]);
+    //     printf("%x ", particion_montada_directory[i]);
     // }
     // printf("\n");
 
@@ -56,7 +56,8 @@ Directory directory_init(int ubicacion_bytes_particion){
     // printf("\n");
 
 
-    Directory directory = {};
+    Directory directory = {.directory_block_pos = pos_bloque_directorio,
+                           .directory_byte_pos = directory_byte_pos};
 
     //Ubicamos el puntero en la ubicacion del primer byte del bloque directorio
     fseek(disk -> file_pointer,directory_byte_pos, SEEK_SET);
@@ -72,13 +73,13 @@ Directory directory_init(int ubicacion_bytes_particion){
     }
 
     //DEBUG, imprimimos todo el bloque 
-    // printf("Bloque Directorio: \n");
-    // for (int j = 0;j < 64; j++){
-    //     for (int i = 0; i<32; i++){
-    //         printf("%x ", directory.structure[j][i]);
-    //     }
-    //     printf("\n");
-    // }
+    printf("Bloque Directorio: \n");
+    for (int j = 0;j < 64; j++){
+        for (int i = 0; i<32; i++){
+            printf("%x ", directory.structure[j][i]);
+        }
+        printf("\n");
+    }
 
     printf("\n");
 
@@ -111,32 +112,96 @@ int is_valid_directory_entry(Directory directory, int index){
 
 };
 
-int modify_directory_entry(Directory* directory, int index, char* filename, char bit_validez){
-    if(index > 64 || index < 0){
+int modify_directory_entry(Directory* directory,unsigned long int identificador_relativo_bloque_indice, unsigned long int entrada_del_directorio, char* filename, char bit_validez){
+    
+    if(entrada_del_directorio > 64 || entrada_del_directorio < 0){
         printf("Indice invalido, Directorios tienen maximo 64 entradas\n");
-        return 1;
+        return -1;
     }
+    //DEbug estructura antes:
+    // printf("Debug estructura antes\n");
+    // for (int i = 0; i<32; i++){
+    //     printf("%x ", disk -> directory.structure[entrada_del_directorio][i]);
+    // }
+    // printf("\n");
 
     if(strlen(filename) > 28){
         printf("Nombre de archivo excede la cantidad maxima de caracteres: 28\n");
-        return 1;
+        return -1;
     }
 
-    //Obtener el numero relativo el directorio, por ahora no se como o cual es su relacion con el disco
-    //por ahora definimos un numero random
-    // int file_index = 123;
+    //Transformamos el identificador relativo del bloque indice a valores hexadecimales
+    unsigned char bytes[3];
 
-    //Por ahora escribo ints, pero en algun momento tendre que escribir bytes a un archivo.
-    // sprintf(directory -> structure[index], "%c%c%c%c%s", bit_validez, 0b00000000, 0b00000001, 0b00000000, filename);
+    bytes[0] = identificador_relativo_bloque_indice >> 16 & 0xFF;
+    bytes[1] = identificador_relativo_bloque_indice >> 8  & 0xFF;
+    bytes[2] = identificador_relativo_bloque_indice & 0xFF;
 
-    //Pruebo a ver el tamaño:
-    // printf("Entrada de tamaño: %li bytes\n\n", sizeof(directory -> structure[0]));
+    //Convertimos el nombre del archivo en un array de bytes
+    char filename_bytes[28] = ""; //="" hace que se inicialize con 0s y no con valores basura
+    //Debug
+    // printf("\nfilename: %s\n length: %li \n", filename, strlen(filename));
+
+    //TRansformamos caracter a int, y luego lo pasamos a hex. sprintf no me funcaa, supongo que por el orden de los bytes
+    for (int i = 0; i<strlen(filename); i++){        
+        unsigned long int codigo_ascii = (unsigned long int )filename[i];
+        filename_bytes[i] = codigo_ascii & 0xFF;
+    }
+
+
+    //DEBUG FILENAME_BYTES
+    // printf("DEBUG FILENAME BYTES\n");
+    // for(int i = 0; i<28; i++){
+    //     printf("%x ", filename_bytes[i]);
+    // }
+    // printf("\n");
+
+
+    //Utilizamos el numero de bytes absolutos requeridos para llegar al directorio
+    fseek(disk -> file_pointer, disk -> directory.directory_byte_pos + (32 * entrada_del_directorio), SEEK_SET);
+
+    //Primero escribimos el bit validez, el index relativo
+    char array_de_bytes[4] = {bit_validez,bytes[0], bytes[1], bytes[2]};
+    fwrite(array_de_bytes, sizeof(char), 4, disk -> file_pointer);
+    //Y actualizamos la estructura
+    disk -> directory.structure[entrada_del_directorio][0] = bit_validez;
+    disk -> directory.structure[entrada_del_directorio][1] = bytes[0];
+    disk -> directory.structure[entrada_del_directorio][2] = bytes[1];
+    disk -> directory.structure[entrada_del_directorio][3] = bytes[2];
+
+    //Luego escribimos los 28 bytes restantes
+    fwrite(filename_bytes, sizeof(char), 28, disk -> file_pointer);
+    //Actualizamos la estructura
+    for (int i = 0; i < 28; i++){
+        disk -> directory.structure[entrada_del_directorio][i + 4] = filename_bytes[i];
+    }
+
+    //DEBUG POS RELATIVA
+    // unsigned long int pos_relativa = bytes[0]<<16 | bytes [1] << 8 | bytes [2];
+    // printf("Pos relativa del archivo guardado: %lu\n", pos_relativa);
+ 
+    //DEbug estructura:
+    // printf("Debug estructura despues\n");
+    // for (int i = 0; i<32; i++){
+    //     printf("%x ", disk -> directory.structure[entrada_del_directorio][i]);
+    // }
 
     return 0;
     
 
 
 };
+
+int create_file(Directory directory, unsigned long int identificador_relativo_bloque_indice, char* filename){
+    for (int i = 0; i<64; i++){
+        //Escribimos en el primer lugar que "no es valido", es decir que esta "borrado" en el directorio
+        if (!is_valid_directory_entry(directory, i)){
+            modify_directory_entry(&directory, identificador_relativo_bloque_indice, i, filename, 0x01);
+            return i;
+        }
+    }
+    return -1;
+}
 
 int get_index_relative_position(Directory directory, int index){
     if (is_valid_directory_entry(directory, index)){
