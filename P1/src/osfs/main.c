@@ -47,8 +47,6 @@ int main(int argc, char **argv)
     if (is_partition_valid(10)){
         printf("Partition %i is valid", 10);
     }
-
-
     // Test os_mbt();
     printf("os_mbt()\n");
     os_mbt();
