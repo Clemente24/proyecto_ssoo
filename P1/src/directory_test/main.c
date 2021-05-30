@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     printf("\nmodificamos entrada 0\n");
 
     //Probar modificar entrada
-    modify_directory_entry(&prueba,0, "archivo.txt", 0b00000000);
+    // modify_directory_entry(&prueba,0, "archivo.txt", 0b00000000);
 
 
 
