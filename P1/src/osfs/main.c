@@ -82,13 +82,18 @@ int main(int argc, char **argv)
 
     //Test os_exists
     printf("os_exists\n");
-    printf("Archivo hola.txt existe?: %i\n", os_exists("Hola.txt"));
     //Archivo de la particion 0 del disco filled
     printf("Archivo nene.txt existe? : %i\n", os_exists("nene.txt"));
 
     //Test os_ls
     printf("\n>ls: \n");
     os_ls();
+
+    //Test create directory inside disk WORKS:
+    // int ubicacion = create_file(disk -> directory, 57997, "dps_de_nene.txt");
+    // printf("Guardamos el archivo en el indice %i del directorio \n", ubicacion);
+
+    // modify_directory_entry(&disk -> directory, 57997, 1, "hola.txt", 0x01);
 
     printf("\nDelete partition:\n");
 

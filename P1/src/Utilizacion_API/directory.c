@@ -12,13 +12,13 @@ Directory directory_init(int ubicacion_bytes_particion){
     //Leo 8 bytes desde la ubicacion_bytes_particion
     fread(particion_montada_directory, sizeof(char), 8, disk -> file_pointer);
 
-    //Leo los 3 bytes que indican la posicion relativa(Sumo 1 por que parte del segundo byte):
+    //Leo los 3 bytes que indican la posicion absoluta(Sumo 1 por que parte del segundo byte):
     fseek(disk -> file_pointer,(8 * ubicacion_bytes_particion) + 1, SEEK_SET);
     fread(posicion_absoluta_directorio, sizeof(char), 3, disk -> file_pointer);
 
     //Debug
     // for (int i = 0; i<8; i++){
-    //     printf("%x", particion_montada_directory[i]);
+    //     printf("%x ", particion_montada_directory[i]);
     // }
     // printf("\n");
 
@@ -56,7 +56,8 @@ Directory directory_init(int ubicacion_bytes_particion){
     // printf("\n");
 
 
-    Directory directory = {};
+    Directory directory = {.directory_block_pos = pos_bloque_directorio,
+                           .directory_byte_pos = directory_byte_pos};
 
     fseek(disk -> file_pointer,8 * ubicacion_bytes_particion, SEEK_SET);
     //Leo 8 bytes desde la ubicacion_bytes_particion
@@ -123,13 +124,13 @@ Directory directory_init(int ubicacion_bytes_particion){
     }
 
     //DEBUG, imprimimos todo el bloque 
-    // printf("Bloque Directorio: \n");
-    // for (int j = 0;j < 64; j++){
-    //     for (int i = 0; i<32; i++){
-    //         printf("%x ", directory.structure[j][i]);
-    //     }
-    //     printf("\n");
-    // }
+    printf("Bloque Directorio: \n");
+    for (int j = 0;j < 64; j++){
+        for (int i = 0; i<32; i++){
+            printf("%x ", directory.structure[j][i]);
+        }
+        printf("\n");
+    }
 
     printf("\n");
 
