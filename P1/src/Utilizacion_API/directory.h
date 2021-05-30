@@ -32,8 +32,14 @@ int is_valid_directory_entry(Directory directory, int index);
 /*Metodo para modificar la entrada, es llamado solo por la funcion create_file*/
 int modify_directory_entry(Directory* directory,unsigned long int identificador_relativo_bloque_indice, unsigned long int entrada_del_directorio, char* filename, char bit_validez);
 
+/*Metodo para modificar solo el bit de validez*/
+int modify_entry_valid_byte(Directory directory,unsigned long int entrada_del_directorio, char bit_validez);
+
 /*MEtodo para "Guardar" archivos en la estructura del directorio en el primer indice que enuentra y retorna -1 en caso de error*/
 int create_file(Directory directory, unsigned long int identificador_relativo_bloque_indice, char* filename);
+
+/*Metodo para "borrar" Archivos en la estructura del directorio, marcando el bit de validez con un 0*/
+int delete_file(Directory directory, char* filename);
 
 
 /*Metodo para representar una entrada*/
