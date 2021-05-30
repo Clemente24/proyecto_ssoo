@@ -89,11 +89,12 @@ int main(int argc, char **argv)
     printf("\n>ls: \n");
     os_ls();
 
-    //Test create directory inside disk WORKS:
-    // int ubicacion = create_file(disk -> directory, 57997, "dps_de_nene.txt");
+    // Test create file inside disk WORKS:
+    int ubicacion = create_file(disk -> directory, 57997, "primer_archivo.txt");
     // printf("Guardamos el archivo en el indice %i del directorio \n", ubicacion);
 
-    // modify_directory_entry(&disk -> directory, 57997, 1, "hola.txt", 0x01);
+    //Test delete file inside disk:
+    delete_file(disk -> directory, "Como_Estamos.txt");
 
     printf("\nDelete partition:\n");
 

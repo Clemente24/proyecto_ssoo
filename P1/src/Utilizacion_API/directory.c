@@ -243,15 +243,50 @@ int modify_directory_entry(Directory* directory,unsigned long int identificador_
 
 };
 
+int modify_entry_valid_byte(Directory directory,unsigned long int entrada_del_directorio, char bit_validez){
+    if(entrada_del_directorio > 64 || entrada_del_directorio < 0){
+        printf("Indice invalido, Directorios tienen maximo 64 entradas\n");
+        return -1;
+    }
+    //Vamos al bit de validez y lo cambiamos.
+    fseek(disk -> file_pointer, disk -> directory.directory_byte_pos + (32 * entrada_del_directorio), SEEK_SET);
+    disk -> directory.structure[entrada_del_directorio][0] = bit_validez;
+    char array_de_bytes[1] = {bit_validez};
+    fwrite(array_de_bytes, sizeof(char), 1, disk -> file_pointer);
+    return entrada_del_directorio;
+}
+
 int create_file(Directory directory, unsigned long int identificador_relativo_bloque_indice, char* filename){
     for (int i = 0; i<64; i++){
         //Escribimos en el primer lugar que "no es valido", es decir que esta "borrado" en el directorio
         if (!is_valid_directory_entry(directory, i)){
             modify_directory_entry(&directory, identificador_relativo_bloque_indice, i, filename, 0x01);
+            printf("Archivo %s creado con éxito\n", filename);
             return i;
         }
     }
     return -1;
+}
+
+int delete_file(Directory directory, char* filename){
+    for (int i = 0; i<64; i++){
+        //Buscamos el primer archivo con ese nombre
+        if (is_valid_directory_entry(directory, i)){
+            char nombre_aux[28];
+            //HAcemos que la variable nombre_aux, obtenga el nombre del archivo
+            nombre_archivo(directory, i, nombre_aux);
+            if(strcmp(filename, nombre_aux) == 0){
+                //Marcamos el bit de validez con 0
+                modify_entry_valid_byte(directory, i, 0x00);
+                printf("Archivo %s borrado con exito", filename);
+                return i;
+            }
+
+        }
+    }
+    printf("Archivo inexistente en el disco\n");
+    return -1;
+
 }
 
 int get_index_relative_position(Directory directory, int index){
