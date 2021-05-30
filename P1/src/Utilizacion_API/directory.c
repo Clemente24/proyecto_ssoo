@@ -257,13 +257,33 @@ int modify_entry_valid_byte(Directory directory,unsigned long int entrada_del_di
 }
 
 int create_file(Directory directory, unsigned long int identificador_relativo_bloque_indice, char* filename){
+    //Bool para verificar si ya existe
+    int exists = 0;
+    //Guardamos el primer indice en el cual se puede guardar un archivo
+    int indice_nuevo_archivo = -1;
     for (int i = 0; i<64; i++){
-        //Escribimos en el primer lugar que "no es valido", es decir que esta "borrado" en el directorio
-        if (!is_valid_directory_entry(directory, i)){
-            modify_directory_entry(&directory, identificador_relativo_bloque_indice, i, filename, 0x01);
-            printf("Archivo %s creado con éxito\n", filename);
-            return i;
+        //Buscamos si ya existe
+        if(is_valid_directory_entry(directory, i)){
+            char nombre_aux[28];
+            //HAcemos que la variable nombre_aux, obtenga el nombre del archivo
+            nombre_archivo(directory, i, nombre_aux);
+            if(strcmp(filename, nombre_aux) == 0){
+                printf("Archivo ya existente, intente con otro nombre \n");
+                exists = 1;
+            }
         }
+
+        //Escribimos en el primer lugar que "no es valido", es decir que esta "borrado" en el directorio
+        if (!is_valid_directory_entry(directory, i) && indice_nuevo_archivo == -1){
+            indice_nuevo_archivo = i;
+        }
+    }
+
+    //Si el archivo no existe, y hay espacio, entonces se crea
+    if(!exists && indice_nuevo_archivo != -1){
+        modify_directory_entry(&directory, identificador_relativo_bloque_indice, indice_nuevo_archivo, filename, 0x01);
+        printf("Archivo %s creado con éxito\n", filename);
+        return indice_nuevo_archivo;
     }
     return -1;
 }
