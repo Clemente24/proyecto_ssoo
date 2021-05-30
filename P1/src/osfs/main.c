@@ -36,7 +36,8 @@ int main(int argc, char **argv)
 
     // }
     printf("vamos\n");
-    bitmap_update(10);//0000010000100000
+    bitmap_update(3);//0000010000100000
+    os_bitmap(1);
     /* Forma para hacer con array*/
     //Ponemos el puntero al inicio del archivo
     fseek(disk -> file_pointer,0, SEEK_SET);

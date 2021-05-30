@@ -44,3 +44,4 @@ todos los archivos.*/
 void os_ls();
 /*Funcion para hacer update del bitmap en el bloque nro block*/
 int bitmap_update(int block);
+void os_bitmap(unsigned block);

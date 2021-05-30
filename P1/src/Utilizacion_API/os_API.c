@@ -124,11 +124,72 @@ void os_ls(){
 
 }
 
+void os_bitmap(unsigned block){
+    printf("-----------------BITMAP-------------\n");
+  //Hexadecimal
+  
+    if (block == 0){
+      //32 bytes por entrada
+      fseek(disk -> file_pointer, 105472, SEEK_SET); //Primer bloque de bitmap
+      unsigned char * value = malloc(sizeof(unsigned char));
+      int used = 0;
+      int contador = 0;
+      for (int i = 0; i < 2048; i++){  //Falta multiplicarlo por el numero de bloques
+        fread(value, sizeof(unsigned char), 1, disk -> file_pointer);
+        for (int i = 7; i > -1; i--){
+          if(((*value >> i) & 1) == 1){
+            used ++;
+            fprintf(stderr, "1");
+            //printf("1");
+          }
+          else{
+            //printf("0");
+            fprintf(stderr, "0");
+          }
+          contador++;
+        }
+      }
+      printf("\nBloques LIBRES %d ",(contador-used));
+      printf("\nBloques OCUPADOS %d\n",used);
+      free(value);
+    }
+    else{
+      fseek(disk ->file_pointer, 105472 + (2048*(block-1)), SEEK_SET);
+      unsigned char * value = malloc(sizeof(unsigned char));
+      int used = 0;
+      int contador = 0;
+      for (int i = 0; i < 2048; i++){
+        fread(value, sizeof(unsigned char), 1, disk ->file_pointer);
+        for (int i = 7; i > -1; i--){
+          if(((*value >> i) & 1) == 1){
+            used ++;
+            fprintf(stderr, "1");
+            //printf("1");
+          }
+          else{
+            //printf("0");
+            fprintf(stderr, "0");
+          }
+          contador++;
+        }
+      }
+      printf("\nBloques LIBRES %d \n",(contador-used));
+      printf("\nBloques OCUPADOS %d\n",used);
+      free(value);
+
+    }
+
+  
+
+
+}
+
+
 int bitmap_update(int block){
   fseek(disk -> file_pointer, 105472, SEEK_SET); //Ponemos el puntero despúes del bloque de directorio 205824=1024+ 2*1024*50 +2048
   int contador = 0;
   unsigned char * value = malloc(sizeof(unsigned char));
-  for (int i = 0; i < 2048; i++){             //2048 Cantidad de entradas bitmap
+  for (int i = 0; i < 2048; i++){             //2048 Cantidad de entradas bitmap Falta multiplicarlo por le numero de bloques que tiene el bitmap
     fread(value, sizeof(unsigned char), 1, disk -> file_pointer);
     for (int j = 7; j > -1; j--){
       if (contador == block){
