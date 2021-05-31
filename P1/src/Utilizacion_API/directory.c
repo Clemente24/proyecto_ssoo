@@ -73,15 +73,15 @@ Directory directory_init(int ubicacion_bytes_particion){
     }
 
     //DEBUG, imprimimos todo el bloque 
-    printf("Bloque Directorio: \n");
-    for (int j = 0;j < 64; j++){
-        for (int i = 0; i<32; i++){
-            printf("%x ", directory.structure[j][i]);
-        }
-        printf("\n");
-    }
+    // printf("Bloque Directorio: \n");
+    // for (int j = 0;j < 64; j++){
+    //     for (int i = 0; i<32; i++){
+    //         printf("%x ", directory.structure[j][i]);
+    //     }
+    //     printf("\n");
+    // }
 
-    printf("\n");
+    // printf("\n");
 
     /*Metodo con malloc, creo que no es bueno pq un pointer tiene tamaño 8 bytes, esta manera no respetaria el tamaño de 2KB deseados.*/
     // Directory* directory = malloc(sizeof(Directory));
