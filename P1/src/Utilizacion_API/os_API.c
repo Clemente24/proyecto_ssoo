@@ -61,25 +61,38 @@ int is_partition_valid(int indice){
     return bit;
 }
 
+int get_partition_block_id(int indice){
+    unsigned char* entrada = disk->mbt->entradas[indice];
+    unsigned long int abs_block_id;
+
+    abs_block_id = (entrada[1] << 16) | (entrada[2] << 8) | (entrada[3]);
+
+    return abs_block_id;
+}
+
+int get_partition_id(int indice){
+    unsigned char* entrada = disk->mbt->entradas[indice];
+    unsigned int partition_id;
+
+    partition_id = entrada[0] & ((1 << 7) - 1);
+
+    return partition_id;
+}
+
 int get_partition_size(int indice){
     unsigned char* entrada = disk->mbt->entradas[indice];
     unsigned long int abs_block_id;
     unsigned long int partition_size;
     unsigned int partition_id;
     int partition_valid;
-    
-    // for (int i = 0; i < 8; i++){
-    // printf("ENTRADA[%i]: %d \n", i, entrada[i]);
-    // // printf("ENTRADA[7]: %d \n", entrada[7]);
-    // }
+
     partition_valid = entrada[0] & (1<<7) ? 1 : 0;
     partition_id = entrada[0] & ((1 << 7) - 1);
     abs_block_id = (entrada[1] << 16) | (entrada[2] << 8) | (entrada[3]);
     partition_size = (entrada[4] << 24) | (entrada[5] << 16) | (entrada[6] << 8) | (entrada[7]);
 
     printf("[Partition id: %i], VALID?: %i, partition_size: %li, ID_primer_bloque: %li \n", partition_id, partition_valid, partition_size, abs_block_id);
-    // printf("partition size is: %li \n", partition_size);
-    // printf("absolute block id is: %li \n", abs_block_id);
+
     return partition_size;
 }
 
@@ -87,6 +100,7 @@ int os_mbt(){
 
     for (int i = 0; i < 128; i++){
         if (is_partition_valid(i)){
+            printf("Particion N°: %i valida. \n", i+1);
             get_partition_size(i);
         }
     }
@@ -123,6 +137,11 @@ int os_create_partition(int id, int size){
         // Partición con ese id ya está tomada
         return 1;
     }
+    for (int i = 0; i < 128; i++){
+        
+    }
+
+
     return 0;
 }
 

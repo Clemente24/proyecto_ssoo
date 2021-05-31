@@ -33,6 +33,9 @@ Disk* init_disk(char* filename);
 // MBT functions 
 Mbt* init_mbt(FILE* fp);
 int is_partition_valid(int indice);
+int get_partition_id(int indice);
+int get_partition_size(int indice);
+int get_partition_block_id(int indice);
 int os_delete_partition(int id);
 int os_reset_mbt();
 int os_mbt();
