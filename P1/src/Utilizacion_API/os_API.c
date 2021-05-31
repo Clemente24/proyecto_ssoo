@@ -100,8 +100,7 @@ int os_mbt(){
 
     for (int i = 0; i < 128; i++){
         if (is_partition_valid(i)){
-            printf("Particion N°: %i valida. \n", i+1);
-            get_partition_size(i);
+            printf("Particion con ID: %i valida. \n", get_partition_id(i));
         }
     }
     return 0;
@@ -133,12 +132,16 @@ int os_reset_mbt(){
 }
 
 int os_create_partition(int id, int size){
+
+
     if (is_partition_valid(id)){
         // Partición con ese id ya está tomada
         return 1;
     }
     for (int i = 0; i < 128; i++){
-        
+        if (is_partition_valid(i)){
+            printf("[ID: %i]Entrada: %i valida, empieza en: %i", get_partition_id(i), i, get_partition_block_id(i));
+        }
     }
 
 
