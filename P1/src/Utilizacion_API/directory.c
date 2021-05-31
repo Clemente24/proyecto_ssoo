@@ -257,6 +257,24 @@ int delete_file(Directory directory, char* filename){
     return -1;
 
 }
+int get_directory_id_by_name(Directory directory, char* filename){
+    for (int i = 0; i<64; i++){
+        //Buscamos el primer archivo con ese nombre
+        if (is_valid_directory_entry(directory, i)){
+            char nombre_aux[28];
+            //HAcemos que la variable nombre_aux, obtenga el nombre del archivo
+            nombre_archivo(directory, i, nombre_aux);
+            if(strcmp(filename, nombre_aux) == 0){
+                //Marcamos el bit de validez con 0
+                return i;
+            }
+
+        }
+    }
+    printf("Archivo inexistente en el disco\n");
+    return -1;
+
+}
 
 int get_index_relative_position(Directory directory, int index){
     if (is_valid_directory_entry(directory, index)){
