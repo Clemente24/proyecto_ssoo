@@ -38,13 +38,14 @@ unsigned char * particion_montada;
 
 
 // Functions
-void os_mount(char* diskname, int partition);
+void os_mount(char* diskname, int partition_id);
 Disk* init_disk(char* filename);
 
 // MBT functions 
 Mbt* init_mbt(FILE* fp);
 int is_partition_valid(int indice);
 int get_partition_id(int indice);
+int get_partition_index(int id);
 int get_partition_size(int indice);
 int get_partition_block_id(int indice);
 int os_delete_partition(int id);

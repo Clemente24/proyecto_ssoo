@@ -5,11 +5,14 @@
 #include <math.h>
 
 
-void os_mount(char* diskname, int partition){
+void os_mount(char* diskname, int partition_id){
     /* Toma las variables globales declaradas en el header y les asigna valor */
+    int indice;
+    indice = get_partition_index(partition_id);
+    
     disk = init_disk(diskname);
-    particion_montada = disk -> mbt->entradas[partition];
-    disk->directory = directory_init(partition);
+    particion_montada = disk -> mbt->entradas[indice];
+    disk->directory = directory_init(indice);
     
 }
 
@@ -63,6 +66,15 @@ int is_partition_valid(int indice){
     return bit;
 }
 
+int get_partition_index(int id){
+    for (int i = 0; i < 128; i++){
+        if (get_partition_id(i) == id){
+            return i;
+        }
+    }
+    return -1;
+}
+
 int get_partition_block_id(int indice){
     unsigned char* entrada = disk->mbt->entradas[indice];
     unsigned long int abs_block_id;
@@ -72,6 +84,7 @@ int get_partition_block_id(int indice){
     return abs_block_id;
 }
 
+// Se obtiene ID_unico de particion a partir de índice en estructura Mbt
 int get_partition_id(int indice){
     unsigned char* entrada = disk->mbt->entradas[indice];
     unsigned int partition_id;
