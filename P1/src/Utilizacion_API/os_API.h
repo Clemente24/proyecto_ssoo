@@ -19,6 +19,14 @@ typedef struct disk
   
 } Disk;
 
+typedef struct osFILE {
+    char name[28];
+    unsigned int index_ptr;
+    unsigned int directory_ptr;
+    unsigned int size;
+}osFILE;
+
+
 /* Variables globales */
 
 Mbt* mbt;
@@ -45,3 +53,8 @@ void os_ls();
 /*Funcion para hacer update del bitmap en el bloque nro block*/
 int bitmap_update(int block);
 void os_bitmap(unsigned block);
+int available_directory(int ptr);
+int available_block();
+unsigned int file_data(unsigned int pt);
+
+osFILE * os_open(char * filename,char mode);

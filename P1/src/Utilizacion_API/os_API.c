@@ -2,6 +2,7 @@
 #include "os_API.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 
 void os_mount(char* diskname, int partition){
@@ -206,6 +207,28 @@ int bitmap_update(int block){
 }
 
 
+int available_block(){
+  //Numero de bytes
+  int bytes = 128*1024; //128 blques
+  fseek(disk -> file_pointer, 105472, SEEK_SET); //Vamos al bitmap
+  unsigned char * value = malloc(sizeof(unsigned char));
+  int block = 0; //El bloque que vamos a retornar
+  for (int i = 0; i < bytes; i++){
+    fread(value, sizeof(unsigned char), 1, disk -> file_pointer);
+    for (int i = 7; i > -1; i--){
+      if(((*value >> i) & 1) == 0){
+        free(value);
+        return (unsigned int)block;
+      }
+      block ++;
+    }
+  }
+  free(value);
+  return 0; //Si no hay bloques disponibles
+}
+
+
+
 int available_directory(int ptr){
   fseek(disk -> file_pointer, ptr, SEEK_SET);
   unsigned char * buffer = malloc (sizeof(unsigned char)*32);
@@ -254,6 +277,10 @@ osFILE* os_open(char* filename, char mode){
             printf("ARCHIVO NO EXISTE\n");
         }
     } else if (mode =='w'){
+        int existe = os_exists(filename);
+        if(existe){
+             printf("ARCHIVO YA EXISTE\n");
+        } else {
         os_file->directory_ptr = ftell(disk -> file_pointer);
         int block = available_block();
         if(block ==0){
@@ -279,7 +306,7 @@ osFILE* os_open(char* filename, char mode){
             fseek(disk -> file_pointer,  dir_pointer + (32*31), SEEK_SET);
             fread(buffer2, sizeof(unsigned char), 32, disk -> file_pointer);
             if (buffer2[0] == (unsigned char)32){
-              dir_pointer = ((unsigned int)buffer2[29] * 65536  + (unsigned int)buffer2[30] *256+ (unsigned int)buffer2[31]) * 1024;
+              dir_pointer = ((unsigned int)buffer2[29] * 65536  + (unsigned int)buffer2[30] *256+ (unsigned int)buffer2[31]) * 2048;
               ptr = available_directory(dir_pointer);
               printf("DIRECTORIO TENIA BLOQUE CONTINUE %d BLOQUE DISPONIBLE %d\n", dir_pointer, 0);
               free(buffer2);
@@ -302,9 +329,9 @@ osFILE* os_open(char* filename, char mode){
                   return 0;
                 }
                 //Creamos un nuevo bloque de directorio
-                directory_block(block2, block2*1024, true);
+                directory_block(block2, block2*2048, true);
                 bitmap_update(block2);
-                ptr = available_directory(block2*1024);
+                ptr = available_directory(block2*2048);
                 free(buffer2);
               }
               else{
@@ -312,6 +339,7 @@ osFILE* os_open(char* filename, char mode){
                 free(buffer2);
                 return NULL;
               }
+            
             }
           }
         }
@@ -326,7 +354,7 @@ osFILE* os_open(char* filename, char mode){
 
         //6. Actualizar bitmap
         block = available_block();
-        os_file -> index_ptr = block*1024;
+        os_file -> index_ptr = block*2048;
         bitmap_update(block);
 
         //7. Crear el archivo
@@ -335,6 +363,7 @@ osFILE* os_open(char* filename, char mode){
         free(buffer);
         return os_file;
       }
+        }
 
     }
 }
