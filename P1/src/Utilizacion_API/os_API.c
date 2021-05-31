@@ -8,9 +8,9 @@
 void os_mount(char* diskname, int partition_id){
     /* Toma las variables globales declaradas en el header y les asigna valor */
     int indice;
-    indice = get_partition_index(partition_id);
-    
     disk = init_disk(diskname);
+    
+    indice = get_partition_index(partition_id);
     particion_montada = disk -> mbt->entradas[indice];
     disk->directory = directory_init(indice);
     
@@ -147,20 +147,57 @@ int os_reset_mbt(){
 }
 
 int os_create_partition(int id, int size){
+    int first_invalid_entry;
+    int next_valid_entry;
+    int inicio_invalid_entry;
 
+    int ocupacion_disco[128][2];
 
     if (is_partition_valid(id)){
         // Partición con ese id ya está tomada
         return 1;
     }
     for (int i = 0; i < 128; i++){
-        if (is_partition_valid(i)){
-            printf("[ID: %i]Entrada: %i valida, empieza en: %i", get_partition_id(i), i, get_partition_block_id(i));
+            if (is_partition_valid(i)){
+                ocupacion_disco[i][0] = get_partition_block_id(i);
+                ocupacion_disco[i][1] = get_partition_block_id(i) + get_partition_size(i);
+            }
+
+    for (int i = 0; i < 128; i++){
+        if (!is_partition_valid(i)){
+            first_invalid_entry = i;
+            next_valid_entry = get_next_valid_entry(i);
+            inicio_invalid_entry = 0;
+
+            if (next_valid_entry != -1){
+                // Chequear si cabe
+                break;
+
+            }
         }
     }
 
-
     return 0;
+    }
+}
+
+int get_next_valid_entry(int index){
+    for (int i = index; i < 128; i++){
+        if (is_partition_valid(i)){
+            return i;
+        }
+    }
+    return -1;
+
+}
+
+int get_previous_valid_entry(int index){
+    for (int i = index; i > -1; i--){
+        if (is_partition_valid(i)){
+            return i;
+        }
+    }
+    return -1;
 }
 
 int os_exists(char* filename){
@@ -255,9 +292,6 @@ void os_bitmap(unsigned block){
       free(value);
 
     }
-
-  
-
 
 }
 
