@@ -54,3 +54,11 @@ int os_exists(char* filename);
 /*Función para listar los elementos de la partición actual. Imprime en pantalla los nombres de
 todos los archivos.*/
 void os_ls();
+/*Funcion para hacer update del bitmap en el bloque nro block*/
+int bitmap_update(int block);
+void os_bitmap(unsigned block);
+int available_directory(int ptr);
+int available_block();
+unsigned int file_data(unsigned int pt);
+
+osFILE * os_open(char * filename,char mode);

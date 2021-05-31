@@ -4,5 +4,6 @@
 osfs
 disk_test
 directory_test
+simdiskformat.bin
 *.vscode/*
 *.bin
