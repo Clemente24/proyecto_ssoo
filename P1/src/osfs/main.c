@@ -38,9 +38,17 @@ int main(int argc, char **argv)
         
 
     // }
-    printf("vamos\n");
-    bitmap_update(3);//0000010000100000
-    os_bitmap(1);
+    //delete_file(disk->directory,"spike.gif");
+    //printf("vamos\n");
+    bitmap_update(15);//0000010000100000
+    os_bitmap(0);
+    char* name = "dog.mp3";
+    osFILE* os_file=os_open(name,'r');  //osFILE* os_file= 
+    printf("printando\n");
+    //printf("Nombre  %s",os_file->name);
+    //printf("Directory ptr: %d", os_file->directory_ptr);
+    //printf("index ptr: %d", os_file->index_ptr);
+    // printf('Size: %d', os_file->size);
     /* Forma para hacer con array*/
     //Ponemos el puntero al inicio del archivo
     //fseek(disk -> file_pointer,0, SEEK_SET);
@@ -68,8 +76,10 @@ int main(int argc, char **argv)
     // is_valid_directory_entry(disk -> directory, 1);
     // is_valid_directory_entry(disk -> directory, 2);
 
-    // //TEst pos relativa:
+    //TEst pos relativa:
     // get_index_relative_position(disk -> directory, 2);
+    //TEst pos absoluta con filename:
+    printf("Pos absoluta del archivo: %i\n", get_file_index_absolute_ptr(disk -> directory, "dog.mp3"));
 
 
 

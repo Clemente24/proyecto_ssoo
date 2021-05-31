@@ -73,15 +73,15 @@ Directory directory_init(int ubicacion_bytes_particion){
     }
 
     //DEBUG, imprimimos todo el bloque 
-    printf("Bloque Directorio: \n");
-    for (int j = 0;j < 64; j++){
-        for (int i = 0; i<32; i++){
-            printf("%x ", directory.structure[j][i]);
-        }
-        printf("\n");
-    }
+    // printf("Bloque Directorio: \n");
+    // for (int j = 0;j < 64; j++){
+    //     for (int i = 0; i<32; i++){
+    //         printf("%x ", directory.structure[j][i]);
+    //     }
+    //     printf("\n");
+    // }
 
-    printf("\n");
+    // printf("\n");
 
     /*Metodo con malloc, creo que no es bueno pq un pointer tiene tamaño 8 bytes, esta manera no respetaria el tamaño de 2KB deseados.*/
     // Directory* directory = malloc(sizeof(Directory));
@@ -249,6 +249,47 @@ int delete_file(Directory directory, char* filename){
                 modify_entry_valid_byte(directory, i, 0x00);
                 printf("Archivo %s borrado con exito", filename);
                 return i;
+            }
+
+        }
+    }
+    printf("Archivo inexistente en el disco\n");
+    return -1;
+
+}
+int get_directory_id_by_name(Directory directory, char* filename){
+    for (int i = 0; i<64; i++){
+        //Buscamos el primer archivo con ese nombre
+        if (is_valid_directory_entry(directory, i)){
+            char nombre_aux[28];
+            //HAcemos que la variable nombre_aux, obtenga el nombre del archivo
+            nombre_archivo(directory, i, nombre_aux);
+            if(strcmp(filename, nombre_aux) == 0){
+                //Marcamos el bit de validez con 0
+                return i;
+            }
+
+        }
+    }
+    printf("Archivo inexistente en el disco\n");
+    return -1;
+
+}
+
+int get_file_index_absolute_ptr(Directory directory, char* filename){
+    for (int i = 0; i<64; i++){
+        //Buscamos el primer archivo con ese nombre
+        if (is_valid_directory_entry(directory, i)){
+            char nombre_aux[28];
+            //HAcemos que la variable nombre_aux, obtenga el nombre del archivo
+            nombre_archivo(directory, i, nombre_aux);
+            if(strcmp(filename, nombre_aux) == 0){
+                //obtenemos la pos relativa (en bloques)
+                int pos_relativa = get_index_relative_position(directory, i);
+                //Obtenemos el puntero absoluto en cantidad de bytes desde el inicio del disco
+                int pos_absoluta = directory.directory_byte_pos + 2 * 1024 * pos_relativa;
+
+                return pos_absoluta;
             }
 
         }

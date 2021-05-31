@@ -41,6 +41,10 @@ int create_file(Directory directory, unsigned long int identificador_relativo_bl
 /*Metodo para "borrar" Archivos en la estructura del directorio, marcando el bit de validez con un 0*/
 int delete_file(Directory directory, char* filename);
 
+/*Metodo para obtener puntero de bloque indice a partir de un filename*/
+
+int get_file_index_absolute_ptr(Directory directory, char* filename);
+
 
 /*Metodo para representar una entrada*/
 int print_entry(Directory directory, int index);
@@ -51,4 +55,5 @@ int nombre_archivo(Directory directory, int index, char nombre[28]);
 /*Metodo para obtener bloque relativo en la particion de algun archivo, retorna -1 en caso de que no sea valido*/
 int get_index_relative_position(Directory directory, int index);
 
-/**/
+/*Metodo para obtener bloque relativo en el directorio de algun archivo, retorna -1 en caso de que no sea valido*/
+int get_directory_id_by_name(Directory directory, char* filename);
