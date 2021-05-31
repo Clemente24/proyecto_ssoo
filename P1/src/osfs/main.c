@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include"../Utilizacion_API/os_API.h"
 #include"../Utilizacion_API/directory.h"
+#include"../Utilizacion_API/bloqueindice.h"
 
 int main(int argc, char **argv)
 {
@@ -42,6 +43,8 @@ int main(int argc, char **argv)
     //fseek(disk -> file_pointer,0, SEEK_SET);
     // char array_de_bytes[6] = {0x80, 0x70, 0x80, 0x90, 0xaa};
     // sprintf(array_de_bytes, "%x%x%x");
+    //fwrite(array_de_bytes, sizeof(char), 6, disk -> file_pointer);
+    //escribir_bloque_indice(0,15000,1300);
     // fwrite(array_de_bytes, sizeof(char), 6, disk -> file_pointer);
 
     if (is_partition_valid(10)){
