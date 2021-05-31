@@ -67,49 +67,6 @@ Directory directory_init(int ubicacion_bytes_particion){
     fseek(disk -> file_pointer,(8 * ubicacion_bytes_particion) + 1, SEEK_SET);
     fread(posicion_absoluta_directorio, sizeof(char), 3, disk -> file_pointer);
 
-    //Debug
-    // for (int i = 0; i<8; i++){
-    //     printf("%x ", particion_montada_directory[i]);
-    // }
-    // printf("\n");
-
-    // for (int i = 0; i<3; i++){
-    //     printf("%x", posicion_absoluta_directorio[i]);
-    // }
-
-
-
-
-
-    //Transformamos la posicion a un int: Nos deberia dar 50
-    unsigned long int pos_bloque_directorio = (posicion_absoluta_directorio[0]<<16)|(posicion_absoluta_directorio[1]<<8)|posicion_absoluta_directorio[2];
-    printf("\nPOS DIRECTORIO: %lu\n", pos_bloque_directorio);
-    //Pos en bytes es: 1KB MBT + 2KB * POS ABSOLUTA
-    unsigned long int directory_byte_pos = 1024 + 2 * 1024 * pos_bloque_directorio;
-    printf("POS DIRECTORIO EN BYTES: %lu", directory_byte_pos);
-    printf("\n");
-
-
-    /* TEST */
-    //Ubicamos el puntero en el byte inicial del bloque directorio
-    // fseek(disk -> file_pointer,directory_byte_pos, SEEK_SET);
-
-    // //Creamos el array temporal
-    // unsigned char entrada[32];
-
-    // fread(entrada, sizeof(char), 32, disk -> file_pointer);
-
-    // //Debug WORKS :D
-    // printf("Entrada (TEST): \n");
-    // for (int i = 0; i<32; i++){
-    //     printf("%x ", entrada[i]);
-    // }
-    // printf("\n");
-
-
-    Directory directory = {.directory_block_pos = pos_bloque_directorio,
-                           .directory_byte_pos = directory_byte_pos};
-
     //Ubicamos el puntero en la ubicacion del primer byte del bloque directorio
     fseek(disk -> file_pointer,directory_byte_pos, SEEK_SET);
     for (int i = 0;i < 64; i++){

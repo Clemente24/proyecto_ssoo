@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     os_ls();
 
     // Test create file inside disk WORKS:
-    int ubicacion = create_file(disk -> directory, 57997, "primer_archivo.txt");
+    // int ubicacion = create_file(disk -> directory, 57997, "primer_archivo.txt");
     // printf("Guardamos el archivo en el indice %i del directorio \n", ubicacion);
 
     //Test delete file inside disk:
