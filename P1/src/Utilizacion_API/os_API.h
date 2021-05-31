@@ -38,10 +38,12 @@ char * particion_montada;
 void os_mount(char* diskname, int partition);
 Disk* init_disk(char* filename);
 
-Mbt* init_mbt();
-int is_partition_valid(Mbt* mbt, int index);
-
-int os_delete_partition(Mbt* mbt,int id);
+// MBT functions 
+Mbt* init_mbt(FILE* fp);
+int is_partition_valid(int indice);
+int os_delete_partition(int id);
+int os_reset_mbt();
+int os_mbt();
 
 /*Función para ver si un archivo existe. Retorna 1 si el archivo existe
 y 0 en caso contrario. */

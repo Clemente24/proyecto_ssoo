@@ -8,20 +8,21 @@
 void os_mount(char* diskname, int partition){
     /* Toma las variables globales declaradas en el header y les asigna valor */
     disk = init_disk(diskname);
-    particion_montada = disk -> mbt->entradas[partition];
+    particion_montada = disk ->mbt->entradas[partition];
     
 }
 
 Disk* init_disk(char* filename){
     printf("FILENAME: %s\n", filename);
+    FILE* fp = fopen(filename, "r+b");
     Disk* disk = malloc(sizeof(Disk));
     *disk = (Disk) {
-        .file_pointer = fopen(filename, "r+b"),
+        .file_pointer = fp,
         .name = filename,
-        .mbt = init_mbt()
+        .mbt = init_mbt(fp)
     };
     if (disk -> file_pointer == NULL){
-        // esta mal 
+        // Si no existe el archivo 
         printf("Filename doesnt exist\n");
         return NULL;
     }
@@ -32,48 +33,67 @@ Disk* init_disk(char* filename){
 
 }
 
-Mbt* init_mbt()
+Mbt* init_mbt(FILE* fp)
 {
+    unsigned char bytes_leidos[8];
     Mbt* mbt = malloc(sizeof(Mbt));
+    fseek(fp, 0, SEEK_SET);
     for (int i = 0; i < 128; i++){
-        mbt->entradas[i][0] = 0b00000000;
+        fseek(fp, i * 8, SEEK_SET);
+        fread(bytes_leidos, sizeof(char), 8, fp);
+        // printf("Bytes leidos: %d %d %d %d %d %d %d %d \n", bytes_leidos[0], bytes_leidos[1], bytes_leidos[2], bytes_leidos[3], bytes_leidos[4], bytes_leidos[5], bytes_leidos[6], bytes_leidos[7]);
+        for (int j = 0; j < 7; j++){
+            // printf("i: %i, j: %i \n", i, j);
+            // printf("byte leido en 0: %d \n", bytes_leidos[0]);
+            mbt->entradas[i][j] = bytes_leidos[j];
+        }
     }
     return mbt;
 }
 
-int is_partition_valid(Mbt* mbt, int index){
+int is_partition_valid(int indice){
     int bit;
-    int number;
-    number = mbt->entradas[index][0];
-    for (int i = 0; i < 8; i++){
-        bit = (number >> i) & 1U;
-        printf("Bit at position %i of partition index: %i is: %i \n", i, index, bit);
-    }
+    unsigned char number;
+
+    number = disk->mbt->entradas[indice][0];
+    bit = number & (1<<7) ? 1 : 0;
+   
     return bit;
 }
 
-int os_delete_partition(Mbt* mbt, int id){
-    int identificador;
+int os_mbt(){
+
+    for (int i = 0; i < 128; i++){
+        if (is_partition_valid(i)){
+            printf("Particion N°: %i valida. \n", i);
+        };
+    }
+    return 0;
+}
+
+int os_delete_partition(int id){
+    int identificador_relativo;
     int primer_byte_entrada;
     if (id > 127){
         // out of range
         return 1;
     }
-    primer_byte_entrada = mbt->entradas[id][0];
-    identificador = primer_byte_entrada & ((1 << 7) - 1);
-    printf("Entrada es: %d\n", primer_byte_entrada);
-    printf("Identificador es: %i\n", identificador);
+    primer_byte_entrada = disk->mbt->entradas[id][0];
+    identificador_relativo = primer_byte_entrada & ((1 << 7) - 1);
+    // printf("Entrada es: %d\n", primer_byte_entrada);
+    // printf("Identificador es: %i\n", identificador);
+    // Cambiamos el primer bit del primer byte de la entrada a 0
     primer_byte_entrada = (primer_byte_entrada & ~(1UL << 8)) | (0 << 8);
     
     return 0;
 }
 
-void os_reset_mbt(Mbt* mbt, int id){
-    int identificador;
-    int entrada;
+int os_reset_mbt(){
     for (int i = 0; i < 128; i++){
-       os_delete_partition(mbt, i);
+       os_delete_partition(i);
     }
+    return 0;
+
 }
 
 int os_exists(char* filename){
@@ -84,7 +104,7 @@ int os_exists(char* filename){
     //Supongo que directorio sera una variable global
     Directory prueba = directory_init();
     //Creo un directorio simulado por ahora 
-    modify_directory_entry(&prueba, 4,filename, 0b00000001);
+    modify_directory_entry(&prueba, 4, filename, 0b00000001);
 
     for (int i = 0; i<64; i++){
         //Creamos variable en la cual guardamos el nombre
