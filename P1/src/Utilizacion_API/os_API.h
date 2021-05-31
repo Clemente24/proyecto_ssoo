@@ -29,6 +29,7 @@ typedef struct osFILE {
     unsigned int bytes_read;
 }osFILE;
 
+
 /* Variables globales */
 
 Mbt* mbt;
