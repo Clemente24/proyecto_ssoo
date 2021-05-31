@@ -7,3 +7,4 @@ directory_test
 simdiskformat.bin
 *.vscode/*
 *.bin
+*.zip

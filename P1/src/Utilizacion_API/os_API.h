@@ -8,7 +8,7 @@
 /* Structs*/
 typedef struct mbt
 {
-    char entradas[128][8];
+    unsigned char entradas[128][8];
   
 } Mbt;
 
@@ -34,7 +34,7 @@ typedef struct osFILE {
 
 Mbt* mbt;
 Disk *disk;
-char * particion_montada;
+unsigned char * particion_montada;
 
 
 // Functions
@@ -44,9 +44,13 @@ Disk* init_disk(char* filename);
 // MBT functions 
 Mbt* init_mbt(FILE* fp);
 int is_partition_valid(int indice);
+int get_partition_id(int indice);
+int get_partition_size(int indice);
+int get_partition_block_id(int indice);
 int os_delete_partition(int id);
 int os_reset_mbt();
 int os_mbt();
+int os_create_partition(int id, int size);
 
 /*Función para ver si un archivo existe. Retorna 1 si el archivo existe
 y 0 en caso contrario. */

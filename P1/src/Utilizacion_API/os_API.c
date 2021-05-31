@@ -37,13 +37,13 @@ Disk* init_disk(char* filename){
 Mbt* init_mbt(FILE* fp)
 {
     unsigned char bytes_leidos[8];
-    Mbt* mbt = malloc(sizeof(Mbt));
+    Mbt* mbt = calloc(1, sizeof(Mbt));
     fseek(fp, 0, SEEK_SET);
     for (int i = 0; i < 128; i++){
         fseek(fp, i * 8, SEEK_SET);
         fread(bytes_leidos, sizeof(char), 8, fp);
         // printf("Bytes leidos: %d %d %d %d %d %d %d %d \n", bytes_leidos[0], bytes_leidos[1], bytes_leidos[2], bytes_leidos[3], bytes_leidos[4], bytes_leidos[5], bytes_leidos[6], bytes_leidos[7]);
-        for (int j = 0; j < 7; j++){
+        for (int j = 0; j < 8; j++){
             // printf("i: %i, j: %i \n", i, j);
             // printf("byte leido en 0: %d \n", bytes_leidos[0]);
             mbt->entradas[i][j] = bytes_leidos[j];
@@ -52,22 +52,58 @@ Mbt* init_mbt(FILE* fp)
     return mbt;
 }
 
+// MBT functions
 int is_partition_valid(int indice){
     int bit;
-    unsigned char number;
+    unsigned char primer_byte;
 
-    number = disk->mbt->entradas[indice][0];
-    bit = number & (1<<7) ? 1 : 0;
+    primer_byte = disk->mbt->entradas[indice][0];
+    bit = primer_byte & (1<<7) ? 1 : 0;
    
     return bit;
+}
+
+int get_partition_block_id(int indice){
+    unsigned char* entrada = disk->mbt->entradas[indice];
+    unsigned long int abs_block_id;
+
+    abs_block_id = (entrada[1] << 16) | (entrada[2] << 8) | (entrada[3]);
+
+    return abs_block_id;
+}
+
+int get_partition_id(int indice){
+    unsigned char* entrada = disk->mbt->entradas[indice];
+    unsigned int partition_id;
+
+    partition_id = entrada[0] & ((1 << 7) - 1);
+
+    return partition_id;
+}
+
+int get_partition_size(int indice){
+    unsigned char* entrada = disk->mbt->entradas[indice];
+    unsigned long int abs_block_id;
+    unsigned long int partition_size;
+    unsigned int partition_id;
+    int partition_valid;
+
+    partition_valid = entrada[0] & (1<<7) ? 1 : 0;
+    partition_id = entrada[0] & ((1 << 7) - 1);
+    abs_block_id = (entrada[1] << 16) | (entrada[2] << 8) | (entrada[3]);
+    partition_size = (entrada[4] << 24) | (entrada[5] << 16) | (entrada[6] << 8) | (entrada[7]);
+
+    printf("[Partition id: %i], VALID?: %i, partition_size: %li, ID_primer_bloque: %li \n", partition_id, partition_valid, partition_size, abs_block_id);
+
+    return partition_size;
 }
 
 int os_mbt(){
 
     for (int i = 0; i < 128; i++){
         if (is_partition_valid(i)){
-            printf("Particion N°: %i valida. \n", i);
-        };
+            printf("Particion con ID: %i valida. \n", get_partition_id(i));
+        }
     }
     return 0;
 }
@@ -95,6 +131,23 @@ int os_reset_mbt(){
     }
     return 0;
 
+}
+
+int os_create_partition(int id, int size){
+
+
+    if (is_partition_valid(id)){
+        // Partición con ese id ya está tomada
+        return 1;
+    }
+    for (int i = 0; i < 128; i++){
+        if (is_partition_valid(i)){
+            printf("[ID: %i]Entrada: %i valida, empieza en: %i", get_partition_id(i), i, get_partition_block_id(i));
+        }
+    }
+
+
+    return 0;
 }
 
 int os_exists(char* filename){
