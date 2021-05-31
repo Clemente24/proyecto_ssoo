@@ -10,7 +10,9 @@ int main(int argc, char **argv)
     //os_mount()
 
     printf("monto el disco\n");
-    os_mount(argv[1], atoi(argv[2]));
+    //Cambiar el id de la particion aca, en el disco filled, las particiones validas en el filled son 2, 3 y 4
+    //Si se usan particiones invalidas, el directorio no funciona bien, pq las particiones invalidas tienen tamaños de bloque que no tienen sentido
+    os_mount(argv[1], 2);
     
     // disk -> mbt->entradas[10][0] = 0b10001010;
 
@@ -55,16 +57,6 @@ int main(int argc, char **argv)
     printf("os_mbt()\n");
     os_mbt();
 
-    /**** Tests directorio *****/
-
-    //Test is_Valid_entry
-
-    // is_valid_directory_entry(disk -> directory, 0);
-    // is_valid_directory_entry(disk -> directory, 1);
-    is_valid_directory_entry(disk -> directory, 2);
-
-    //TEst pos relativa:
-    get_index_relative_position(disk -> directory, 2);
 
 
 
@@ -74,19 +66,19 @@ int main(int argc, char **argv)
 
     // is_valid_directory_entry(disk -> directory, 0);
     // is_valid_directory_entry(disk -> directory, 1);
-    is_valid_directory_entry(disk -> directory, 2);
+    // is_valid_directory_entry(disk -> directory, 2);
 
-    //TEst pos relativa:
-    get_index_relative_position(disk -> directory, 2);
+    // //TEst pos relativa:
+    // get_index_relative_position(disk -> directory, 2);
 
 
 
     //Test os_exists
-    printf("os_exists\n");
-    //Archivo de la particion 0 del disco filled
+    // printf("os_exists\n");
+    //Archivo de la particion 2 del disco filled
     printf("Archivo nene.txt existe? : %i\n", os_exists("nene.txt"));
 
-    //Test os_ls
+    // //Test os_ls
     printf("\n>ls: \n");
     os_ls();
 
@@ -95,9 +87,9 @@ int main(int argc, char **argv)
     // printf("Guardamos el archivo en el indice %i del directorio \n", ubicacion);
 
     //Test delete file inside disk:
-    delete_file(disk -> directory, "Como_Estamos.txt");
+    // delete_file(disk -> directory, "Como_Estamos.txt");
 
-    printf("\nDelete partition:\n");
+    // printf("\nDelete partition:\n");
 
     os_delete_partition(10);
 
