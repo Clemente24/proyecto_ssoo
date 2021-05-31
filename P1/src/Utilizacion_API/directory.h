@@ -41,6 +41,10 @@ int create_file(Directory directory, unsigned long int identificador_relativo_bl
 /*Metodo para "borrar" Archivos en la estructura del directorio, marcando el bit de validez con un 0*/
 int delete_file(Directory directory, char* filename);
 
+/*Metodo para obtener puntero de bloque indice a partir de un filename*/
+
+int get_file_index_absolute_ptr(Directory directory, char* filename);
+
 
 /*Metodo para representar una entrada*/
 int print_entry(Directory directory, int index);
