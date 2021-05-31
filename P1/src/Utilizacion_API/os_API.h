@@ -9,7 +9,7 @@
 typedef struct mbt
 {
     unsigned char entradas[128][8];
-  
+
 } Mbt;
 
 typedef struct disk
@@ -52,6 +52,9 @@ int os_delete_partition(int id);
 int os_reset_mbt();
 int os_mbt();
 int os_create_partition(int id, int size);
+
+// funcion para leer archivos
+int os_read(osFILE* file_desc, void* buffer, int nbytes);
 
 /*Función para ver si un archivo existe. Retorna 1 si el archivo existe
 y 0 en caso contrario. */
