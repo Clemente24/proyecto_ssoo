@@ -55,4 +55,5 @@ int nombre_archivo(Directory directory, int index, char nombre[28]);
 /*Metodo para obtener bloque relativo en la particion de algun archivo, retorna -1 en caso de que no sea valido*/
 int get_index_relative_position(Directory directory, int index);
 
-/**/
+/*Metodo para obtener bloque relativo en el directorio de algun archivo, retorna -1 en caso de que no sea valido*/
+int get_directory_id_by_name(Directory directory, char* filename);
