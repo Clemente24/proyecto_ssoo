@@ -94,6 +94,8 @@ int main(int argc, char **argv)
     
 
     os_read(file_desc, buffer, 2100);
+    free(file_desc);
+    free(buffer);
     // Test create file inside disk WORKS:
     // int ubicacion = create_file(disk -> directory, 57997, "primer_archivo.txt");
     // printf("Guardamos el archivo en el indice %i del directorio \n", ubicacion);

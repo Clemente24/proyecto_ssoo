@@ -424,7 +424,7 @@ int os_read(osFILE* file_desc, void* buffer, int nbytes){
       }
     bloque_inicio_lectura += 1;
    }
-   
+   //fprintf(stderr, "0");
    file_desc -> bytes_read += n_bytes_a_leer;
    return n_bytes_a_leer;  
 }
