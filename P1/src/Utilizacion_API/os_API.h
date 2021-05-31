@@ -7,7 +7,7 @@
 /* Structs*/
 typedef struct mbt
 {
-    char entradas[128][8];
+    unsigned char entradas[128][8];
   
 } Mbt;
 
@@ -23,7 +23,7 @@ typedef struct disk
 
 Mbt* mbt;
 Disk *disk;
-char * particion_montada;
+unsigned char * particion_montada;
 
 
 // Functions
@@ -36,6 +36,7 @@ int is_partition_valid(int indice);
 int os_delete_partition(int id);
 int os_reset_mbt();
 int os_mbt();
+int os_create_partition(int id, int size);
 
 /*Función para ver si un archivo existe. Retorna 1 si el archivo existe
 y 0 en caso contrario. */

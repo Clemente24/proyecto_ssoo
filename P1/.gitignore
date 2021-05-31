@@ -5,3 +5,4 @@ osfs
 disk_test
 *.vscode/*
 *.bin
+*.zip
