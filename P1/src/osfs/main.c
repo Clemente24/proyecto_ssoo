@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 
     // Testeo de lectura de disco real
     // PAra comparar, se puede correr la linea hexdump -n100 simdiskformat.bin, y se puede ver que los bytes son los mismos
-    int c;
+    // int c;
 
     /* Forma para hacer iterando*/
 
@@ -51,18 +51,51 @@ int main(int argc, char **argv)
     if (is_partition_valid(10)){
         printf("Partition %i is valid", 10);
     }
-
     // Test os_mbt();
     printf("os_mbt()\n");
     os_mbt();
 
+    /**** Tests directorio *****/
+
+    //Test is_Valid_entry
+
+    // is_valid_directory_entry(disk -> directory, 0);
+    // is_valid_directory_entry(disk -> directory, 1);
+    is_valid_directory_entry(disk -> directory, 2);
+
+    //TEst pos relativa:
+    get_index_relative_position(disk -> directory, 2);
+
+
+
+    /**** Tests directorio *****/
+
+    //Test is_Valid_entry
+
+    // is_valid_directory_entry(disk -> directory, 0);
+    // is_valid_directory_entry(disk -> directory, 1);
+    is_valid_directory_entry(disk -> directory, 2);
+
+    //TEst pos relativa:
+    get_index_relative_position(disk -> directory, 2);
+
+
+
     //Test os_exists
     printf("os_exists\n");
-    printf("Archivo hola.txt existe?: %i\n", os_exists("Hola.txt"));
+    //Archivo de la particion 0 del disco filled
+    printf("Archivo nene.txt existe? : %i\n", os_exists("nene.txt"));
 
     //Test os_ls
-    printf("\n>ls\n");
+    printf("\n>ls: \n");
     os_ls();
+
+    // Test create file inside disk WORKS:
+    // int ubicacion = create_file(disk -> directory, 57997, "primer_archivo.txt");
+    // printf("Guardamos el archivo en el indice %i del directorio \n", ubicacion);
+
+    //Test delete file inside disk:
+    delete_file(disk -> directory, "Como_Estamos.txt");
 
     printf("\nDelete partition:\n");
 

@@ -8,7 +8,8 @@
 void os_mount(char* diskname, int partition){
     /* Toma las variables globales declaradas en el header y les asigna valor */
     disk = init_disk(diskname);
-    particion_montada = disk ->mbt->entradas[partition];
+    particion_montada = disk -> mbt->entradas[partition];
+    disk->directory = directory_init(partition);
     
 }
 
@@ -19,7 +20,7 @@ Disk* init_disk(char* filename){
     *disk = (Disk) {
         .file_pointer = fp,
         .name = filename,
-        .mbt = init_mbt(fp)
+        .mbt = init_mbt(fp),
     };
     if (disk -> file_pointer == NULL){
         // Si no existe el archivo 
@@ -100,20 +101,19 @@ int os_exists(char* filename){
     /*Cabe recalcar que se busca solo en la partición actual*/
     /*Esta funcion asume que la estructura de directorio ya está creada en la particion*/
     /*Issue N°208: El unico bloque tipo directorio es el raiz en una particion*/
-    
-    //Supongo que directorio sera una variable global
-    Directory prueba = directory_init();
-    //Creo un directorio simulado por ahora 
-    modify_directory_entry(&prueba, 4, filename, 0b00000001);
 
     for (int i = 0; i<64; i++){
-        //Creamos variable en la cual guardamos el nombre
-        char nombre_actual[28];
-        //Buscamos el nombre
-        nombre_archivo(prueba, i, nombre_actual);
-        //Retorna solo si la encuentra
-        if (strcmp(nombre_actual, filename) == 0){
-            return 1;
+
+        //VErificamos si la entrada es valida
+        if(is_valid_directory_entry(disk -> directory, i)){
+            //Creamos variable en la cual guardamos el nombre
+            char nombre_actual[28];
+            //Buscamos el nombre
+            nombre_archivo(disk -> directory, i, nombre_actual);
+            //Retorna solo si la encuentra
+            if (strcmp(nombre_actual, filename) == 0){
+                return 1;
+            }
         }
     }
 
@@ -122,22 +122,12 @@ int os_exists(char* filename){
 }
 
 void os_ls(){
-    //Supongo que directorio sera una variable global
-    Directory prueba = directory_init();
-    //Creo muchos directorios para simular por ahora 
-    modify_directory_entry(&prueba, 0,"1.png", 0b00000001);
-    modify_directory_entry(&prueba, 1,"2.png", 0b00000001);
-    modify_directory_entry(&prueba, 2,"3.png", 0b00000001);
-    modify_directory_entry(&prueba, 3,"4.png", 0b00000001);
-    modify_directory_entry(&prueba, 4,"5.png", 0b00000001);
-    modify_directory_entry(&prueba, 5,"6.png", 0b00000001);
-    modify_directory_entry(&prueba, 6,"Tesis.docx", 0b00000001);
 
     for (int i =0; i<64; i++){
-        if (is_valid_directory_entry(prueba, i)){
+        if (is_valid_directory_entry(disk -> directory, i)){
             char nombre_actual[28];
             //Buscamos el nombre
-            nombre_archivo(prueba, i, nombre_actual);
+            nombre_archivo(disk -> directory, i, nombre_actual);
             printf("%s\n", nombre_actual);
         }
 
@@ -281,109 +271,109 @@ unsigned int file_data(unsigned int pt){
 };
 
 
-osFILE* os_open(char* filename, char mode){
-    osFILE *os_file = malloc(sizeof(osFILE));
-    os_file -> name =filename
-    if (mode == 'r'){
-        int existe = os_exists(filename);
-        if(existe){
-        r= true;
-      os_file->directory_ptr = ftell(disk -> file_pointer);
-      os_file->index_ptr =  ftell(disk -> file_pointer);
-      os_file->size = file_data(os_file->index_ptr);
+// osFILE* os_open(char* filename, char mode){
+//     osFILE *os_file = malloc(sizeof(osFILE));
+//     os_file -> name = filename;
+//     if (mode == 'r'){
+//         int existe = os_exists(filename);
+//         if(existe){
+//         r = true;
+//       os_file->directory_ptr = ftell(disk -> file_pointer);
+//       os_file->index_ptr =  ftell(disk -> file_pointer);
+//       os_file->size = file_data(os_file->index_ptr);
       
-      return os_file;
-        } else{
-            printf("ARCHIVO NO EXISTE\n");
-        }
-    } else if (mode =='w'){
-        int existe = os_exists(filename);
-        if(existe){
-             printf("ARCHIVO YA EXISTE\n");
-        } else {
-        os_file->directory_ptr = ftell(disk -> file_pointer);
-        int block = available_block();
-        if(block ==0){
-            printf("NO HAY BLOQUES DISPONIBLES\n");
-        return NULL;
-        }else{
-            unsigned char * buffer = malloc(sizeof(unsigned char)*32);
-            //1. Que la entrada sea de archivo
-            buffer[0] = (unsigned char)4;
-            //2. Nombre del archivo
-            memcpy(buffer + 1, os_file->name, 28);
-            //3. Bloque al que pertenece
-            unsigned int block_number = htonl(block);
-            memcpy(buffer+28, &block_number, 4);
-            //4. Buscar una entrada en el directorio
-            printf("DIRECTORIO  %d\n", os_file->directory_ptr);
-            int ptr = available_directory(os_file->directory_ptr);
-            if (ptr == 0){
-          int dir_pointer = os_file->directory_ptr;
-          while(ptr == 0){
-            //Primero reviso si tiene bloque 
-            unsigned char * buffer2 = malloc(sizeof(unsigned char)*32);
-            fseek(disk -> file_pointer,  dir_pointer + (32*31), SEEK_SET);
-            fread(buffer2, sizeof(unsigned char), 32, disk -> file_pointer);
-            if (buffer2[0] == (unsigned char)32){
-              dir_pointer = ((unsigned int)buffer2[29] * 65536  + (unsigned int)buffer2[30] *256+ (unsigned int)buffer2[31]) * 2048;
-              ptr = available_directory(dir_pointer);
-              printf("DIRECTORIO TENIA BLOQUE CONTINUE %d BLOQUE DISPONIBLE %d\n", dir_pointer, 0);
-              free(buffer2);
+//       return os_file;
+//         } else{
+//             printf("ARCHIVO NO EXISTE\n");
+//         }
+//     } else if (mode =='w'){
+//         int existe = os_exists(filename);
+//         if(existe){
+//              printf("ARCHIVO YA EXISTE\n");
+//         } else {
+//         os_file->directory_ptr = ftell(disk -> file_pointer);
+//         int block = available_block();
+//         if(block ==0){
+//             printf("NO HAY BLOQUES DISPONIBLES\n");
+//         return NULL;
+//         }else{
+//             unsigned char * buffer = malloc(sizeof(unsigned char)*32);
+//             //1. Que la entrada sea de archivo
+//             buffer[0] = (unsigned char)4;
+//             //2. Nombre del archivo
+//             memcpy(buffer + 1, os_file->name, 28);
+//             //3. Bloque al que pertenece
+//             unsigned int block_number = htonl(block);
+//             memcpy(buffer+28, &block_number, 4);
+//             //4. Buscar una entrada en el directorio
+//             printf("DIRECTORIO  %d\n", os_file->directory_ptr);
+//             int ptr = available_directory(os_file->directory_ptr);
+//             if (ptr == 0){
+//           int dir_pointer = os_file->directory_ptr;
+//           while(ptr == 0){
+//             //Primero reviso si tiene bloque 
+//             unsigned char * buffer2 = malloc(sizeof(unsigned char)*32);
+//             fseek(disk -> file_pointer,  dir_pointer + (32*31), SEEK_SET);
+//             fread(buffer2, sizeof(unsigned char), 32, disk -> file_pointer);
+//             if (buffer2[0] == (unsigned char)32){
+//               dir_pointer = ((unsigned int)buffer2[29] * 65536  + (unsigned int)buffer2[30] *256+ (unsigned int)buffer2[31]) * 2048;
+//               ptr = available_directory(dir_pointer);
+//               printf("DIRECTORIO TENIA BLOQUE CONTINUE %d BLOQUE DISPONIBLE %d\n", dir_pointer, 0);
+//               free(buffer2);
 
-            }
-            //Si no tiene bloque  lo creo
-            else {
-              //Debo encontrar un nuevo bloque
-              int block2 = available_block();
-              if (block2 != 0){
-                printf("LINKEANDO BLOQUE \n");
-                unsigned int block_number2 = htonl(block2);
-                memcpy(buffer2+28, &block_number2, 4);
-                buffer2[0] = (unsigned char)32;
-                fseek(disk -> file_pointer, os_file->directory_ptr + (32*31), SEEK_SET);
-                int escritura = fwrite(buffer2, sizeof(unsigned char), 32, disk -> file_pointer);
-                free(buffer2);
-                if (escritura != 32){
-                  printf("NO SE ESCRIBIERON TODOS LOS BYTES\n");
-                  return 0;
-                }
-                //Creamos un nuevo bloque de directorio
-                directory_block(block2, block2*2048, true);
-                bitmap_update(block2);
-                ptr = available_directory(block2*2048);
-                free(buffer2);
-              }
-              else{
-                printf("NO SE PUDO CREAR BLOQUE CONTINUE\n");
-                free(buffer2);
-                return NULL;
-              }
+//             }
+//             //Si no tiene bloque  lo creo
+//             else {
+//               //Debo encontrar un nuevo bloque
+//               int block2 = available_block();
+//               if (block2 != 0){
+//                 printf("LINKEANDO BLOQUE \n");
+//                 unsigned int block_number2 = htonl(block2);
+//                 memcpy(buffer2+28, &block_number2, 4);
+//                 buffer2[0] = (unsigned char)32;
+//                 fseek(disk -> file_pointer, os_file->directory_ptr + (32*31), SEEK_SET);
+//                 int escritura = fwrite(buffer2, sizeof(unsigned char), 32, disk -> file_pointer);
+//                 free(buffer2);
+//                 if (escritura != 32){
+//                   printf("NO SE ESCRIBIERON TODOS LOS BYTES\n");
+//                   return 0;
+//                 }
+//                 //Creamos un nuevo bloque de directorio
+//                 directory_block(block2, block2*2048, true);
+//                 bitmap_update(block2);
+//                 ptr = available_directory(block2*2048);
+//                 free(buffer2);
+//               }
+//               else{
+//                 printf("NO SE PUDO CREAR BLOQUE CONTINUE\n");
+//                 free(buffer2);
+//                 return NULL;
+//               }
             
-            }
-          }
-        }
+//             }
+//           }
+//         }
 
-        //5. Escribir en el directorio 
-        fseek(disk -> file_pointer, ptr, SEEK_SET);
-        int escritura = fwrite(buffer, sizeof(unsigned char), 32, disk -> file_pointer);
-        if (escritura != 32){
-          printf("NO SE ESCRIBIERON TODOS LOS BYTES\n");
-          return NULL;
-        }
+//         //5. Escribir en el directorio 
+//         fseek(disk -> file_pointer, ptr, SEEK_SET);
+//         int escritura = fwrite(buffer, sizeof(unsigned char), 32, disk -> file_pointer);
+//         if (escritura != 32){
+//           printf("NO SE ESCRIBIERON TODOS LOS BYTES\n");
+//           return NULL;
+//         }
 
-        //6. Actualizar bitmap
-        block = available_block();
-        os_file -> index_ptr = block*2048;
-        bitmap_update(block);
+//         //6. Actualizar bitmap
+//         block = available_block();
+//         os_file -> index_ptr = block*2048;
+//         bitmap_update(block);
 
-        //7. Crear el archivo
-        os_file -> size = 0;
-        //index_block(block);
-        free(buffer);
-        return os_file;
-      }
-        }
+//         //7. Crear el archivo
+//         os_file -> size = 0;
+//         //index_block(block);
+//         free(buffer);
+//         return os_file;
+//       }
+//         }
 
-    }
-}
+//     }
+// }
