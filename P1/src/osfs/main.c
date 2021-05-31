@@ -40,15 +40,20 @@ int main(int argc, char **argv)
 
     /* Forma para hacer con array*/
     //Ponemos el puntero al inicio del archivo
-    fseek(disk -> file_pointer,0, SEEK_SET);
-    char array_de_bytes[6] = {0x80, 0x70, 0x80, 0x90, 0xaa};
+    //fseek(disk -> file_pointer,0, SEEK_SET);
+    // char array_de_bytes[6] = {0x80, 0x70, 0x80, 0x90, 0xaa};
     // sprintf(array_de_bytes, "%x%x%x");
-    fwrite(array_de_bytes, sizeof(char), 6, disk -> file_pointer);
-    escribir_bloque_indice(0,15000,1300);
+    //fwrite(array_de_bytes, sizeof(char), 6, disk -> file_pointer);
+    //escribir_bloque_indice(0,15000,1300);
+    // fwrite(array_de_bytes, sizeof(char), 6, disk -> file_pointer);
 
-    if (is_partition_valid(disk -> mbt, 10)){
+    if (is_partition_valid(10)){
         printf("Partition %i is valid", 10);
     }
+
+    // Test os_mbt();
+    printf("os_mbt()\n");
+    os_mbt();
 
     //Test os_exists
     printf("os_exists\n");
@@ -60,7 +65,7 @@ int main(int argc, char **argv)
 
     printf("\nDelete partition:\n");
 
-    os_delete_partition(disk -> mbt, 10);
+    os_delete_partition(10);
 
 
     /*Cerrar archivo*/
