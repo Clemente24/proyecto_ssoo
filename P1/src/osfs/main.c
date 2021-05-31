@@ -91,7 +91,21 @@ int main(int argc, char **argv)
     // //Test os_ls
     printf("\n>ls: \n");
     os_ls();
+    //Test osread
+    osFILE* file_desc = malloc(sizeof(osFILE));
+    *file_desc= (osFILE) {
+    .name= "dog.mp3",
+    .index_ptr = 117998592,
+    .directory_ptr = 10,
+    .size = 486242,
+    .bytes_read = 0
+    };
+    unsigned char *buffer = malloc(sizeof(unsigned char) * 2100 );
+    
 
+    os_read(file_desc, buffer, 2100);
+    free(file_desc);
+    free(buffer);
     // Test create file inside disk WORKS:
     // int ubicacion = create_file(disk -> directory, 57997, "primer_archivo.txt");
     // printf("Guardamos el archivo en el indice %i del directorio \n", ubicacion);
