@@ -247,7 +247,7 @@ int delete_file(Directory directory, char* filename){
             if(strcmp(filename, nombre_aux) == 0){
                 //Marcamos el bit de validez con 0
                 modify_entry_valid_byte(directory, i, 0x00);
-                printf("Archivo %s borrado con exito", filename);
+                printf("Archivo %s borrado con exito\n", filename);
                 return i;
             }
 

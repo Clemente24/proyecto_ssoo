@@ -27,6 +27,7 @@ typedef struct osFILE {
     unsigned long int directory_ptr;
     unsigned long int size;
     unsigned long int bytes_read;
+    char read_mode;
 }osFILE;
 
 
@@ -74,5 +75,8 @@ unsigned int file_data(unsigned int pt);
 
 /* Funcion para crear un archivo en el pc que equivale al archivo encontrado en el disco*/
 int save_file(char * filename);
+
+/*. Funcion para cerrar archivos. Cierra el archivo indicado por file desc. Debe garantizar que cuando esta funcion retorna, el archivo se encuentra actualizado en disco.*/
+int os_close(osFILE* file_desc);
 
 osFILE * os_open(char * filename,char mode);
