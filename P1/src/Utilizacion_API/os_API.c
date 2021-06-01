@@ -589,32 +589,39 @@ osFILE *os_open(char *filename, char mode)
   }
 }
 
+/*
+return contador: bytes escritos efectivamente
+*/
 int os_write(osFILE *file_desc, void *buffer, int nbytes)
 {
-  /*Calcular cuanto puedo escribir de los nbytes*/
-  int tamano_archivo = file_desc->size + nbytes;
-  int tamano_max = 2048 * 681;
-  if (tamano_archivo > tamano_max)
-  {
-    nbytes = tamano_max - file_desc->size;
-    if (nbytes < 0)
-    {
-      nbytes = 0;
-    }
-  }
+  /*Si nbytes supera el tamaño maximo, solo escribo el maximo*/
+  int size_max = 2048 * 681;
+  if (nbytes > size_max)
+    nbytes = size_max;
+
   /*Escribir los nbytes*/
   int contador = 0;
   while (contador < nbytes)
   {
     /*Encontrar un bloque libre*/
-    int bloque_libre = 2048;
-    /*Escribir en un bloque*/
-    fseek(disk->file_pointer, bloque_libre, SEEK_SET);
-    int actual = fwrite(buffer, sizeof(char), 1, disk->file_pointer);
-    /*Actualizr bytes escritos*/
-    contador += actual;
-    /*Actualizar bitmap*/
-    /*Actualizar indice*/
+    int bloque_libre = available_block();
+    if (bloque_libre == 0)
+    {
+      /*No hay bloques libres, detener escritura*/
+      printf("[WRITE] No quedan bloques libres");
+      return contador;
+    }
+    else
+    {
+      /*Se puede escribir*/
+      fseek(disk->file_pointer, bloque_libre, SEEK_SET);
+      int actual = fwrite(buffer, sizeof(char), 2048, disk->file_pointer);
+      /*Actualizr bytes escritos*/
+      contador += actual;
+      /*Actualizar bitmap*/
+      bitmap_update(bloque_libre);
+      /*Actualizar indice*/
+    }
   }
   /*Retornar bytes totales escritos*/
   return contador;
