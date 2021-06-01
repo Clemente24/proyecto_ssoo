@@ -389,21 +389,22 @@ int os_read(osFILE* file_desc, void* buffer, int nbytes){
    // obtener puntero absoulto de comienzo de la particion
    int puntero_abs_particion = disk->directory.directory_byte_pos;
    // indice del bloque de incio de la lectura 
-   int bloque_inicio_lectura = floor(file_desc->bytes_read/2048);
-   int offset_bloque =  file_desc->bytes_read - bloque_inicio_lectura*2048 ;
+   unsigned long int bloque_inicio_lectura = floor(file_desc->bytes_read/2048);
+   unsigned long int offset_bloque =  file_desc->bytes_read - bloque_inicio_lectura*2048 ;
    int i=0; 
    int primer_bloque = 1;
    //nos posicionamos en el bloque indice donde debemos empezar a leer
    
    while(i < n_bytes_a_leer){
      fseek(disk ->file_pointer, file_desc->index_ptr + 5 + bloque_inicio_lectura * 3, SEEK_SET);
-     char posicion_relativa[3];
+     unsigned char posicion_relativa[3] = "";
      fread(posicion_relativa, sizeof(unsigned char), 3, disk -> file_pointer);
      unsigned long int pos_relativa_bloque_datos = (posicion_relativa[0]<<16)|(posicion_relativa[1]<<8)|posicion_relativa[2];
+     //printf("pos relativa bloque de datos: %lu\n", pos_relativa_bloque_datos);
      //llegamos al puntero de bloque de datos
      if(primer_bloque){
       fseek(disk -> file_pointer, puntero_abs_particion + pos_relativa_bloque_datos*2048 + offset_bloque, SEEK_SET);
-      printf("ubicacion bloque datos: %i %lu\n",bloque_inicio_lectura ,puntero_abs_particion + pos_relativa_bloque_datos*2048 + offset_bloque);
+      printf("ubicacion bloque datos: %lu %lu\n",bloque_inicio_lectura ,puntero_abs_particion + pos_relativa_bloque_datos*2048 + offset_bloque);
       fread(buffer + i, sizeof(unsigned char), 2048-offset_bloque , disk ->file_pointer);
       primer_bloque = 0;
       i+=(2048-offset_bloque);
@@ -412,14 +413,14 @@ int os_read(osFILE* file_desc, void* buffer, int nbytes){
      }
      else if(n_bytes_a_leer - i <= 2048){
        fseek(disk ->file_pointer, puntero_abs_particion + pos_relativa_bloque_datos*2048, SEEK_SET);
-       printf("ubicacion bloque datos: %i %lu\n",bloque_inicio_lectura , puntero_abs_particion + pos_relativa_bloque_datos*2048);
+       printf("ubicacion bloque datos: %lu %lu\n",bloque_inicio_lectura , puntero_abs_particion + pos_relativa_bloque_datos*2048);
        fread(buffer + i, sizeof(unsigned char), n_bytes_a_leer - i  , disk -> file_pointer);
        i+= n_bytes_a_leer - i ;
       }
        
      else{
         fseek(disk -> file_pointer, puntero_abs_particion + pos_relativa_bloque_datos*2048, SEEK_SET);
-        printf("ubicacion bloque datos: %i %lu\n",bloque_inicio_lectura , puntero_abs_particion + pos_relativa_bloque_datos*2048);
+        printf("ubicacion bloque datos: %lu %lu\n",bloque_inicio_lectura , puntero_abs_particion + pos_relativa_bloque_datos*2048);
         fread(buffer + i, sizeof(unsigned char), 2048 , disk -> file_pointer);
         i+= 2048;
 

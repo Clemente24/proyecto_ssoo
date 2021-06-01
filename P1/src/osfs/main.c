@@ -45,9 +45,9 @@ int main(int argc, char **argv)
     char* name = "dog.mp3";
     osFILE* os_file=os_open(name,'r');  //osFILE* os_file= 
     printf("printando\n");
-    //printf("Nombre  %s",os_file->name);
-    //printf("Directory ptr: %d", os_file->directory_ptr);
-    //printf("index ptr: %d", os_file->index_ptr);
+    // printf("Nombre  %s",os_file->name);
+    // printf("Directory ptr: %d", os_file->directory_ptr);
+    // printf("index ptr: %d", os_file->index_ptr);
     // printf('Size: %d', os_file->size);
     /* Forma para hacer con array*/
     //Ponemos el puntero al inicio del archivo
