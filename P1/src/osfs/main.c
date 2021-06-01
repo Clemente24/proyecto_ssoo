@@ -102,18 +102,26 @@ int main(int argc, char **argv)
     };
     unsigned char *buffer = malloc(sizeof(unsigned char) * 2100 );
     
-    FILE* dog = fopen("dog_2.mp3", "w");
+    FILE* dog = fopen("nene.txt", "w");
 
     // fwrite(buffer, sizeof(char), 2100, dog);
     
 
     // os_read(file_desc, buffer, 2100);
-    osFILE* os_file_2=os_open("dog.mp3",'r');
+    osFILE* os_file_2=os_open("nene.txt",'r');
 
     while(os_file_2 -> bytes_read < os_file_2-> size){
-        unsigned char buffer_aux[2048] = "";
-        os_read(os_file_2, &buffer_aux, 2048);
-        fwrite(&buffer_aux, sizeof(char), 2048, dog);
+        if ((os_file_2-> size - os_file_2 -> bytes_read) >= 2048){
+            unsigned char buffer_aux[2048] = "";
+            os_read(os_file_2, buffer_aux, 2048);
+            fwrite(&buffer_aux, sizeof(char), 2048, dog);
+        }else{
+            const unsigned long int bytes_left = os_file_2-> size - os_file_2 -> bytes_read;
+            unsigned char buffer_aux[] = "";
+            os_read(os_file_2, buffer_aux, bytes_left);
+            fwrite(&buffer_aux, sizeof(char), bytes_left, dog);
+        }
+        
     }
 
     fclose(dog);
