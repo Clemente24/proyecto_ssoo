@@ -299,6 +299,27 @@ int get_file_index_absolute_ptr(Directory directory, char* filename){
 
 }
 
+int get_file_index_relative_ptr(Directory directory, char* filename){
+    for (int i = 0; i<64; i++){
+        //Buscamos el primer archivo con ese nombre
+        if (is_valid_directory_entry(directory, i)){
+            char nombre_aux[28];
+            //HAcemos que la variable nombre_aux, obtenga el nombre del archivo
+            nombre_archivo(directory, i, nombre_aux);
+            if(strcmp(filename, nombre_aux) == 0){
+                //obtenemos la pos relativa (en bloques)
+                int pos_relativa = get_index_relative_position(directory, i);
+
+                return pos_relativa;
+            }
+
+        }
+    }
+    printf("Archivo inexistente en el disco\n");
+    return -1;
+
+}
+
 int get_index_relative_position(Directory directory, int index){
     if (is_valid_directory_entry(directory, index)){
 
