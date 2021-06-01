@@ -18,6 +18,7 @@ typedef struct disk
     Mbt* mbt;
     Directory directory;
     FILE* file_pointer;
+    int partition_id;
   
 } Disk;
 

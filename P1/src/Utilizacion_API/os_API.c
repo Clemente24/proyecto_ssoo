@@ -10,10 +10,10 @@ void os_mount(char* diskname, int partition_id){
     /* Toma las variables globales declaradas en el header y les asigna valor */
     int indice;
     disk = init_disk(diskname);
-    
     indice = get_partition_index(partition_id);
     particion_montada = disk -> mbt->entradas[indice];
     disk->directory = directory_init(indice);
+    disk->partition_id = partition_id;
     
 }
 
@@ -249,7 +249,10 @@ void os_bitmap(unsigned block){
       unsigned char * value = malloc(sizeof(unsigned char));
       int used = 0;
       int contador = 0;
-      for (int i = 0; i < 2048; i++){  //Falta multiplicarlo por el numero de bloques
+      int index = get_partition_index(disk-> partition_id);
+      int nro_bloques = get_partition_size(index);
+      int bloques_btmp = ceil(nro_bloques/16384);
+      for (int i = 0; i < 2048*bloques_btmp; i++){  //Falta multiplicarlo por el numero de bloques
         fread(value, sizeof(unsigned char), 1, disk -> file_pointer);
         for (int i = 7; i > -1; i--){
           if(((*value >> i) & 1) == 1){
