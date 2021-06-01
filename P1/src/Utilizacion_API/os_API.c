@@ -525,3 +525,33 @@ osFILE* os_open(char* filename, char mode){
       }
     }
    }
+
+int save_file(char * filename){
+    if (os_exists(filename)){
+        FILE* file_to_save = fopen(filename, "w");
+    
+        osFILE* os_file=os_open(filename,'r');
+
+        while(os_file -> bytes_read < os_file-> size){
+            if ((os_file-> size - os_file -> bytes_read) >= 2048){
+                unsigned char buffer_aux[2048] = "";
+                os_read(os_file, buffer_aux, 2048);
+                fwrite(&buffer_aux, sizeof(char), 2048, file_to_save );
+            }else{
+                const unsigned long int bytes_left = os_file-> size - os_file -> bytes_read;
+                unsigned char buffer_aux[] = "";
+                os_read(os_file, buffer_aux, bytes_left);
+                fwrite(&buffer_aux, sizeof(char), bytes_left, file_to_save );
+            }
+            
+        }
+
+        fclose(file_to_save );
+
+        free(os_file);
+        return 0;
+    }else{
+        printf("Archivo inexistente en esta particion\n");
+        return 1;
+    }
+}

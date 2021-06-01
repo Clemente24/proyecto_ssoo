@@ -45,6 +45,7 @@ int main(int argc, char **argv)
     char* name = "dog.mp3";
     osFILE* os_file=os_open(name,'r');  //osFILE* os_file= 
     printf("printando\n");
+    free(os_file);
     // printf("Nombre  %s",os_file->name);
     // printf("Directory ptr: %d", os_file->directory_ptr);
     // printf("index ptr: %d", os_file->index_ptr);
@@ -101,34 +102,15 @@ int main(int argc, char **argv)
     .bytes_read = 0
     };
     unsigned char *buffer = malloc(sizeof(unsigned char) * 2100 );
-    
-    FILE* dog = fopen("nene.txt", "w");
-
     // fwrite(buffer, sizeof(char), 2100, dog);
-    
-
     // os_read(file_desc, buffer, 2100);
-    osFILE* os_file_2=os_open("nene.txt",'r');
-
-    while(os_file_2 -> bytes_read < os_file_2-> size){
-        if ((os_file_2-> size - os_file_2 -> bytes_read) >= 2048){
-            unsigned char buffer_aux[2048] = "";
-            os_read(os_file_2, buffer_aux, 2048);
-            fwrite(&buffer_aux, sizeof(char), 2048, dog);
-        }else{
-            const unsigned long int bytes_left = os_file_2-> size - os_file_2 -> bytes_read;
-            unsigned char buffer_aux[] = "";
-            os_read(os_file_2, buffer_aux, bytes_left);
-            fwrite(&buffer_aux, sizeof(char), bytes_left, dog);
-        }
-        
-    }
-
-    fclose(dog);
-
-
     free(file_desc);
     free(buffer);
+
+    /* Test para probar os_open y os_read!*/
+    save_file("nene.txt");
+
+
     // Test create file inside disk WORKS:
     // int ubicacion = create_file(disk -> directory, 57997, "primer_archivo.txt");
     // printf("Guardamos el archivo en el indice %i del directorio \n", ubicacion);
