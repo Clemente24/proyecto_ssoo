@@ -42,10 +42,12 @@ int main(int argc, char **argv)
     //printf("vamos\n");
     bitmap_update(15);//0000010000100000
     os_bitmap(0);
-    char* name = "dog.mp3";
-    osFILE* os_file=os_open(name,'r');  //osFILE* os_file= 
-    printf("printando\n");
-    free(os_file);
+
+    /* mini test os_open */
+    // char* name = "dog.mp3";
+    // osFILE* os_file=os_open(name,'r');  //osFILE* os_file= 
+    // printf("printando\n");
+    // free(os_file);
     // printf("Nombre  %s",os_file->name);
     // printf("Directory ptr: %d", os_file->directory_ptr);
     // printf("index ptr: %d", os_file->index_ptr);
@@ -108,7 +110,7 @@ int main(int argc, char **argv)
     free(buffer);
 
     /* Test para probar os_open y os_read!*/
-    save_file("nene.txt");
+    save_file("mystery.mp3");
 
 
     // Test create file inside disk WORKS:
