@@ -439,8 +439,9 @@ int bitmap_invalid(int block){
     for (int j = 7; j > -1; j--){
       if (contador == block){
         fseek(disk -> file_pointer, (disk ->directory.directory_byte_pos)+2048+i, SEEK_SET);
+        if (*value & (1 << j) != 0){
         *value -= 1 << j; //Para escribir el bit
-        fwrite(value, sizeof(unsigned char), 1, disk -> file_pointer);
+        fwrite(value, sizeof(unsigned char), 1, disk -> file_pointer);}
         free(value);
         return 1;
       }
