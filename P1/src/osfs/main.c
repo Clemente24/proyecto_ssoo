@@ -102,8 +102,22 @@ int main(int argc, char **argv)
     };
     unsigned char *buffer = malloc(sizeof(unsigned char) * 2100 );
     
+    FILE* dog = fopen("dog.mp3", "w");
 
-    os_read(file_desc, buffer, 2100);
+    // fwrite(buffer, sizeof(char), 2100, dog);
+    
+
+    // os_read(file_desc, buffer, 2100);
+
+    while(file_desc -> bytes_read < file_desc -> size){
+        unsigned char buffer_aux[2048] = "";
+        os_read(file_desc, &buffer_aux, 2048);
+        fwrite(&buffer_aux, sizeof(char), 2048, dog);
+    }
+
+    fclose(dog);
+
+
     free(file_desc);
     free(buffer);
     // Test create file inside disk WORKS:
