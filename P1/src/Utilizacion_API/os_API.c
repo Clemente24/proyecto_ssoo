@@ -391,6 +391,7 @@ int os_read(osFILE* file_desc, void* buffer, int nbytes){
    // indice del bloque de incio de la lectura 
    unsigned long int bloque_inicio_lectura = floor(file_desc->bytes_read/2048);
    unsigned long int offset_bloque =  file_desc->bytes_read - bloque_inicio_lectura*2048 ;
+//    printf("bytes_read: %lu \nbloque inicio lectura: %lu\noffset bloque: %lu \n", file_desc -> bytes_read,  bloque_inicio_lectura , offset_bloque);
    int i=0; 
    int primer_bloque = 1;
    //nos posicionamos en el bloque indice donde debemos empezar a leer
@@ -487,7 +488,7 @@ osFILE* os_open(char* filename, char mode){
           os_file->directory_ptr =disk->directory.directory_byte_pos + dir_block*32;
       os_file -> index_ptr = disk->directory.directory_byte_pos+ index_block*2048;
       os_file->size = file_data(os_file->index_ptr);
-      os_file -> bytes_read = 1; //Se inicia en 1
+      os_file -> bytes_read = 0; //Se inicia en 0
       return os_file;
         } else{
             printf("ARCHIVO NO EXISTE\n");
