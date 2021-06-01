@@ -367,7 +367,7 @@ unsigned int file_data(unsigned int pt){
   // for (int i=0 ; i<5;i++){
   //   printf("%x\n",buffer[i]);
   // }
-  unsigned int size = buffer[0]<<32|buffer[1]<<24|buffer[2]<<16|buffer[3]<<8|buffer[4];
+  unsigned long int size = buffer[0]<<32|buffer[1]<<24|buffer[2]<<16|buffer[3]<<8|buffer[4];
   free(buffer);
   return size;
 };
@@ -441,7 +441,7 @@ int bitmap_invalid(int block){
     for (int j = 7; j > -1; j--){
       if (contador == block){
         fseek(disk -> file_pointer, (disk ->directory.directory_byte_pos)+2048+i, SEEK_SET);
-        if (*value & (1 << j) != 0){
+        if ((*value & (1 << j)) != 0){
         *value -= 1 << j; //Para escribir el bit
         fwrite(value, sizeof(unsigned char), 1, disk -> file_pointer);}
         free(value);
@@ -460,7 +460,7 @@ int os_rm(char* filename){
     fseek(disk -> file_pointer, pos_absoluta_bloque_indice + 5, SEEK_SET);
     // marcamos validos los bloques de datos del bitmap
     for (int i=0; i<681; i++ ){
-      char posicion_relativa[3];
+      unsigned char posicion_relativa[3];
       fread(posicion_relativa, sizeof(unsigned char), 3, disk -> file_pointer);
       unsigned long int pos_relativa_bloque_datos = (posicion_relativa[0]<<16)|(posicion_relativa[1]<<8)|posicion_relativa[2];
       bitmap_invalid(pos_relativa_bloque_datos);
@@ -489,6 +489,7 @@ osFILE* os_open(char* filename, char mode){
       os_file -> index_ptr = disk->directory.directory_byte_pos+ index_block*2048;
       os_file->size = file_data(os_file->index_ptr);
       os_file -> bytes_read = 0; //Se inicia en 0
+      os_file -> read_mode = mode;
       return os_file;
         } else{
             printf("ARCHIVO NO EXISTE\n");
@@ -518,6 +519,7 @@ osFILE* os_open(char* filename, char mode){
               return 0;
             } else{
               os_file->directory_ptr = disk->directory.directory_byte_pos + ptr*32;
+              os_file -> read_mode = mode;
             }
             }
         
@@ -555,3 +557,26 @@ int save_file(char * filename){
         return 1;
     }
 }
+
+int os_close(osFILE* file_desc){
+    printf("Closing");
+    if (file_desc -> read_mode == 'r'){
+        free(file_desc);
+        return 0;
+    }else if(file_desc -> read_mode == 'w'){
+        //Garantizamos que el archivo existe
+        if (os_exists(file_desc -> name )){
+            free(file_desc);
+            return 0;
+        }else{
+            printf("Hubo un error al guardar el archivo\n");
+            free(file_desc);
+            return 1;
+        }
+
+    }
+
+    return 0;
+
+}
+

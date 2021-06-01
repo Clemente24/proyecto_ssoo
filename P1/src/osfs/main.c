@@ -12,7 +12,7 @@ int main(int argc, char **argv)
     printf("monto el disco\n");
     //Cambiar el id de la particion aca, en el disco filled, las particiones validas en el filled son 2, 3 y 4
     //Si se usan particiones invalidas, el directorio no funciona bien, pq las particiones invalidas tienen tamaños de bloque que no tienen sentido
-    os_mount(argv[1], 2);
+    os_mount(argv[1], 4);
     
     // disk -> mbt->entradas[10][0] = 0b10001010;
 
@@ -68,6 +68,7 @@ int main(int argc, char **argv)
     printf("os_mbt()\n");
     os_mbt();
 
+    
 
 
 
@@ -95,22 +96,12 @@ int main(int argc, char **argv)
     printf("\n>ls: \n");
     os_ls();
     //Test osread
-    osFILE* file_desc = malloc(sizeof(osFILE));
-    *file_desc= (osFILE) {
-    .name= "dog.mp3",
-    .index_ptr = 117998592,
-    .directory_ptr = 10,
-    .size = 486242,
-    .bytes_read = 0
-    };
-    unsigned char *buffer = malloc(sizeof(unsigned char) * 2100 );
-    // fwrite(buffer, sizeof(char), 2100, dog);
-    // os_read(file_desc, buffer, 2100);
-    free(file_desc);
-    free(buffer);
+
+    //test delete
+    os_rm("mercedes_benz.mp4");
 
     /* Test para probar os_open y os_read!*/
-    save_file("mystery.mp3");
+    save_file("mercedes_benz.mp4");
 
 
     // Test create file inside disk WORKS:
