@@ -44,7 +44,7 @@ int delete_file(Directory directory, char* filename);
 /*Metodo para obtener puntero de bloque indice a partir de un filename*/
 
 int get_file_index_absolute_ptr(Directory directory, char* filename);
-
+int get_file_index_relative_ptr(Directory directory, char* filename);
 
 /*Metodo para representar una entrada*/
 int print_entry(Directory directory, int index);

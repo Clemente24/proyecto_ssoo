@@ -430,7 +430,49 @@ int os_read(osFILE* file_desc, void* buffer, int nbytes){
    file_desc -> bytes_read += n_bytes_a_leer;
    return n_bytes_a_leer;  
 }
+int bitmap_invalid(int block){
+  fseek(disk -> file_pointer, (disk ->directory.directory_byte_pos)+2048, SEEK_SET);  //Primer bloque de bitmap, 128 bloque siguientesal bloque de directorio
+  int contador = 0;
+  unsigned char * value = malloc(sizeof(unsigned char));
+  for (int i = 0; i < 128*1024; i++){
+    fread(value, sizeof(unsigned char), 1, disk -> file_pointer);
+    for (int j = 7; j > -1; j--){
+      if (contador == block){
+        fseek(disk -> file_pointer, (disk ->directory.directory_byte_pos)+2048+i, SEEK_SET);
+        *value -= 1 << j; //Para escribir el bit
+        fwrite(value, sizeof(unsigned char), 1, disk -> file_pointer);
+        free(value);
+        return 1;
+      }
+      contador ++;
+    }
+  }
+  free(value);
+  return 0;
+}
 
+int os_rm(char* filename){
+  if (os_exists(filename)){
+    int pos_absoluta_bloque_indice = get_file_index_absolute_ptr(disk->directory, filename);
+    fseek(disk -> file_pointer, pos_absoluta_bloque_indice + 5, SEEK_SET);
+    // marcamos validos los bloques de datos del bitmap
+    for (int i=0; i<681; i++ ){
+      char posicion_relativa[3];
+      fread(posicion_relativa, sizeof(unsigned char), 3, disk -> file_pointer);
+      unsigned long int pos_relativa_bloque_datos = (posicion_relativa[0]<<16)|(posicion_relativa[1]<<8)|posicion_relativa[2];
+      bitmap_invalid(pos_relativa_bloque_datos);
+    }
+    // ahora liberamos bloque indice
+    int pos_relativa_bloque_indice = get_file_index_relative_ptr(disk->directory,filename);
+    bitmap_invalid(pos_relativa_bloque_indice);
+    // liberamos la entrada del directorio
+    delete_file(disk->directory, filename);
+    return 0;
+  }
+  printf("archivo inexistente\n");
+  return 1;
+}
+  
 
 osFILE* os_open(char* filename, char mode){
     osFILE *os_file = malloc(sizeof(osFILE));
