@@ -391,6 +391,7 @@ int os_read(osFILE* file_desc, void* buffer, int nbytes){
    // indice del bloque de incio de la lectura 
    unsigned long int bloque_inicio_lectura = floor(file_desc->bytes_read/2048);
    unsigned long int offset_bloque =  file_desc->bytes_read - bloque_inicio_lectura*2048 ;
+//    printf("bytes_read: %lu \nbloque inicio lectura: %lu\noffset bloque: %lu \n", file_desc -> bytes_read,  bloque_inicio_lectura , offset_bloque);
    int i=0; 
    int primer_bloque = 1;
    //nos posicionamos en el bloque indice donde debemos empezar a leer
@@ -487,7 +488,7 @@ osFILE* os_open(char* filename, char mode){
           os_file->directory_ptr =disk->directory.directory_byte_pos + dir_block*32;
       os_file -> index_ptr = disk->directory.directory_byte_pos+ index_block*2048;
       os_file->size = file_data(os_file->index_ptr);
-      os_file -> bytes_read = 1; //Se inicia en 1
+      os_file -> bytes_read = 0; //Se inicia en 0
       return os_file;
         } else{
             printf("ARCHIVO NO EXISTE\n");
@@ -524,3 +525,33 @@ osFILE* os_open(char* filename, char mode){
       }
     }
    }
+
+int save_file(char * filename){
+    if (os_exists(filename)){
+        FILE* file_to_save = fopen(filename, "w");
+    
+        osFILE* os_file=os_open(filename,'r');
+
+        while(os_file -> bytes_read < os_file-> size){
+            if ((os_file-> size - os_file -> bytes_read) >= 2048){
+                unsigned char buffer_aux[2048] = "";
+                os_read(os_file, buffer_aux, 2048);
+                fwrite(&buffer_aux, sizeof(char), 2048, file_to_save );
+            }else{
+                const unsigned long int bytes_left = os_file-> size - os_file -> bytes_read;
+                unsigned char buffer_aux[] = "";
+                os_read(os_file, buffer_aux, bytes_left);
+                fwrite(&buffer_aux, sizeof(char), bytes_left, file_to_save );
+            }
+            
+        }
+
+        fclose(file_to_save );
+
+        free(os_file);
+        return 0;
+    }else{
+        printf("Archivo inexistente en esta particion\n");
+        return 1;
+    }
+}

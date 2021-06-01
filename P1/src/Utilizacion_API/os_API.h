@@ -72,4 +72,7 @@ int available_directory(int ptr);
 int available_block();
 unsigned int file_data(unsigned int pt);
 
+/* Funcion para crear un archivo en el pc que equivale al archivo encontrado en el disco*/
+int save_file(char * filename);
+
 osFILE * os_open(char * filename,char mode);
