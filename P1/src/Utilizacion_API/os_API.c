@@ -565,7 +565,7 @@ int save_file(char * filename){
 
         fclose(file_to_save );
 
-        free(os_file);
+        os_close(os_file);
         return 0;
     }else{
         printf("Archivo inexistente en esta particion\n");

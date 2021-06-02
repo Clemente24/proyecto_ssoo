@@ -42,6 +42,8 @@ int main(int argc, char **argv)
     //printf("vamos\n");
     //bitmap_update(15);//0000010000100000
     // bitmap_invalid(14);
+
+    /*** TEST BITMAP ****/
     os_bitmap(0);
 
     /* mini test os_open */
@@ -98,12 +100,11 @@ int main(int argc, char **argv)
     os_ls();
     //Test osread
     
-    printf("Pos absoluta del archivo osrs.png: %i\n", get_file_index_absolute_ptr(disk -> directory, "osrs.png"));
     //test delete
     os_rm("nene.txt");
 
-    /* Test para probar os_open y os_read!*/
-    // save_file("malloc.jpg");
+    /* Test para probar os_open en modo read y os_read y os_close en modo read*/
+    save_file("js.jpg");
 
 
     // Test create file inside disk WORKS:
