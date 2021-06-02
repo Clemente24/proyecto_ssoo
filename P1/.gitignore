@@ -3,11 +3,6 @@
 *.o
 osfs
 disk_test
-directory_test
-P1/directory_test
-simdiskformat.bin
-simdiskfilled.bin
-simdisk.bin
 *.vscode/*
 *.bin
 *.zip
