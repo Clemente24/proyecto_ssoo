@@ -9,7 +9,7 @@ int main(int argc, char **argv)
     //os_mount()
 
 
-    os_mount(argv[1], atoi(argv[2]));
+    os_mount(argv[1], 2);
     
     // disk -> mbt->entradas[10][0] = 0b10001010;
 
@@ -41,49 +41,19 @@ int main(int argc, char **argv)
     // bitmap_invalid(15);
 
     /*** TEST BITMAP ****/
-    os_bitmap(0);
+    //os_bitmap(0);
 
-    /* mini test os_open */
-    // char* name = "dog.mp3";
-    // osFILE* os_file=os_open(name,'r');  //osFILE* os_file=
-    // printf("printando\n");
-    // free(os_file);
-    // printf("Nombre  %s",os_file->name);
-    // printf("Directory ptr: %d", os_file->directory_ptr);
-    // printf("index ptr: %d", os_file->index_ptr);
-    // printf('Size: %d', os_file->size);
-    /* Forma para hacer con array*/
-    //Ponemos el puntero al inicio del archivo
-    //fseek(disk -> file_pointer,0, SEEK_SET);
-    // char array_de_bytes[6] = {0x80, 0x70, 0x80, 0x90, 0xaa};
-    // sprintf(array_de_bytes, "%x%x%x");
-    // fwrite(array_de_bytes, sizeof(char), 6, disk -> file_pointer);
+    // Test os_mbt();
+    printf("os_mbt()\n");
+    os_mbt();
+
+    // Test create_partition();
+    os_create_partition(5, 30000);
+
 
     if (is_partition_valid(10)){
         printf("Partition %i is valid", 10);
     }
-
-
-    // Test os_mbt();
-    printf("os_mbt()\n");
-    os_mbt();
-
-
-
-
-    /**** Tests directorio *****/
-
-    unsigned int primerbyte = 0b01101010;
-    printf("primerbyte antes: %d \n", primerbyte);
-    // primerbyte = (primerbyte & ~(1UL << 8)) | (1 << 8);
-    primerbyte = (primerbyte ^= 1UL << 7);
-    primerbyte = (primerbyte ^= 1UL << 7);
-
-    printf("primerbyte despues: %d \n", primerbyte);
-
-    // Test os_mbt();
-    printf("os_mbt()\n");
-    os_mbt();
 
     //Test os_exists
     printf("os_exists\n");
@@ -98,9 +68,8 @@ int main(int argc, char **argv)
     // os_rm("js.jpg");
 
 
-
     /* Test para probar os_open en modo read y os_read y os_close en modo read*/
-    save_file("pep.jpg");
+    // save_file("pep.jpg");
 
     //[Test os_write]
     /*osFILE *file_desc = os_open("test69.txt", 'w');
@@ -120,7 +89,7 @@ int main(int argc, char **argv)
     //Test delete file inside disk:
     // delete_file(disk -> directory, "Como_Estamos.txt");
 
-    printf("\nDelete partition:\n");
+    // printf("\nDelete partition:\n");
 
     //Test delete_partition
     // os_delete_partition(10);

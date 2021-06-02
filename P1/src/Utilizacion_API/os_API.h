@@ -2,6 +2,9 @@
 #include <string.h> // strtok, strcpy, etc.
 #include <stdlib.h> // malloc, calloc, free, etc.
 #include "directory.h"
+#include <math.h>
+#include "bloqueindice.h"
+
 // Tells the compiler to compile this file once
 #pragma once
 
@@ -48,13 +51,13 @@ int is_partition_valid(int indice);
 int get_partition_id(int indice);
 int get_partition_size(int indice);
 int get_partition_block_id(int indice);
-int get_first_available_space(int** ocupacion_disco, int size);
-int create_partition(int pos, int id, int size);
+int get_first_available_space(int ocupacion_disco[128][2], int size);
+int create_partition(unsigned int pos, unsigned int id, unsigned int size);
 int os_delete_partition(int id);
 int os_reset_mbt();
 int os_mbt();
 int os_create_partition(int id, int size);
-
+int get_partition_index(int id);
 // funcion para leer archivos
 int os_read(osFILE *file_desc, void *buffer, int nbytes);
 

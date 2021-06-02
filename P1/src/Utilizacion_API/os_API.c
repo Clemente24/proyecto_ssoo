@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 void os_mount(char *diskname, int partition_id)
 {
   /* Toma las variables globales declaradas en el header y les asigna valor */
@@ -61,7 +62,8 @@ int is_partition_valid(int indice)
 {
   int bit;
   unsigned char primer_byte;
-
+  printf("Indice: %i \n", indice);
+  printf("mbt partition 1: %x \n", disk->mbt->entradas[indice]);
   primer_byte = disk->mbt->entradas[indice][0];
   bit = primer_byte & (1 << 7) ? 1 : 0;
 
@@ -138,7 +140,6 @@ int os_delete_partition(int id){
     return 0;
 }
 
-
 int os_reset_mbt()
 {
   for (int i = 0; i < 128; i++)
@@ -152,11 +153,14 @@ int os_create_partition(int id, int size){
     int pos;
     // Guarda el bloque de inicio de cada particion, y su tamaño
     int ocupacion_disco[128][2];
+    int indice_particion = get_partition_index(id);
 
-    if (is_partition_valid(id)){
+    if (is_partition_valid(indice_particion)){
         // Partición con ese id ya está tomada
+        printf("Ya existe una particion con ese id\n");
         return 1;
     }
+
     for (int i = 0; i < 128; i++){
             if (is_partition_valid(i)){
                 ocupacion_disco[i][0] = get_partition_block_id(i);
@@ -169,26 +173,85 @@ int os_create_partition(int id, int size){
             }
 
     pos = get_first_available_space(ocupacion_disco, size);
-    create_partition(pos, id, size);
-
-    return 0;
+    if (pos >= 0)
+    {
+        create_partition(pos, id, size);
+        printf("Particion creada satisfactoriamente\n");
+        return 0;
+    }
+    return 1;
     }
 }
 
-int create_partition(int pos, int id, int size){
+int get_free_mbt_entry(){
+    for (int i = 0; i < 128; i++){
+        if (!is_partition_valid(i)){
+            return i;
+        }
+    }
+    return -1;
+}
+
+int create_partition(unsigned int pos, unsigned int id, unsigned int size){
   // transformar id a byte, ver en que posicion de la mbt ingresarla y setear size 
-  int primer_byte_entrada;
-  
-  primer_byte_entrada = disk->mbt->entradas[id][0];
-//   primerbyte = (primerbyte ^= 1UL << 7);
-  // Cambiamos el primer bit del primer byte de la entrada a 1
-  primer_byte_entrada = (primer_byte_entrada & ~(1UL << 8)) | (1 << 8);
-//   abs_block_id = (entrada[1] << 16) | (entrada[2] << 8) | (entrada[3]);
-//   disk->mbt->entradas[id][0] = ;
+    int primer_byte_entrada;
+    unsigned char id_absoluto_directorio[3];
+    unsigned char tamano_particion[4];
+    int mbt_entry;
+    int numero_bloques_bitmap;
+
+    primer_byte_entrada = 0b10000000 | id;
+
+    id_absoluto_directorio[0] = pos >> 16 & 0xFF;
+    id_absoluto_directorio[1] = pos >> 8  & 0xFF;
+    id_absoluto_directorio[2] = pos       & 0xFF;
+
+    tamano_particion[0] = size >> 24  & 0xFF;
+    tamano_particion[1] = size >> 16  & 0xFF;
+    tamano_particion[2] = size >> 8   & 0xFF;
+    tamano_particion[3] = size        & 0xFF;
+
+    disk->mbt->entradas[id][0] = primer_byte_entrada;
+    disk->mbt->entradas[id][1] = id_absoluto_directorio[0];
+    disk->mbt->entradas[id][2] = id_absoluto_directorio[1];
+    disk->mbt->entradas[id][3] = id_absoluto_directorio[2];
+    disk->mbt->entradas[id][4] = tamano_particion[0];
+    disk->mbt->entradas[id][5] = tamano_particion[1];
+    disk->mbt->entradas[id][6] = tamano_particion[2];
+    disk->mbt->entradas[id][7] = tamano_particion[3];
+    
+    mbt_entry = get_free_mbt_entry();
+    if (mbt_entry >= 0){
+        fseek(disk->file_pointer, 8 * mbt_entry, SEEK_SET);
+        fwrite(disk->mbt->entradas[id], sizeof(char), 8, disk->file_pointer);
+         // Escribir bloque directorio en posición "pos", escribir bloques bitmap en posicion "pos + 1"(medido en #bloques)
+        fseek(disk->file_pointer, 1024 + 2048 * pos, SEEK_SET);
+        char array_de_0[2048] = "";
+        fwrite(array_de_0, sizeof(char), 2048, disk->file_pointer);
+        //Escribir bitmap en pos "pos + 1"
+        numero_bloques_bitmap =(int) ceil(size / (16384.0));
+
+        for (int i = 0; i < numero_bloques_bitmap; i++){
+            if (i == 0){
+                array_de_0[0] = 0x80;
+            }
+            fseek(disk->file_pointer, 1024 + 2048 * (pos + 1 + i), SEEK_SET);
+            fwrite(array_de_0, sizeof(char), 2048, disk->file_pointer);
+            array_de_0[0] = 0x00;
+        }
+    }
+    else
+    {
+        printf("No hay entradas libres en la mbt");
+        return 1;
+
+    }
+
+
 return 0;
 }
 
-int get_first_available_space(int** ocupacion_disco, int size){
+int get_first_available_space(int ocupacion_disco[128][2], int size){
     // Contiene el indice del bloque directorio de cada particion
     int sorted_indices[128];
     // Contiene el tamaño correspondiente al indice en la misma posición en sorted_indices
@@ -220,7 +283,7 @@ int get_first_available_space(int** ocupacion_disco, int size){
       }
     }
     if (first_available_space_index == -1){
-      printf("There is no available space");
+      printf("There is no available space\n");
     }
     return first_available_space_index;
   }
@@ -245,7 +308,6 @@ int os_exists(char* filename){
         return 1;
       }
     }
-    return 0;
   }
 
   return 0;
@@ -281,7 +343,7 @@ void os_bitmap(unsigned block)
     int index = get_partition_index(disk->partition_id);
     int nro_bloques = get_partition_size(index);
     int bloques_btmp = (int) ceil(nro_bloques / 16384.0);
-    int cant_bytes_bitmap = (int) ceil(nro_bloques / 8.0);
+    int cant_bytes_bitmap = (int) ceil(nro_bloques / 8.0); 
     for (int i = 0; i < cant_bytes_bitmap; i++)
     { //Falta multiplicarlo por el numero de bloques
       fseek(disk->file_pointer, (disk->directory.directory_byte_pos) + 2048 + i, SEEK_SET);
@@ -491,6 +553,7 @@ int os_read(osFILE *file_desc, void *buffer, int nbytes)
   file_desc->bytes_read += n_bytes_a_leer;
   return n_bytes_a_leer;
 }
+
 int bitmap_invalid(int block)
 {
   fseek(disk->file_pointer, (disk->directory.directory_byte_pos) + 2048, SEEK_SET); //Primer bloque de bitmap, 128 bloque siguientesal bloque de directorio
@@ -617,6 +680,7 @@ osFILE *os_open(char *filename, char mode)
         {
           os_file->directory_ptr = disk->directory.directory_byte_pos + ptr * 32;
           os_file->read_mode = mode;
+          
         }
       }
 
