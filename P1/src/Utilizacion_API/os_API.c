@@ -167,6 +167,7 @@ int create_partition(int pos, int id, int size){
   int primer_byte_entrada;
   
   primer_byte_entrada = disk->mbt->entradas[id][0];
+//   primerbyte = (primerbyte ^= 1UL << 7);
   // Cambiamos el primer bit del primer byte de la entrada a 1
   primer_byte_entrada = (primer_byte_entrada & ~(1UL << 8)) | (1 << 8);
 //   abs_block_id = (entrada[1] << 16) | (entrada[2] << 8) | (entrada[3]);
