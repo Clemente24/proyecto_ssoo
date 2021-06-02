@@ -40,6 +40,7 @@ int main(int argc, char **argv)
     // }
     //delete_file(disk->directory,"spike.gif");
     //printf("vamos\n");
+<<<<<<< HEAD
     bitmap_update(15);//0000010000100000
     os_bitmap(0);
     char* name = "dog.mp3";
@@ -48,6 +49,22 @@ int main(int argc, char **argv)
     //printf("Nombre  %s",os_file->name);
     //printf("Directory ptr: %d", os_file->directory_ptr);
     //printf("index ptr: %d", os_file->index_ptr);
+=======
+    // bitmap_update(15);//0000010000100000
+    // bitmap_invalid(15);
+
+    /*** TEST BITMAP ****/
+    os_bitmap(0);
+
+    /* mini test os_open */
+    // char* name = "dog.mp3";
+    // osFILE* os_file=os_open(name,'r');  //osFILE* os_file=
+    // printf("printando\n");
+    // free(os_file);
+    // printf("Nombre  %s",os_file->name);
+    // printf("Directory ptr: %d", os_file->directory_ptr);
+    // printf("index ptr: %d", os_file->index_ptr);
+>>>>>>> a5751a349f41fa1fbb7defba8494103c7cf6d302
     // printf('Size: %d', os_file->size);
     /* Forma para hacer con array*/
     //Ponemos el puntero al inicio del archivo
@@ -98,6 +115,7 @@ int main(int argc, char **argv)
     printf("Archivo nene.txt existe? : %i\n", os_exists("nene.txt"));
 
     // //Test os_ls
+<<<<<<< HEAD
     printf("\n>ls: \n");
     os_ls();
     //Test osread
@@ -115,6 +133,31 @@ int main(int argc, char **argv)
     os_read(file_desc, buffer, 2100);
     free(file_desc);
     free(buffer);
+=======
+    //printf("\n>ls: \n");
+    os_ls();
+    //Test osread
+
+    //test delete
+    os_rm("js.jpg");
+
+
+
+    /* Test para probar os_open en modo read y os_read y os_close en modo read*/
+    save_file("js.jpg");
+
+    //[Test os_write]
+    /*osFILE *file_desc = os_open("test69.txt", 'w');
+    int nbytes = 1200;
+    //char *buffer[21] = {0x48, 0x6f, 0x6c, 0x61, 0x20, 0x65, 0x73, 0x74, 0x65, 0x20, 0x65, 0x73, 0x20, 0x75, 0x6e, 0x20, 0x74, 0x65, 0x78, 0x74, 0x6f};
+    char *buffer = malloc(sizeof(unsigned char *) * 2100);
+    os_write(file_desc, buffer, nbytes);
+    free(file_desc);*/
+
+    //os_ls();
+    //save_file("test69.txt");
+
+>>>>>>> a5751a349f41fa1fbb7defba8494103c7cf6d302
     // Test create file inside disk WORKS:
     // int ubicacion = create_file(disk -> directory, 57997, "primer_archivo.txt");
     // printf("Guardamos el archivo en el indice %i del directorio \n", ubicacion);
@@ -124,7 +167,8 @@ int main(int argc, char **argv)
 
     // printf("\nDelete partition:\n");
 
-    os_delete_partition(10);
+    //Test delete_partition
+    // os_delete_partition(10);
 
 
     /*Cerrar archivo*/
@@ -137,3 +181,16 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
+//BITMAP DESPUES DE BORRAR
+//Bloques LIBRES 65257
+// /Bloques OCUPADOS 279 (Se borraron 146 + 1 bloques correctamente, el +1 es por el bloque indice :D)
+
+//TAmano archivo js.jpg en bytes : 24985, en bloques : 13
+//BITMAP ANTES DE BORRAR
+// Bloques LIBRES 121685
+// Bloques OCUPADOS 1771
+
+//BITMAP DESPUES DE BORRAR
+// Bloques LIBRES 121699
+// Bloques OCUPADOS 1757 = (1771 - 13 - 1 = 1757, el -1 es porque tambien eliminamos el bloque indice :D)
