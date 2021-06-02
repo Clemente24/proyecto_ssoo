@@ -465,26 +465,23 @@ int os_rm(char* filename){
     //  unsigned char size[5];
     //  fread(size, sizeof(unsigned char), 5, disk -> file_pointer);
     //  unsigned long int file_size = size[0]<<32|size[1]<<24|size[2]<<16|size[3]<<8|size[4];
-    printf("FILE SIZE  %lu\n",file_size);
-     int nro_bloque = ceil(file_size/2048);
-     fseek(disk -> file_pointer, pos_absoluta_bloque_indice + 5, SEEK_SET);
+    unsigned long int nro_bloque = ceil(file_size/2048);
+    fseek(disk -> file_pointer, pos_absoluta_bloque_indice + 5, SEEK_SET);
     // // marcamos validos los bloques de datos del bitmap
-    printf("NRO BLOQUE %lu\n",nro_bloque);
+    // printf("NRO BLOQUE %lu\n",nro_bloque);
     for (int i=0; i<nro_bloque; i++ ){
       unsigned char posicion_relativa[3]="";
+      fseek(disk -> file_pointer, pos_absoluta_bloque_indice + 5 + i*3, SEEK_SET);
       fread(posicion_relativa, sizeof(unsigned char), 3, disk -> file_pointer);
-      for (int j=0; j<3;j++){
-        printf("POS REL sin %x\n",posicion_relativa[j]);
-      }
       unsigned long int pos_relativa_bloque_datos = (posicion_relativa[0]<<16)|(posicion_relativa[1]<<8)|posicion_relativa[2];
       if (pos_relativa_bloque_datos!=0){
-      bitmap_invalid(pos_relativa_bloque_datos);
+        bitmap_invalid(pos_relativa_bloque_datos);
       }
-      printf("POS REL adentro %lu\n",pos_relativa_bloque_datos);
+    //   printf("POS REL adentro %lu\n",pos_relativa_bloque_datos);
     }
     // ahora liberamos bloque indice
     int pos_relativa_bloque_indice = get_file_index_relative_ptr(disk->directory,filename);
-    printf("POS REL %d\n",pos_relativa_bloque_indice);
+    // printf("POS REL %d\n",pos_relativa_bloque_indice);
     bitmap_invalid(pos_relativa_bloque_indice);
     // liberamos la entrada del directorio
     delete_file(disk->directory, filename);

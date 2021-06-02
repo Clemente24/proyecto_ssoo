@@ -41,7 +41,7 @@ int main(int argc, char **argv)
     //delete_file(disk->directory,"spike.gif");
     //printf("vamos\n");
     //bitmap_update(15);//0000010000100000
-    bitmap_invalid(14);
+    // bitmap_invalid(14);
     os_bitmap(0);
 
     /* mini test os_open */
@@ -97,12 +97,13 @@ int main(int argc, char **argv)
     printf("\n>ls: \n");
     os_ls();
     //Test osread
-
+    
+    printf("Pos absoluta del archivo osrs.png: %i\n", get_file_index_absolute_ptr(disk -> directory, "osrs.png"));
     //test delete
-    os_rm("visage.png");
+    os_rm("nene.txt");
 
     /* Test para probar os_open y os_read!*/
-    save_file("malloc.jpg");
+    // save_file("malloc.jpg");
 
 
     // Test create file inside disk WORKS:
