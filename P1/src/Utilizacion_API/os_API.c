@@ -251,7 +251,7 @@ void os_bitmap(unsigned block){
       int contador = 0;
       int index = get_partition_index(disk-> partition_id);
       int nro_bloques = get_partition_size(index);
-      int bloques_btmp = ceil(nro_bloques/16384);
+      int bloques_btmp = (int) ceil(nro_bloques/16384.0);
       for (int i = 0; i < 2048*bloques_btmp; i++){  //Falta multiplicarlo por el numero de bloques
         fread(value, sizeof(unsigned char), 1, disk -> file_pointer);
         for (int i = 7; i > -1; i--){
@@ -465,10 +465,10 @@ int os_rm(char* filename){
     //  unsigned char size[5];
     //  fread(size, sizeof(unsigned char), 5, disk -> file_pointer);
     //  unsigned long int file_size = size[0]<<32|size[1]<<24|size[2]<<16|size[3]<<8|size[4];
-    unsigned long int nro_bloque = ceil(file_size/2048);
+    unsigned long int nro_bloque = (unsigned long int) ceil(file_size/2048.0);
     fseek(disk -> file_pointer, pos_absoluta_bloque_indice + 5, SEEK_SET);
     // // marcamos validos los bloques de datos del bitmap
-    // printf("NRO BLOQUE %lu\n",nro_bloque);
+    printf("NRO BLOQUES %lu\n",nro_bloque);
     for (int i=0; i<nro_bloque; i++ ){
       unsigned char posicion_relativa[3]="";
       fseek(disk -> file_pointer, pos_absoluta_bloque_indice + 5 + i*3, SEEK_SET);
@@ -477,7 +477,9 @@ int os_rm(char* filename){
       if (pos_relativa_bloque_datos!=0){
         bitmap_invalid(pos_relativa_bloque_datos);
       }
-    //   printf("POS REL adentro %lu\n",pos_relativa_bloque_datos);
+      printf("POS REL adentro %i %lu\n",i ,pos_relativa_bloque_datos);
+      printf("POS ABS adentro %i %lu\n",i ,disk ->directory.directory_byte_pos + 2048 * pos_relativa_bloque_datos);
+
     }
     // ahora liberamos bloque indice
     int pos_relativa_bloque_indice = get_file_index_relative_ptr(disk->directory,filename);
@@ -574,7 +576,6 @@ int save_file(char * filename){
 }
 
 int os_close(osFILE* file_desc){
-    printf("Closing");
     if (file_desc -> read_mode == 'r'){
         free(file_desc);
         return 0;

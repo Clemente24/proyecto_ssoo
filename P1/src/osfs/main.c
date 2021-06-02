@@ -12,7 +12,7 @@ int main(int argc, char **argv)
     printf("monto el disco\n");
     //Cambiar el id de la particion aca, en el disco filled, las particiones validas en el filled son 2, 3 y 4
     //Si se usan particiones invalidas, el directorio no funciona bien, pq las particiones invalidas tienen tamaños de bloque que no tienen sentido
-    os_mount(argv[1], 2);
+    os_mount(argv[1], 3);
     
     // disk -> mbt->entradas[10][0] = 0b10001010;
 
@@ -40,8 +40,8 @@ int main(int argc, char **argv)
     // }
     //delete_file(disk->directory,"spike.gif");
     //printf("vamos\n");
-    //bitmap_update(15);//0000010000100000
-    // bitmap_invalid(14);
+    // bitmap_update(15);//0000010000100000
+    bitmap_invalid(15);
 
     /*** TEST BITMAP ****/
     os_bitmap(0);
@@ -100,11 +100,11 @@ int main(int argc, char **argv)
     os_ls();
     //Test osread
     
-    //test delete
-    os_rm("nene.txt");
+    /*Remover archivo existente*/
+    os_rm("ploblpem.png");
 
     /* Test para probar os_open en modo read y os_read y os_close en modo read*/
-    save_file("js.jpg");
+    // save_file("ploblpem.png");
 
 
     // Test create file inside disk WORKS:
@@ -129,3 +129,12 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
+//Tamano archivo ploblpem.png: 297763, en bloques: 146
+//BITMAP ANTES DE BORRAR
+//Bloques LIBRES 65110
+//Bloques OCUPADOS 426
+
+//BITMAP DESPUES DE BORRAR
+//Bloques LIBRES 65257
+// /Bloques OCUPADOS 279 (Se borraron 146 + 1 bloques correctamente, el +1 es por el bloque indice :D)
