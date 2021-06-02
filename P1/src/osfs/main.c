@@ -12,7 +12,7 @@ int main(int argc, char **argv)
     printf("monto el disco\n");
     //Cambiar el id de la particion aca, en el disco filled, las particiones validas en el filled son 2, 3 y 4
     //Si se usan particiones invalidas, el directorio no funciona bien, pq las particiones invalidas tienen tamaños de bloque que no tienen sentido
-    os_mount(argv[1], 4);
+    os_mount(argv[1], 2);
     
     // disk -> mbt->entradas[10][0] = 0b10001010;
 
@@ -40,7 +40,8 @@ int main(int argc, char **argv)
     // }
     //delete_file(disk->directory,"spike.gif");
     //printf("vamos\n");
-    bitmap_update(15);//0000010000100000
+    //bitmap_update(15);//0000010000100000
+    bitmap_invalid(14);
     os_bitmap(0);
 
     /* mini test os_open */
@@ -98,10 +99,10 @@ int main(int argc, char **argv)
     //Test osread
 
     //test delete
-    os_rm("mercedes_benz.mp4");
+    os_rm("visage.png");
 
     /* Test para probar os_open y os_read!*/
-    save_file("mercedes_benz.mp4");
+    save_file("malloc.jpg");
 
 
     // Test create file inside disk WORKS:

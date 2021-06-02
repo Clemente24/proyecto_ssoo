@@ -72,7 +72,7 @@ void os_bitmap(unsigned block);
 int bitmap_invalid(int block);
 int available_directory(int ptr);
 int available_block();
-unsigned int file_data(unsigned int pt);
+unsigned long int file_data(unsigned int pt);
 
 /* Funcion para crear un archivo en el pc que equivale al archivo encontrado en el disco*/
 int save_file(char * filename);
