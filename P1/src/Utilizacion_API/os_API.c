@@ -569,7 +569,7 @@ osFILE *os_open(char *filename, char mode)
         bitmap_update(block);
         //int ptr = available_directory(os_file->directory_ptr);
         //7. Crear el archivo
-        os_file->size = sizeof(osFILE);
+        os_file->size = 0;
         escribir_bloque_indice(os_file->index_ptr, os_file->size, 1024);
         //4. Buscar una entrada en el directorio
         int ptr = create_file(disk->directory, block, os_file->name);
@@ -595,12 +595,13 @@ return contador: bytes escritos efectivamente
 int os_write(osFILE *file_desc, void *buffer, int nbytes)
 {
   /*Si nbytes supera el tamaño maximo, solo escribo el maximo*/
-  int size_max = 2048 * 681;
-  if (nbytes > size_max)
-    nbytes = size_max;
+  int max_size = 2048 * 681;
+  if (nbytes > max_size)
+    nbytes = max_size;
 
   /*Escribir los nbytes*/
   int contador = 0;
+  int bloques = 0;
   while (contador < nbytes)
   {
     /*Encontrar un bloque libre*/
@@ -609,20 +610,45 @@ int os_write(osFILE *file_desc, void *buffer, int nbytes)
     {
       /*No hay bloques libres, detener escritura*/
       printf("[WRITE] No quedan bloques libres");
+      /*Retornar bytes totales escritos*/
+      file_desc->size = contador;
+      fseek(disk->file_pointer, file_desc->index_ptr, SEEK_SET);
+      fwrite(&contador, sizeof(char), 5, disk->file_pointer);
       return contador;
     }
     else
     {
+      printf("Tratando de escribir\n");
       /*Se puede escribir*/
-      fseek(disk->file_pointer, bloque_libre, SEEK_SET);
-      int actual = fwrite(buffer, sizeof(char), 2048, disk->file_pointer);
+      int puntero_libre = 0;
+      int bytes_a_escribir = 0;
+      puntero_libre = disk->directory.directory_byte_pos + bloque_libre * 2048;
+      printf("Puntero: %d\n", puntero_libre);
+      bytes_a_escribir = nbytes - contador;
+      if (bytes_a_escribir > 2048)
+        bytes_a_escribir = 2048;
+      printf("Escribir: %d\n", bytes_a_escribir);
+      fseek(disk->file_pointer, puntero_libre, SEEK_SET);
+      int actual = fwrite(&buffer, sizeof(char), bytes_a_escribir, disk->file_pointer);
       /*Actualizr bytes escritos*/
       contador += actual;
       /*Actualizar bitmap*/
       bitmap_update(bloque_libre);
       /*Actualizar indice*/
+      int puntero_bloque = 0;
+      /*Verificar esta parte*/
+      puntero_bloque = file_desc->index_ptr + 5 + bloques * 3;
+      printf("Bloque numero %d\n", puntero_bloque);
+      fseek(disk->file_pointer, bloque_libre, SEEK_SET);
+      fwrite(&puntero_bloque, sizeof(char), 3, disk->file_pointer);
+      bloques += 1;
     }
   }
   /*Retornar bytes totales escritos*/
+  file_desc->size = contador;
+  fseek(disk->file_pointer, file_desc->index_ptr, SEEK_SET);
+  fwrite(&contador, sizeof(char), 5, disk->file_pointer);
+  printf("[WRITE] Bytes escritos %d\n", contador);
+  printf("[WRITE] Bloques usados %d\n", bloques);
   return contador;
 }

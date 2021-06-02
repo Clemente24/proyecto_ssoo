@@ -73,5 +73,5 @@ unsigned int file_data(unsigned int pt);
 
 osFILE *os_open(char *filename, char mode);
 
-/* Funcion para escribir archivos nuevos*/
+/* Funcion para escribir archivos nuevos (issue #237)*/
 int os_write(osFILE *file_desc, void *buffer, int nbytes);
