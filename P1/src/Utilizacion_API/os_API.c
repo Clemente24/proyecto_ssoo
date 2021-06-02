@@ -309,8 +309,16 @@ void os_bitmap(unsigned block)
     unsigned char *value = malloc(sizeof(unsigned char));
     int used = 0;
     int contador = 0;
+    int index = get_partition_index(disk->partition_id);
+    int nro_bloques = get_partition_size(index);
+    int cant_bloques_btmp = (int) ceil(nro_bloques / 16384.0);
+    //Caso del ultimo bloque
+     int bytes_a_leer = 2048;
+    if (block == cant_bloques_btmp){
+        bytes_a_leer = (int) ceil((nro_bloques - (cant_bloques_btmp - 1) * 16384)/ 8.0);
+    }
     //faltaria manejar el caso donde el ultimo bitmap, puede que no tenga 2048 bytes exactamente
-    for (int i = 0; i < 2048; i++)
+    for (int i = 0; i < bytes_a_leer; i++)
     {
       fseek(disk->file_pointer, (disk->directory.directory_byte_pos) + 2048 + (2048 * (block - 1)) + i, SEEK_SET);
       fread(value, sizeof(unsigned char), 1, disk->file_pointer);

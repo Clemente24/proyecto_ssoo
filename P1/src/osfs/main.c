@@ -40,16 +40,6 @@ int main(int argc, char **argv)
     // }
     //delete_file(disk->directory,"spike.gif");
     //printf("vamos\n");
-<<<<<<< HEAD
-    bitmap_update(15);//0000010000100000
-    os_bitmap(0);
-    char* name = "dog.mp3";
-    osFILE* os_file=os_open(name,'r');  //osFILE* os_file= 
-    printf("printando\n");
-    //printf("Nombre  %s",os_file->name);
-    //printf("Directory ptr: %d", os_file->directory_ptr);
-    //printf("index ptr: %d", os_file->index_ptr);
-=======
     // bitmap_update(15);//0000010000100000
     // bitmap_invalid(15);
 
@@ -64,7 +54,6 @@ int main(int argc, char **argv)
     // printf("Nombre  %s",os_file->name);
     // printf("Directory ptr: %d", os_file->directory_ptr);
     // printf("index ptr: %d", os_file->index_ptr);
->>>>>>> a5751a349f41fa1fbb7defba8494103c7cf6d302
     // printf('Size: %d', os_file->size);
     /* Forma para hacer con array*/
     //Ponemos el puntero al inicio del archivo
@@ -115,25 +104,6 @@ int main(int argc, char **argv)
     printf("Archivo nene.txt existe? : %i\n", os_exists("nene.txt"));
 
     // //Test os_ls
-<<<<<<< HEAD
-    printf("\n>ls: \n");
-    os_ls();
-    //Test osread
-    osFILE* file_desc = malloc(sizeof(osFILE));
-    *file_desc= (osFILE) {
-    .name= "dog.mp3",
-    .index_ptr = 117998592,
-    .directory_ptr = 10,
-    .size = 486242,
-    .bytes_read = 0
-    };
-    unsigned char *buffer = malloc(sizeof(unsigned char) * 2100 );
-    
-
-    os_read(file_desc, buffer, 2100);
-    free(file_desc);
-    free(buffer);
-=======
     //printf("\n>ls: \n");
     os_ls();
     //Test osread
@@ -157,7 +127,6 @@ int main(int argc, char **argv)
     //os_ls();
     //save_file("test69.txt");
 
->>>>>>> a5751a349f41fa1fbb7defba8494103c7cf6d302
     // Test create file inside disk WORKS:
     // int ubicacion = create_file(disk -> directory, 57997, "primer_archivo.txt");
     // printf("Guardamos el archivo en el indice %i del directorio \n", ubicacion);
