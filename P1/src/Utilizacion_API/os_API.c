@@ -820,8 +820,12 @@ int os_write(osFILE *file_desc, void *buffer, int nbytes)
       puntero_bloque = file_desc->index_ptr + 5 + bloques * 3;
       printf("Puntero Indice->Bloque: %ld\n", puntero_bloque);
       fseek(disk->file_pointer, puntero_bloque, SEEK_SET);
-      bloque_libre = swap_Endians(bloque_libre);
-      fwrite(&bloque_libre, sizeof(unsigned char), 3, disk->file_pointer);
+      /*ARREGLAR BLOQUE LIBRE EN BIG ENDIAN*/
+      unsigned char bloque_libre_bytes[3];
+      bloque_libre_bytes[0] = bloque_libre >> 16 & 0xFF;
+      bloque_libre_bytes[1] = bloque_libre >> 8 & 0xFF;
+      bloque_libre_bytes[2] = bloque_libre & 0xFF;
+      fwrite(&bloque_libre_bytes, sizeof(unsigned char), 3, disk->file_pointer);
     }
   }
   /*Retornar bytes totales escritos*/
