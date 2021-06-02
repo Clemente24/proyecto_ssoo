@@ -11,3 +11,6 @@ simdisk.bin
 *.vscode/*
 *.bin
 *.zip
+*.mp3
+*.jpg
+*/osfs.dSYM/Contents/*
