@@ -571,7 +571,7 @@ osFILE *os_open(char *filename, char mode)
     if (existe)
     {
       printf("ARCHIVO YA EXISTE\n");
-      return 0;
+      return NULL;
     }
     else
     {
@@ -579,7 +579,7 @@ osFILE *os_open(char *filename, char mode)
       if (block == 0)
       {
         printf("NO HAY BLOQUES DISPONIBLES\n");
-        return 0;
+        return NULL;
       }
       else
       {
@@ -588,14 +588,14 @@ osFILE *os_open(char *filename, char mode)
         bitmap_update(block);
         //int ptr = available_directory(os_file->directory_ptr);
         //7. Crear el archivo
-        os_file->size = sizeof(osFILE);
+        os_file->size = 0;
         escribir_bloque_indice(os_file->index_ptr, os_file->size, 1024);
         //4. Buscar una entrada en el directorio
         int ptr = create_file(disk->directory, block, os_file->name);
         if (ptr == -1)
         {
           printf("NO HAY BLOQUES DE DIRECTORIO DISPONIBLES\n");
-          return 0;
+          return NULL;
         }
         else
         {
@@ -673,11 +673,100 @@ int os_close(osFILE *file_desc)
   return 0;
 }
 
+/*https://www.geeksforgeeks.org/bit-manipulation-swap-endianness-of-a-number/*/
+int swap_Endians(int value)
+{
+
+  // This var holds the leftmost 8
+  // bits of the output.
+
+  int leftmost_byte;
+
+  // This holds the left middle
+  // 8 bits of the output
+
+  int left_middle_byle;
+
+  // This holds the right middle
+  // 8 bits of the output
+
+  int right_middle_byte;
+
+  // This holds the rightmost
+  // 8 bits of the output
+
+  int rightmost_byte;
+
+  // To store the result
+  // after conversion
+
+  int result;
+
+  // Get the rightmost 8 bits of the number
+  // by anding it 0x000000FF. since the last
+  // 8 bits are all ones, the result will be the
+  // rightmost 8 bits of the number. this will
+  // be converted into the leftmost 8 bits for the
+  // output (swapping)
+
+  leftmost_byte = (value & 0x000000FF) >> 0;
+
+  // Similarly, get the right middle and left
+  // middle 8 bits which will become
+  // the left_middle bits in the output
+
+  left_middle_byle = (value & 0x0000FF00) >> 8;
+
+  right_middle_byte = (value & 0x00FF0000) >> 16;
+
+  // Get the leftmost 8 bits which will be the
+  // rightmost 8 bits of the output
+
+  rightmost_byte = (value & 0xFF000000) >> 24;
+
+  // Left shift the 8 bits by 24
+  // so that it is shifted to the
+  // leftmost end
+
+  leftmost_byte <<= 24;
+
+  // Similarly, left shift by 16
+  // so that it is in the left_middle
+  // position. i.e, it starts at the
+  // 9th bit from the left and ends at the
+  // 16th bit from the left
+
+  left_middle_byle <<= 16;
+
+  right_middle_byte <<= 8;
+
+  // The rightmost bit stays as it is
+  // as it is in the correct position
+
+  rightmost_byte <<= 0;
+
+  // Result is the concatenation of all these values.
+
+  result = (leftmost_byte | left_middle_byle | right_middle_byte | rightmost_byte);
+
+  return result;
+}
 /*
 return contador: bytes escritos efectivamente
 */
 int os_write(osFILE *file_desc, void *buffer, int nbytes)
 {
+  /*Verificar file*/
+  if (!file_desc)
+  {
+    return 0;
+  }
+  /*Verificar modo de uso*/
+  if (file_desc->read_mode == 'r')
+  {
+    printf("[WRITE] Archivo necesita estar en modo W\n");
+    return 0;
+  }
   /*Si nbytes supera el tamaño maximo, solo escribo el maximo*/
   int max_size = 2048 * 681;
   if (nbytes > max_size)
@@ -697,42 +786,53 @@ int os_write(osFILE *file_desc, void *buffer, int nbytes)
       /*Retornar bytes totales escritos*/
       file_desc->size = contador;
       fseek(disk->file_pointer, file_desc->index_ptr, SEEK_SET);
-      fwrite(&contador, sizeof(char), 5, disk->file_pointer);
+      unsigned char leading_zero = 0x00;
+      fwrite(&leading_zero, sizeof(unsigned char), 1, disk->file_pointer);
+      printf("[WRITE] Bytes escritos %d\n", contador);
+      contador = swap_Endians(contador);
+      fseek(disk->file_pointer, file_desc->index_ptr + 1, SEEK_SET);
+      fwrite(&contador, sizeof(unsigned char), 4, disk->file_pointer);
+      printf("[WRITE] Bloques usados %d\n", bloques);
       return contador;
     }
     else
     {
       printf("Tratando de escribir\n");
+      printf("Ubicacion Indice: %ld\n", file_desc->index_ptr);
       /*Se puede escribir*/
-      int puntero_libre = 0;
-      int bytes_a_escribir = 0;
+      unsigned long int puntero_libre = 0;
       puntero_libre = disk->directory.directory_byte_pos + bloque_libre * 2048;
-      printf("Puntero: %d\n", puntero_libre);
-      bytes_a_escribir = nbytes - contador;
+      printf("Bloque libre: %d\n", bloque_libre);
+      printf("Puntero libre: %ld\n", puntero_libre);
+      int bytes_a_escribir = nbytes - contador;
       if (bytes_a_escribir > 2048)
         bytes_a_escribir = 2048;
-      printf("Escribir: %d\n", bytes_a_escribir);
       fseek(disk->file_pointer, puntero_libre, SEEK_SET);
-      int actual = fwrite(&buffer, sizeof(char), bytes_a_escribir, disk->file_pointer);
+      int actual = fwrite(buffer, sizeof(unsigned char), bytes_a_escribir, disk->file_pointer);
       /*Actualizr bytes escritos*/
       contador += actual;
       /*Actualizar bitmap*/
       bitmap_update(bloque_libre);
       /*Actualizar indice*/
-      int puntero_bloque = 0;
+      unsigned long int puntero_bloque = 0;
       /*Verificar esta parte*/
-      puntero_bloque = file_desc->index_ptr + 5 + bloques * 3;
-      printf("Bloque numero %d\n", puntero_bloque);
-      fseek(disk->file_pointer, puntero_bloque, SEEK_SET);
-      fwrite(&bloque_libre, sizeof(char), 3, disk->file_pointer);
       bloques += 1;
+      puntero_bloque = file_desc->index_ptr + 5 + bloques * 3;
+      printf("Puntero Indice->Bloque: %ld\n", puntero_bloque);
+      fseek(disk->file_pointer, puntero_bloque, SEEK_SET);
+      bloque_libre = swap_Endians(bloque_libre);
+      fwrite(&bloque_libre, sizeof(unsigned char), 3, disk->file_pointer);
     }
   }
   /*Retornar bytes totales escritos*/
   file_desc->size = contador;
   fseek(disk->file_pointer, file_desc->index_ptr, SEEK_SET);
-  fwrite(&contador, sizeof(char), 5, disk->file_pointer);
+  unsigned char leading_zero = 0x00;
+  fwrite(&leading_zero, sizeof(unsigned char), 1, disk->file_pointer);
   printf("[WRITE] Bytes escritos %d\n", contador);
+  contador = swap_Endians(contador);
+  fseek(disk->file_pointer, file_desc->index_ptr + 1, SEEK_SET);
+  fwrite(&contador, sizeof(unsigned char), 4, disk->file_pointer);
   printf("[WRITE] Bloques usados %d\n", bloques);
   return contador;
 }
