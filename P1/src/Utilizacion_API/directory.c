@@ -192,14 +192,14 @@ int modify_directory_entry(Directory* directory,unsigned long int identificador_
 
 };
 
-int write_new_directory(FILE *file_pointer, unsigned long int direccion_absoluta_directorio){
-    fseek(file_pointer, direccion_absoluta_directorio, SEEK_SET);
-    unsigned char array_de_0[2048];
-    fwrite()
+// int write_new_directory(FILE *file_pointer, unsigned long int direccion_absoluta_directorio){
+//     fseek(file_pointer, direccion_absoluta_directorio, SEEK_SET);
+//     unsigned char array_de_0[2048];
+//     fwrite()
 
 
 
-}
+// }
 
 int modify_entry_valid_byte(Directory directory,unsigned long int entrada_del_directorio, char bit_validez){
     if(entrada_del_directorio > 64 || entrada_del_directorio < 0){
