@@ -68,13 +68,6 @@ int main(int argc, char **argv)
         printf("Partition %i is valid", 10);
     }
 
-    unsigned int primerbyte = 0b01101010;
-    printf("primerbyte antes: %d \n", primerbyte);
-    // primerbyte = (primerbyte & ~(1UL << 8)) | (1 << 8);
-    primerbyte = (primerbyte ^= 1UL << 7);
-    primerbyte = (primerbyte ^= 1UL << 7);
-
-    printf("primerbyte despues: %d \n", primerbyte);
 
     // Test os_mbt();
     printf("os_mbt()\n");
@@ -109,12 +102,12 @@ int main(int argc, char **argv)
     //Test osread
 
     //test delete
-    os_rm("js.jpg");
+    // os_rm("js.jpg");
 
 
 
     /* Test para probar os_open en modo read y os_read y os_close en modo read*/
-    save_file("js.jpg");
+    save_file("pep.jpg");
 
     //[Test os_write]
     /*osFILE *file_desc = os_open("test69.txt", 'w');
