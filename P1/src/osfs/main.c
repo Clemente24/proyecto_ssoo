@@ -102,14 +102,15 @@ int main(int argc, char **argv)
     //save_file("js.jpg");
 
     //[Test os_write]
-    /*osFILE *file_desc = os_open("test37.txt", 'w');
+    /*osFILE *file_desc = os_open("test69.txt", 'w');
     int nbytes = 1200;
-    char *buffer[21] = {0x48, 0x6f, 0x6c, 0x61, 0x20, 0x65, 0x73, 0x74, 0x65, 0x20, 0x65, 0x73, 0x20, 0x75, 0x6e, 0x20, 0x74, 0x65, 0x78, 0x74, 0x6f};
+    //char *buffer[21] = {0x48, 0x6f, 0x6c, 0x61, 0x20, 0x65, 0x73, 0x74, 0x65, 0x20, 0x65, 0x73, 0x20, 0x75, 0x6e, 0x20, 0x74, 0x65, 0x78, 0x74, 0x6f};
+    char *buffer = malloc(sizeof(unsigned char *) * 2100);
     os_write(file_desc, buffer, nbytes);
     free(file_desc);*/
 
     //os_ls();
-    save_file("test37.txt");
+    //save_file("test69.txt");
 
     // Test create file inside disk WORKS:
     // int ubicacion = create_file(disk -> directory, 57997, "primer_archivo.txt");

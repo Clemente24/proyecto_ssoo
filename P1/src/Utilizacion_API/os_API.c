@@ -816,9 +816,9 @@ int os_write(osFILE *file_desc, void *buffer, int nbytes)
       /*Actualizar indice*/
       unsigned long int puntero_bloque = 0;
       /*Verificar esta parte*/
-      bloques += 1;
       puntero_bloque = file_desc->index_ptr + 5 + bloques * 3;
       printf("Puntero Indice->Bloque: %ld\n", puntero_bloque);
+      bloques += 1;
       fseek(disk->file_pointer, puntero_bloque, SEEK_SET);
       /*ARREGLAR BLOQUE LIBRE EN BIG ENDIAN*/
       unsigned char bloque_libre_bytes[3];
