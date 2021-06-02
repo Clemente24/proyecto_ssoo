@@ -36,6 +36,8 @@ int is_partition_valid(int indice);
 int get_partition_id(int indice);
 int get_partition_size(int indice);
 int get_partition_block_id(int indice);
+int get_first_available_space(int** ocupacion_disco, int size);
+int create_partition(int pos, int id, int size);
 int os_delete_partition(int id);
 int os_reset_mbt();
 int os_mbt();

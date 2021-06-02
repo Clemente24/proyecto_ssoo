@@ -61,6 +61,20 @@ int is_partition_valid(int indice){
     return bit;
 }
 
+int get_partition_index(int id){
+    unsigned char* entrada;
+    unsigned int index;
+
+    for (int i = 0; i < 128; i++){
+        entrada = disk->mbt->entradas[i];
+        index = entrada[0] & ((1 << 7) - 1);
+        if (index == id){
+            return i;
+        }
+    }
+    return -1;
+}
+
 int get_partition_block_id(int indice){
     unsigned char* entrada = disk->mbt->entradas[indice];
     unsigned long int abs_block_id;
@@ -81,17 +95,9 @@ int get_partition_id(int indice){
 
 int get_partition_size(int indice){
     unsigned char* entrada = disk->mbt->entradas[indice];
-    unsigned long int abs_block_id;
     unsigned long int partition_size;
-    unsigned int partition_id;
-    int partition_valid;
 
-    partition_valid = entrada[0] & (1<<7) ? 1 : 0;
-    partition_id = entrada[0] & ((1 << 7) - 1);
-    abs_block_id = (entrada[1] << 16) | (entrada[2] << 8) | (entrada[3]);
     partition_size = (entrada[4] << 24) | (entrada[5] << 16) | (entrada[6] << 8) | (entrada[7]);
-
-    printf("[Partition id: %i], VALID?: %i, partition_size: %li, ID_primer_bloque: %li \n", partition_id, partition_valid, partition_size, abs_block_id);
 
     return partition_size;
 }
@@ -107,16 +113,14 @@ int os_mbt(){
 }
 
 int os_delete_partition(int id){
-    int identificador_relativo;
     int primer_byte_entrada;
+    int indice = get_partition_index(id);
     if (id > 127){
         // out of range
         return 1;
     }
-    primer_byte_entrada = disk->mbt->entradas[id][0];
-    identificador_relativo = primer_byte_entrada & ((1 << 7) - 1);
-    // printf("Entrada es: %d\n", primer_byte_entrada);
-    // printf("Identificador es: %i\n", identificador);
+    primer_byte_entrada = disk->mbt->entradas[indice][0];
+
     // Cambiamos el primer bit del primer byte de la entrada a 0
     primer_byte_entrada = (primer_byte_entrada & ~(1UL << 8)) | (0 << 8);
     
@@ -132,21 +136,80 @@ int os_reset_mbt(){
 }
 
 int os_create_partition(int id, int size){
-
+    int pos;
+    // Guarda el bloque de inicio de cada particion, y su tamaño
+    int ocupacion_disco[128][2];
 
     if (is_partition_valid(id)){
         // Partición con ese id ya está tomada
         return 1;
     }
     for (int i = 0; i < 128; i++){
-        if (is_partition_valid(i)){
-            printf("[ID: %i]Entrada: %i valida, empieza en: %i", get_partition_id(i), i, get_partition_block_id(i));
-        }
-    }
+            if (is_partition_valid(i)){
+                ocupacion_disco[i][0] = get_partition_block_id(i);
+                ocupacion_disco[i][1] = get_partition_size(i);
+            }
+            else
+            {
+              ocupacion_disco[i][0] = -1;
+              ocupacion_disco[i][1] = -1;
+            }
 
+    pos = get_first_available_space(ocupacion_disco, size);
+    create_partition(pos, id, size);
 
     return 0;
+    }
 }
+
+int create_partition(int pos, int id, int size){
+  // transformar id a byte, ver en que posicion de la mbt ingresarla y setear size 
+  int primer_byte_entrada;
+  
+  primer_byte_entrada = disk->mbt->entradas[id][0];
+  // Cambiamos el primer bit del primer byte de la entrada a 1
+  primer_byte_entrada = (primer_byte_entrada & ~(1UL << 8)) | (1 << 8);
+//   abs_block_id = (entrada[1] << 16) | (entrada[2] << 8) | (entrada[3]);
+//   disk->mbt->entradas[id][0] = ;
+return 0;
+}
+
+int get_first_available_space(int** ocupacion_disco, int size){
+    // Contiene el indice del bloque directorio de cada particion
+    int sorted_indices[128];
+    // Contiene el tamaño correspondiente al indice en la misma posición en sorted_indices
+    int sorted_sizes[128];
+    // Variables auxiliares para el sorting
+    int minimum_index;
+    int already_inserted = 0;
+    int first_available_space_index = -1;
+
+    int n = sizeof(ocupacion_disco)/sizeof(ocupacion_disco[0]);
+
+    //Sorting ocupacion_disco into sorted_indices
+    for (int i = 0; i < n - 1; i++) {
+        // Find the minimum element in unsorted array
+        minimum_index = i;
+        for (int j = i + 1; j < n; j++){
+            if (ocupacion_disco[j][0] < ocupacion_disco[minimum_index][0]){
+                minimum_index = j;
+            }
+        sorted_indices[already_inserted] = ocupacion_disco[minimum_index][0];
+        sorted_sizes[already_inserted] = ocupacion_disco[minimum_index][1];
+        already_inserted += 1;
+        }
+      }
+    
+    for (int i = 0; i < n - 1; i++){
+      if (sorted_indices[i + 1] - (sorted_indices[i] + sorted_sizes[i]) >= size){
+        first_available_space_index = sorted_indices[i] + sorted_sizes[i];
+      }
+    }
+    if (first_available_space_index == -1){
+      printf("There is no available space");
+    }
+    return first_available_space_index;
+  }
 
 int os_exists(char* filename){
     /*Cabe recalcar que se busca solo en la partición actual*/

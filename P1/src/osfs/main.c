@@ -48,6 +48,14 @@ int main(int argc, char **argv)
         printf("Partition %i is valid", 10);
     }
 
+    unsigned int primerbyte = 0b01101010;
+    printf("primerbyte antes: %d \n", primerbyte);
+    // primerbyte = (primerbyte & ~(1UL << 8)) | (1 << 8);
+    primerbyte = (primerbyte ^= 1UL << 7);
+    primerbyte = (primerbyte ^= 1UL << 7);
+
+    printf("primerbyte despues: %d \n", primerbyte);
+
     // Test os_mbt();
     printf("os_mbt()\n");
     os_mbt();
