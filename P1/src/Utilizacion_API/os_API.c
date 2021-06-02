@@ -10,10 +10,10 @@ void os_mount(char* diskname, int partition_id){
     /* Toma las variables globales declaradas en el header y les asigna valor */
     int indice;
     disk = init_disk(diskname);
-    
     indice = get_partition_index(partition_id);
     particion_montada = disk -> mbt->entradas[indice];
     disk->directory = directory_init(indice);
+    disk->partition_id = partition_id;
     
 }
 
@@ -249,7 +249,10 @@ void os_bitmap(unsigned block){
       unsigned char * value = malloc(sizeof(unsigned char));
       int used = 0;
       int contador = 0;
-      for (int i = 0; i < 2048; i++){  //Falta multiplicarlo por el numero de bloques
+      int index = get_partition_index(disk-> partition_id);
+      int nro_bloques = get_partition_size(index);
+      int bloques_btmp = ceil(nro_bloques/16384);
+      for (int i = 0; i < 2048*bloques_btmp; i++){  //Falta multiplicarlo por el numero de bloques
         fread(value, sizeof(unsigned char), 1, disk -> file_pointer);
         for (int i = 7; i > -1; i--){
           if(((*value >> i) & 1) == 1){
@@ -359,7 +362,7 @@ int available_block(){
 // }
 
 
-unsigned int file_data(unsigned int pt){
+unsigned long int file_data(unsigned int pt){
   unsigned char *buffer = malloc(sizeof(unsigned char) * 5);
   fseek(disk ->file_pointer, pt, SEEK_SET);
   fread(buffer, sizeof(unsigned char), 5, disk ->file_pointer);
@@ -457,16 +460,28 @@ int bitmap_invalid(int block){
 int os_rm(char* filename){
   if (os_exists(filename)){
     int pos_absoluta_bloque_indice = get_file_index_absolute_ptr(disk->directory, filename);
+    unsigned long int file_size =file_data(pos_absoluta_bloque_indice);
+    // fseek(disk -> file_pointer, pos_absoluta_bloque_indice, SEEK_SET);
+    //  unsigned char size[5];
+    //  fread(size, sizeof(unsigned char), 5, disk -> file_pointer);
+    //  unsigned long int file_size = size[0]<<32|size[1]<<24|size[2]<<16|size[3]<<8|size[4];
+    unsigned long int nro_bloque = ceil(file_size/2048);
     fseek(disk -> file_pointer, pos_absoluta_bloque_indice + 5, SEEK_SET);
-    // marcamos validos los bloques de datos del bitmap
-    for (int i=0; i<681; i++ ){
-      unsigned char posicion_relativa[3];
+    // // marcamos validos los bloques de datos del bitmap
+    // printf("NRO BLOQUE %lu\n",nro_bloque);
+    for (int i=0; i<nro_bloque; i++ ){
+      unsigned char posicion_relativa[3]="";
+      fseek(disk -> file_pointer, pos_absoluta_bloque_indice + 5 + i*3, SEEK_SET);
       fread(posicion_relativa, sizeof(unsigned char), 3, disk -> file_pointer);
       unsigned long int pos_relativa_bloque_datos = (posicion_relativa[0]<<16)|(posicion_relativa[1]<<8)|posicion_relativa[2];
-      bitmap_invalid(pos_relativa_bloque_datos);
+      if (pos_relativa_bloque_datos!=0){
+        bitmap_invalid(pos_relativa_bloque_datos);
+      }
+    //   printf("POS REL adentro %lu\n",pos_relativa_bloque_datos);
     }
     // ahora liberamos bloque indice
     int pos_relativa_bloque_indice = get_file_index_relative_ptr(disk->directory,filename);
+    // printf("POS REL %d\n",pos_relativa_bloque_indice);
     bitmap_invalid(pos_relativa_bloque_indice);
     // liberamos la entrada del directorio
     delete_file(disk->directory, filename);
