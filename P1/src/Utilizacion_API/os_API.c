@@ -567,6 +567,7 @@ osFILE *os_open(char *filename, char mode)
     else
     {
       printf("ARCHIVO NO EXISTE\n");
+      return (NULL);
     }
   }
   else if (mode == 'w')

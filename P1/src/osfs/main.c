@@ -96,13 +96,9 @@ int main(int argc, char **argv)
     //Test osread
 
     //test delete
-    //os_rm("nene.txt");
+    os_rm("js.jpg");
 
-    //Test tamano de un archivo
-    osFILE* file = os_open("js.jpg", 'r');
-    printf("TAmano del archivo en bytes : %lu, en bloques : %lu\n", file->size, (unsigned long int) ceil(file->size / 2048.0));
 
-    os_close(file);
 
     /* Test para probar os_open en modo read y os_read y os_close en modo read*/
     save_file("js.jpg");
@@ -140,16 +136,15 @@ int main(int argc, char **argv)
     return 0;
 }
 
-//Tamano archivo ploblpem.png: 297763, en bloques: 146
-//BITMAP ANTES DE BORRAR
-//Bloques LIBRES 65110
-//Bloques OCUPADOS 426
-
 //BITMAP DESPUES DE BORRAR
 //Bloques LIBRES 65257
 // /Bloques OCUPADOS 279 (Se borraron 146 + 1 bloques correctamente, el +1 es por el bloque indice :D)
 
 //TAmano archivo js.jpg en bytes : 24985, en bloques : 13
 //BITMAP ANTES DE BORRAR
-// Bloques LIBRES 129301
+// Bloques LIBRES 121685
 // Bloques OCUPADOS 1771
+
+//BITMAP DESPUES DE BORRAR
+// Bloques LIBRES 121699
+// Bloques OCUPADOS 1757 = (1771 - 13 - 1 = 1757, el -1 es porque tambien eliminamos el bloque indice :D)
