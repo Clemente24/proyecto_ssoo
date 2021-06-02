@@ -278,8 +278,10 @@ void os_bitmap(unsigned block)
     int index = get_partition_index(disk->partition_id);
     int nro_bloques = get_partition_size(index);
     int bloques_btmp = (int) ceil(nro_bloques / 16384.0);
-    for (int i = 0; i < 2048 * bloques_btmp; i++)
+    int cant_bytes_bitmap = (int) ceil(nro_bloques / 8.0);
+    for (int i = 0; i < cant_bytes_bitmap; i++)
     { //Falta multiplicarlo por el numero de bloques
+      fseek(disk->file_pointer, (disk->directory.directory_byte_pos) + 2048 + i, SEEK_SET);
       fread(value, sizeof(unsigned char), 1, disk->file_pointer);
       for (int i = 7; i > -1; i--)
       {
@@ -307,8 +309,10 @@ void os_bitmap(unsigned block)
     unsigned char *value = malloc(sizeof(unsigned char));
     int used = 0;
     int contador = 0;
+    //faltaria manejar el caso donde el ultimo bitmap, puede que no tenga 2048 bytes exactamente
     for (int i = 0; i < 2048; i++)
     {
+      fseek(disk->file_pointer, (disk->directory.directory_byte_pos) + 2048 + (2048 * (block - 1)) + i, SEEK_SET);
       fread(value, sizeof(unsigned char), 1, disk->file_pointer);
       for (int i = 7; i > -1; i--)
       {
@@ -648,7 +652,6 @@ int save_file(char *filename)
 
 int os_close(osFILE *file_desc)
 {
-  printf("Closing");
   if (file_desc->read_mode == 'r')
   {
     free(file_desc);

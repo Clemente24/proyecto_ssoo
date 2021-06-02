@@ -41,10 +41,10 @@ int main(int argc, char **argv)
     //delete_file(disk->directory,"spike.gif");
     //printf("vamos\n");
     // bitmap_update(15);//0000010000100000
-    bitmap_invalid(15);
+    // bitmap_invalid(15);
 
     /*** TEST BITMAP ****/
-    //os_bitmap(0);
+    os_bitmap(0);
 
     /* mini test os_open */
     // char* name = "dog.mp3";
@@ -92,14 +92,20 @@ int main(int argc, char **argv)
 
     // //Test os_ls
     //printf("\n>ls: \n");
-    //os_ls();
+    os_ls();
     //Test osread
 
     //test delete
     //os_rm("nene.txt");
 
+    //Test tamano de un archivo
+    osFILE* file = os_open("js.jpg", 'r');
+    printf("TAmano del archivo en bytes : %lu, en bloques : %lu\n", file->size, (unsigned long int) ceil(file->size / 2048.0));
+
+    os_close(file);
+
     /* Test para probar os_open en modo read y os_read y os_close en modo read*/
-    //save_file("js.jpg");
+    save_file("js.jpg");
 
     //[Test os_write]
     /*osFILE *file_desc = os_open("test69.txt", 'w');
@@ -121,7 +127,8 @@ int main(int argc, char **argv)
 
     // printf("\nDelete partition:\n");
 
-    os_delete_partition(10);
+    //Test delete_partition
+    // os_delete_partition(10);
 
     /*Cerrar archivo*/
     fclose(disk->file_pointer);
@@ -141,3 +148,8 @@ int main(int argc, char **argv)
 //BITMAP DESPUES DE BORRAR
 //Bloques LIBRES 65257
 // /Bloques OCUPADOS 279 (Se borraron 146 + 1 bloques correctamente, el +1 es por el bloque indice :D)
+
+//TAmano archivo js.jpg en bytes : 24985, en bloques : 13
+//BITMAP ANTES DE BORRAR
+// Bloques LIBRES 129301
+// Bloques OCUPADOS 1771
