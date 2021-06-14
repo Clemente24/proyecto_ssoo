@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "unistd.h": "c",
+        "conection.h": "c",
+        "inet.h": "c"
+    }
+}

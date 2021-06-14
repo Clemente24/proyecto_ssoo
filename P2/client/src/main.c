@@ -2,8 +2,16 @@
 #include <stdio.h>
 #include "conection.h"
 #include "comunication.h"
+#include <pthread.h>
 
-char * get_input(){
+typedef struct conect_info{
+	int server_socket;
+  int solicitud;
+}Conect_info;
+
+
+void* get_input(void *arg){
+  Conect_info *info = (Conect_info *)arg;
   char * response = malloc(20);
   int pos=0;
   while (1){
@@ -13,9 +21,22 @@ char * get_input(){
     pos++;
   }
   response[pos] = '\0';
-  return response;
+  client_send_message(info->server_socket,info->solicitud, response);
+  free(info);
+  
 }
 
+void manejo_caso(int server_socket, int solicitud){
+  char * message = client_receive_payload(server_socket);
+  printf("%s\n", message);
+  free(message);
+  Conect_info *info = (Conect_info *)malloc(sizeof(Conect_info));
+  info->server_socket = server_socket;
+  info->solicitud = solicitud;
+  pthread_t id;
+  pthread_create(&id,NULL,(void *)get_input,(void *)info);
+  pthread_detach(id);
+}
 
 int main (int argc, char *argv[]){
   //Se obtiene la ip y el puerto donde está escuchando el servidor (la ip y puerto de este cliente da igual)
@@ -28,42 +49,48 @@ int main (int argc, char *argv[]){
   // Se inicializa un loop para recibir todo tipo de paquetes y tomar una acción al respecto
   while (1){
     int msg_code = client_receive_id(server_socket);
+    switch (msg_code){
 
-    if (msg_code == 1) { //Recibimos un mensaje del servidor
+    // Recive bienvenida al juego envia nombre jugador
+    case 0:
+      manejo_caso(server_socket, 0);
+    break;
+
+    // Recive solicitud de clase envia clase
+    case 1:
+      manejo_caso(server_socket, 1);
+    break;
+
+    // Recive solicitud de inicio de juego, envia inicio de juego
+    case 2:
+      manejo_caso(server_socket, 2);
+    break;
+
+    // Recive solicitud de eleccion de monstruo, envia tipo
+    case 3:
+      manejo_caso(server_socket, 3);
+    break;
+
+    // caso turno jugador
+    case 4:
+      manejo_caso(server_socket, 4);
+    break;
+
+    // Solo recive informacion
+    case 5:{
       char * message = client_receive_payload(server_socket);
-      printf("El servidor dice: %s\n", message);
+      printf("%s", message);
       free(message);
-
-      printf("¿Qué desea hacer?\n   1)Enviar mensaje al servidor\n   2)Enviar mensaje al otro cliente\n");
-      int option = getchar() - '0';
-      getchar(); //Para capturar el "enter" que queda en el buffer de entrada stdin
-
-      printf("Ingrese su mensaje: ");
-      char * response = get_input();
-
-      client_send_message(server_socket, option, response);
-    }
-
-    if (msg_code == 2) { //Recibimos un mensaje que proviene del otro cliente
-      char * message = client_receive_payload(server_socket);
-      printf("El otro cliente dice: %s\n", message);
-      free(message);
-
-      printf("¿Qué desea hacer?\n   1)Enviar mensaje al servidor\n   2)Enviar mensaje al otro cliente\n");
-      int option = getchar() - '0';
-      getchar(); //Para capturar el "enter" que queda en el buffer de entrada stdin
-
-      printf("Ingrese su mensaje: ");
-      char * response = get_input();
-
-      client_send_message(server_socket, option, response);
-    }
-    printf("------------------\n");
+      }
+    break;
+    
+    
+    case 6:
+    break;
   }
-
+}
   // Se cierra el socket
   close(server_socket);
   free(IP);
-
   return 0;
 }
