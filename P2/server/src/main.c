@@ -13,6 +13,7 @@
 int inicio_juego = 0;
 int turno = 0;
 int jugadores = 0;
+int jugadores_activos =0;
 int sockets_array[4];
 
 typedef struct sock_info{
@@ -28,12 +29,14 @@ typedef struct jugador{
   char* clase; 
   int lider;
   int vida;
+  int vida_maxima;
   int activo;
 }Jugador;
 
 typedef struct monstruo{
   char* tipo; 
   int vida;
+  int vida_maxima;
 }Monstruo;
 
 Jugador lista_jugadores[4];
@@ -54,16 +57,19 @@ void seleccionar_clase(char* client_message,int indice ){
   if(clase ==0){
     lista_jugadores[indice].clase = "Cazador";
     lista_jugadores[indice].vida = 5000;
+    lista_jugadores[indice].vida_maxima = 5000;
   }
   
   else if (clase == 1){
     lista_jugadores[indice].clase = "Medico";
     lista_jugadores[indice].vida = 3000;
+    lista_jugadores[indice].vida_maxima = 3000;
   }
   
   else{
     lista_jugadores[indice].clase = "Hacker";
     lista_jugadores[indice].vida = 2500;
+    lista_jugadores[indice].vida_maxima = 2500;
   }
 }
 
@@ -77,23 +83,26 @@ void seleccionar_monstruo(char* client_message){
   if (tipo == 1){
     monstruo.tipo = "Great JagRuz";
     monstruo.vida = 10000;
+    monstruo.vida_maxima = 10000;
   }
   if (tipo == 2){
     monstruo.tipo = "Ruzalos";
-    monstruo.vida = 10000;
+    monstruo.vida = 20000;
+    monstruo.vida_maxima = 20000;
   }
   if (tipo == 3){
     monstruo.tipo = "Ruiz";
-    monstruo.vida = 10000;
+    monstruo.vida = 25000;
+    monstruo.vida_maxima = 25000;
   }
 }
 int turno_jugador(){
-  return turno % (jugadores+1);
+  printf("TURNO %i\n",turno % (jugadores));
+  return turno % (jugadores);
 }
 
 void seleccion_de_poder(int socket){
   Jugador jugador_actual = lista_jugadores[turno_jugador()];
-  printf("ingresamos a seleccion de poder");
   if (jugador_actual.clase == "Cazador"){
     char * mensaje ="Elije una accion:\n[0]Rendirse\n[1]Estocada\n[2]Corte Cruzado\n[3]Distraer\n";
     server_send_message(socket, 4, mensaje);
@@ -109,7 +118,35 @@ void seleccion_de_poder(int socket){
 
   }
 }
+void impresion_estadisticas(){
+  
+  for (int i=0; i<jugadores;i++){
+    char * marco_top = "------------------------ESTADO JUEGO----------------------------\n";
+    char * marco_bot = "----------------------------------------------------------------\n";
+    server_send_message(sockets_array[i], 5, marco_top);
+    char str_turno[100];
+    sprintf(str_turno, "Turno numero: %i          Turno de: %s\n", turno, lista_jugadores[turno_jugador()].nombre);
+    server_send_message(sockets_array[i], 5, str_turno);
+    
+    char str_final[100];
+    sprintf(str_final, "%s             vida: %i/%i\n",monstruo.tipo,monstruo.vida,monstruo.vida_maxima);
+    server_send_message(sockets_array[i], 5, str_final);
 
+    server_send_message(sockets_array[i], 5, marco_bot);
+
+    for(int j=0; j<jugadores;j++){
+      char str_final[100];
+      sprintf(str_final, "%s[%s]             vida: %i/%i\n",lista_jugadores[j].nombre,lista_jugadores[j].clase,
+      lista_jugadores[j].vida,lista_jugadores[j].vida_maxima);
+      server_send_message(sockets_array[i], 5, str_final);
+    }
+    server_send_message(sockets_array[i], 5, marco_bot);
+    
+
+  }
+  
+
+}
 
 void *thread_cliente(void *arg){
   s_info *s = (s_info *)arg;
@@ -162,15 +199,6 @@ void *thread_cliente(void *arg){
           lista_jugadores[s->num].lider = 0;
           char * mensaje = "Personaje listo, a esperar que el lider inicie el juego\n";
           server_send_message(s->cfd, 5, mensaje);
-          
-          // char str_final[100];
-          // char* strA = "El jugador: de la clase: se ha conectado\n";
-          // int pos = 11;
-          // strncpy(str_final, strA, pos);
-          // str_final[pos] = '\0';
-          // strcat(str_final,  lista_jugadores[s->num].nombre);
-          // strcat(str_final, strA + 11);
-          // printf("%s\n", str_final);
           char str_final[100];
           sprintf(str_final, "El jugador: %s de la clase:%s se ha conectado\n", lista_jugadores[s->num].nombre, lista_jugadores[s->num].clase);
           server_send_message(s->socket_lider, 5, str_final);
@@ -198,7 +226,9 @@ void *thread_cliente(void *arg){
         printf("el jugador 0 selecciono el monstruo: %s\n", client_message);
         seleccionar_monstruo(client_message);
         printf("acaaaa");
+        impresion_estadisticas();
         seleccion_de_poder(s->cfd);
+        turno += 1;
       }
       else{
         char * mensaje = "Input no valido\nSeleccione el tipo de monstruo:\n[1]Great JagRuz\n[2]Ruzalos\n[3]Ruiz, el Gemelo Malvado del Profesor Ruz\n[4]Aleatorio\n";
@@ -214,9 +244,12 @@ void *thread_cliente(void *arg){
         //implementar logica de la accion 
         //turno siguiente jugador
         if (turno_jugador() == jugadores){
+          printf("TURNO MONSTER");
           //ejecutar turno monstruo
         }
+        impresion_estadisticas();
         seleccion_de_poder(sockets_array[turno_jugador()]);
+        turno += 1;
       }
       else{
         char * mensaje = "Input no valido\n";
