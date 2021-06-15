@@ -17,9 +17,17 @@
 
 typedef struct players_info{
   int socket_c1;
+  int score_c1;
+  int lifes_c1;
   int socket_c2;
+  int score_c2;
+  int lifes_c2;
   int socket_c3;
+  int score_c3;
+  int lifes_c3;
   int socket_c4;
+  int score_c4;
+  int lifes_c4;
 } PlayersInfo;
 
 PlayersInfo * prepare_sockets_and_get_clients(char * IP, int port);

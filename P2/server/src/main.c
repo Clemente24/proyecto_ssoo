@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "comunication.h"
 #include "conection.h"
+#include "ruz.h"
 
 char * revert(char * message){
   //Se invierte el mensaje
@@ -20,42 +21,45 @@ char * revert(char * message){
 
 int main(int argc, char *argv[]){
   // Se define una IP y un puerto
-  char * IP = "0.0.0.0";
-  int PORT = 8080;
+  // char * IP = "0.0.0.0";
+  // int PORT = 8080;
+  generarMonstruo(0);
+  printf("montruo creaxdo\n");
+  printf("%s",game->monster->name);
 
-  // Se crea el servidor y se obtienen los sockets de ambos clientes.
-  PlayersInfo * players_info = prepare_sockets_and_get_clients(IP, PORT);
-  int sockets_array[4] = {players_info->socket_c1, players_info->socket_c2,players_info->socket_c3,players_info->socket_c4};
-  int my_attention = 0;
+  // // Se crea el servidor y se obtienen los sockets de ambos clientes.
+  // PlayersInfo * players_info = prepare_sockets_and_get_clients(IP, PORT);
+  // int sockets_array[4] = {players_info->socket_c1, players_info->socket_c2,players_info->socket_c3,players_info->socket_c4};
+  // int my_attention = 0;
 
-  // Guardaremos los sockets en un arreglo e iremos alternando a quién escuchar.
-  while (1)
-  {
-    // Se obtiene el paquete del cliente 1
-    int msg_code = server_receive_id(sockets_array[my_attention]);
+  // // Guardaremos los sockets en un arreglo e iremos alternando a quién escuchar.
+  // while (1)
+  // {
+  //   // Se obtiene el paquete del cliente 1
+  //   int msg_code = server_receive_id(sockets_array[my_attention]);
 
-    if (msg_code == 1) //El cliente me envió un mensaje a mi (servidor)
-    {
-      char * client_message = server_receive_payload(sockets_array[my_attention]);
-      printf("El cliente %d dice: %s\n", my_attention+1, client_message);
+  //   if (msg_code == 1) //El cliente me envió un mensaje a mi (servidor)
+  //   {
+  //     char * client_message = server_receive_payload(sockets_array[my_attention]);
+  //     printf("El cliente %d dice: %s\n", my_attention+1, client_message);
 
-      // Le enviaremos el mismo mensaje invertido jeje
-      char * response = revert(client_message);
+  //     // Le enviaremos el mismo mensaje invertido jeje
+  //     char * response = revert(client_message);
 
-      // Le enviamos la respuesta
-      server_send_message(sockets_array[my_attention], 1, response);
-    }
-    else if (msg_code == 2){ //El cliente le envía un mensaje al otro cliente
-      char * client_message = server_receive_payload(sockets_array[my_attention]);
-      printf("Servidor traspasando desde %d a %d el mensaje: %s\n", my_attention+1, ((my_attention+1)%2)+1, client_message);
+  //     // Le enviamos la respuesta
+  //     server_send_message(sockets_array[my_attention], 1, response);
+  //   }
+  //   else if (msg_code == 2){ //El cliente le envía un mensaje al otro cliente
+  //     char * client_message = server_receive_payload(sockets_array[my_attention]);
+  //     printf("Servidor traspasando desde %d a %d el mensaje: %s\n", my_attention+1, ((my_attention+1)%2)+1, client_message);
 
-      // Mi atención cambia al otro socket
-      my_attention = (my_attention + 1) % 2;
+  //     // Mi atención cambia al otro socket
+  //     my_attention = (my_attention + 1) % 2;
 
-      server_send_message(sockets_array[my_attention], 2, client_message);
-    }
-    printf("------------------\n");
-  }
+  //     server_send_message(sockets_array[my_attention], 2, client_message);
+  //   }
+  //   printf("------------------\n");
+  // }
 
-  return 0;
+  // return 0;
 }
