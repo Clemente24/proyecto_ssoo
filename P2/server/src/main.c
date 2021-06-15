@@ -14,6 +14,7 @@ int inicio_juego = 0;
 int turno = 0;
 int jugadores = 0;
 int jugadores_activos =0;
+int jugador_activo =0;
 int sockets_array[4];
 
 typedef struct sock_info{
@@ -54,13 +55,13 @@ int validar_respuesta(int n_opciones, int opciones[], char * client_message){
 }
 void seleccionar_clase(char* client_message,int indice ){ 
   int clase = *client_message - '0';
-  if(clase ==0){
+  if(clase ==1){
     lista_jugadores[indice].clase = "Cazador";
     lista_jugadores[indice].vida = 5000;
     lista_jugadores[indice].vida_maxima = 5000;
   }
   
-  else if (clase == 1){
+  else if (clase == 2){
     lista_jugadores[indice].clase = "Medico";
     lista_jugadores[indice].vida = 3000;
     lista_jugadores[indice].vida_maxima = 3000;
@@ -96,13 +97,46 @@ void seleccionar_monstruo(char* client_message){
     monstruo.vida_maxima = 25000;
   }
 }
-int turno_jugador(){
-  printf("TURNO %i\n",turno % (jugadores));
-  return turno % (jugadores);
+int es_turno_monster(){
+  if (jugador_activo == jugadores ){
+    return 1;
+  }
+  else{
+    for(int i = jugador_activo+1; i < jugadores; i++){
+      if(lista_jugadores[i].activo == 1){
+        return 0;
+
+      }
+    }
+    return 1;
+  }
 }
 
+int proximo_jugador(){
+  // caso de hay solo un jugador
+  if (jugadores_activos == 1){
+    for(int i=0;i<jugadores;i++){
+        if (lista_jugadores[i].activo == 1){
+          return i;
+        }
+    }
+  }
+  //caso de hay mas de un jugador
+  //comenzamos desde el siguiente jugador despues del actual a revisar
+  int j = jugador_activo+1;
+  while(1){
+    // revisamos solo los activos
+    if (lista_jugadores[j%jugadores].activo == 1){
+
+        return j%jugadores;
+    }
+    j++;
+  }
+}
+
+
 void seleccion_de_poder(int socket){
-  Jugador jugador_actual = lista_jugadores[turno_jugador()];
+  Jugador jugador_actual = lista_jugadores[jugador_activo];
   if (jugador_actual.clase == "Cazador"){
     char * mensaje ="Elije una accion:\n[0]Rendirse\n[1]Estocada\n[2]Corte Cruzado\n[3]Distraer\n";
     server_send_message(socket, 4, mensaje);
@@ -118,6 +152,62 @@ void seleccion_de_poder(int socket){
 
   }
 }
+
+void enviar_mensaje_a_todos(char* msj){
+  for(int i = 0; i<jugadores; i++){
+    server_send_message(sockets_array[i], 5, msj);
+  }
+}
+
+void ejecutar_poder(Jugador jugador, char* client_message){
+  int seleccion = *client_message - '0';
+  printf("seleccion %i",seleccion);
+  if (seleccion == 0){
+    lista_jugadores[jugador_activo].activo = 0;
+    lista_jugadores[jugador_activo].vida = 0;
+    jugadores_activos-=1;
+    char str_rendirse[30];
+    sprintf(str_rendirse, "El jugador %s se ha RENDIDO!!!\n", jugador.nombre);
+    enviar_mensaje_a_todos(str_rendirse);
+    }
+
+  if (jugador.clase == "Cazador"){
+    if (seleccion == 1){
+    }
+    else if (seleccion == 2){
+    }
+    else if (seleccion == 3){
+    }
+  }
+  else if(jugador.clase == "Medico"){
+    if (seleccion == 1){
+    }
+    else if (seleccion == 2){
+    }
+    else if (seleccion == 3){
+    }
+
+  }
+  else{
+    if (seleccion == 1){
+    }
+    else if (seleccion == 2){
+    }
+    else if (seleccion == 3){
+    }
+  }
+}
+void turno_monstruo(){
+  char * marco_top = "------------------------TURNO MONSTRUO----------------------------\n";
+  enviar_mensaje_a_todos(marco_top);
+  if (monstruo.tipo == "Great JagRuz"){
+  }
+  else if (monstruo.tipo == "Ruzalos"){
+  }
+  else{
+
+  }
+}
 void impresion_estadisticas(){
   
   for (int i=0; i<jugadores;i++){
@@ -125,7 +215,7 @@ void impresion_estadisticas(){
     char * marco_bot = "----------------------------------------------------------------\n";
     server_send_message(sockets_array[i], 5, marco_top);
     char str_turno[100];
-    sprintf(str_turno, "Turno numero: %i          Turno de: %s\n", turno, lista_jugadores[turno_jugador()].nombre);
+    sprintf(str_turno, "Turno numero: %i          Turno de: %s\n", turno, lista_jugadores[jugador_activo].nombre);
     server_send_message(sockets_array[i], 5, str_turno);
     
     char str_final[100];
@@ -142,10 +232,8 @@ void impresion_estadisticas(){
     }
     server_send_message(sockets_array[i], 5, marco_bot);
     
-
   }
   
-
 }
 
 void *thread_cliente(void *arg){
@@ -173,9 +261,7 @@ void *thread_cliente(void *arg){
     case 0: //recibe nombre jugador envia soliciutd de clase
       {
       char* client_message = server_receive_payload(s->cfd);
-      printf("El nombre del jugador es %s\n", client_message);
       lista_jugadores[s->num].nombre = client_message;
-
       char * mensaje = "Seleccione la clase: \n[1]Cazador\n[2]Medico\n[3]Hacker\n";
       server_send_message(s->cfd, 1, mensaje);
       break;
@@ -186,8 +272,9 @@ void *thread_cliente(void *arg){
       char * client_message = server_receive_payload(s->cfd);
       int opciones[3] = {1,2,3};
       if(validar_respuesta(3,opciones,client_message)){
-        printf("La clase del jugador es: %s es lider: %i \n", client_message,s->lider);
         seleccionar_clase(client_message,s->num);
+        // sumamos un jugador a los activos
+        jugadores_activos += 1;
         if (s->lider){
           char * mensaje = "Presione enter para iniciar el juego\n";
           server_send_message(s->cfd, 2, mensaje);
@@ -213,9 +300,18 @@ void *thread_cliente(void *arg){
     case 2: //recibe inicio juego envia tipo de monstruo
       {
       char * client_message = server_receive_payload(s->cfd);
-      inicio_juego =1;
-      char * mensaje = "Seleccione el tipo de monstruo:\n[1]Great JagRuz\n[2]Ruzalos\n[3]Ruiz, el Gemelo Malvado del Profesor Ruz\n[4]Aleatorio\n";
-      server_send_message(s->cfd, 3, mensaje);
+      // si todos los jugadores han seleccionado nombre y clase
+      if (jugadores == jugadores_activos){
+        inicio_juego =1;
+        char * mensaje = "Seleccione el tipo de monstruo:\n[1]Great JagRuz\n[2]Ruzalos\n[3]Ruiz, el Gemelo Malvado del Profesor Ruz\n[4]Aleatorio\n";
+        server_send_message(s->cfd, 3, mensaje);
+      }
+      else{
+        char * mensaje = "Hay jugadores en conexion!!, espere un tiempo\nPresione enter para iniciar el juego\n";
+        server_send_message(s->cfd, 2, mensaje);
+
+      }
+      
       break;}
     
     case 3:{ //recibe tipo monstruo envia seleccion de poder 
@@ -223,9 +319,8 @@ void *thread_cliente(void *arg){
       char * client_message = server_receive_payload(s->cfd);
       int opciones[4] = {1,2,3,4};
       if(validar_respuesta(4,opciones,client_message)){
-        printf("el jugador 0 selecciono el monstruo: %s\n", client_message);
         seleccionar_monstruo(client_message);
-        printf("acaaaa");
+        jugador_activo = 0;
         impresion_estadisticas();
         seleccion_de_poder(s->cfd);
         turno += 1;
@@ -240,15 +335,17 @@ void *thread_cliente(void *arg){
       char * client_message = server_receive_payload(s->cfd);
       int opciones[4] = {0,1,2,3};
       if(validar_respuesta(4,opciones,client_message)){
-        printf("el jugador 0 selecciono la accion: %s\n", client_message);
-        //implementar logica de la accion 
+        //Funcion que ejecuta poder
+        ejecutar_poder(lista_jugadores[jugador_activo],client_message);
         //turno siguiente jugador
-        if (turno_jugador() == jugadores){
+        if (es_turno_monster()){
           printf("TURNO MONSTER");
           //ejecutar turno monstruo
+          turno_monstruo();
         }
+        jugador_activo = proximo_jugador();
         impresion_estadisticas();
-        seleccion_de_poder(sockets_array[turno_jugador()]);
+        seleccion_de_poder(sockets_array[jugador_activo]);
         turno += 1;
       }
       else{
