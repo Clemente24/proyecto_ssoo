@@ -205,9 +205,9 @@ void turno_monstruo(){
   else if (monstruo.tipo == "Ruzalos"){
   }
   else{
-
   }
 }
+
 void impresion_estadisticas(){
   
   for (int i=0; i<jugadores;i++){
