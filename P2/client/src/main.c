@@ -40,8 +40,30 @@ void manejo_caso(int server_socket, int solicitud){
 
 int main (int argc, char *argv[]){
   //Se obtiene la ip y el puerto donde está escuchando el servidor (la ip y puerto de este cliente da igual)
+  
+  //Valores default
   char * IP = "0.0.0.0";
   int PORT = 8080;
+  //Manejo de flags
+  int defined_ip = 0;
+  int defined_port = 0;
+  for (int i = 0; i < argc; i++){
+      //Flag de direccion ip
+      if (strcmp("-i", argv[i]) == 0 && i + 1 < argc){
+          IP = argv[i + 1];
+          defined_ip = 1;
+      }
+      if(strcmp("-p", argv[i]) == 0 && i + 1 < argc){
+          PORT = atoi(argv[i + 1]);
+          defined_port = 1;
+      }
+  }
+  if (!defined_ip || !defined_port){
+      printf ("Para correr, debe llamar de la siguiente manera:\n>./client -i <ip_address> -p <tcp_port>\n\n");
+      return 0;
+  }
+
+
 
   // Se prepara el socket
   int server_socket = prepare_socket(IP, PORT);

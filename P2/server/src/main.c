@@ -363,8 +363,29 @@ void *thread_cliente(void *arg){
 }
 int main(int argc, char *argv[]){
   // Se define una IP y un puerto
+
+  //Valores default
   char * IP = "0.0.0.0";
   int PORT = 8080;
+  //Manejo de flags
+  int i;
+  int defined_ip = 0;
+  int defined_port = 0;
+  for (int i = 0; i < argc; i++){
+      //Flag de direccion ip
+      if (strcmp("-i", argv[i]) == 0 && i + 1 < argc){
+          IP = argv[i + 1];
+          defined_ip = 1;
+      }
+      if(strcmp("-p", argv[i]) == 0 && i + 1 < argc){
+          PORT = atoi(argv[i + 1]);
+          defined_port = 1;
+      }
+  }
+  if (!defined_ip || !defined_port){
+      printf ("Para correr, debe llamar de la siguiente manera:\n>./server -i <ip_address> -p <tcp_port>\n\n");
+      return 0;
+  }
 
 // Se define la estructura para almacenar info del socket del servidor al momento de su creación
   struct sockaddr_in server_addr;
