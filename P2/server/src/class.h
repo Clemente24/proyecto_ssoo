@@ -16,6 +16,7 @@ typedef struct jugador
     int inyeccion_sql; // Bonus dado por Hacker, dura 2 turnos
     int espina_venenosa;
     int reprobado;
+    int sangrado;
 } Jugador;
 
 typedef struct monstruo
@@ -24,19 +25,32 @@ typedef struct monstruo
     int vida;
     int vida_maxima;
     int sangrado;
+    int inyeccion_sql;
+    int fuerza_bruta;
 } Monstruo;
 
+/*----CLASES----*/
 /* Habilidades Cazador */
-void cazador_estocada(Monstruo monstruo); // FALTA CONTROLAR SANGRADO (MONSTRUO)
-void cazador_corte_cruzado(Monstruo monstruo);
-void cazador_distraer(); // FALTA TERMINAR!
+void cazador_estocada(Jugador jugador, Monstruo monstruo); // FALTA CONTROLAR SANGRADO (MONSTRUO)
+void cazador_corte_cruzado(Jugador jugador, Monstruo monstruo);
+void cazador_distraer(); // Falta logica de var global "distraido"
 
 /* Habilidades Medico */
-void medico_curar(Jugador jugador); //FALTA QUE SE ELIJA A QUIEN CURAR
-void medico_descarga_vital(Jugador medico, Monstruo monstruo);
-void medico_destello_regenerador(Jugador jugador, Monstruo monstruo); // FALTA RANDOM JUGADOR
+void medico_curar(Jugador medico, Jugador jugador);                                   //FALTA QUE SE ELIJA A QUIEN CURAR
+void medico_destello_regenerador(Jugador medico, Jugador jugador, Monstruo monstruo); // FALTA RANDOM JUGADOR
+void medico_descarga_vital(Jugador jugador, Monstruo monstruo);
 
 /* Habilidades Hacker */
-//void hacker_fuerza_bruta(Jugador *hacker);
-//void hacker_ataque_ddos(Jugador *hacker);
-//void hacker_inyeccion_sql(Jugador *hacker, Jugador *jugador);
+void hacker_inyeccion_sql(Jugador jugador); // FALTA ELEGIR JUGADOR
+void hacker_ataque_ddos(Jugador jugador, Monstruo monstruo);
+void hacker_fuerza_bruta(Jugador jugador, Monstruo monstruo);
+
+/*----MONSTRUO----*/
+void monstruo_estocada(Monstruo monstruo, Jugador jugador); // FALTA CONTROLAR SANGRADO (JUGADOR)
+void monstruo_corte_cruzado(Monstruo monstruo, Jugador jugador);
+void monstruo_distraer();
+void monstruo_curar(Monstruo monstruo);
+void monstruo_destello_regenerador(Monstruo monstruo, Jugador jugador);
+void monstruo_inyeccion_sql(Monstruo monstruo);
+void monstruo_ataque_ddos(Monstruo monstruo, Jugador jugador);
+void monstruo_fuerza_bruta(Monstruo monstruo, Jugador jugador);
