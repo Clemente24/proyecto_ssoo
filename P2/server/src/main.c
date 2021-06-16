@@ -12,9 +12,12 @@
 
 int inicio_juego = 0;
 int turno = 0;
+// numero jugadores
 int jugadores = 0;
+// cantidad de jugadores activos
 int jugadores_activos =0;
-int jugador_activo =0;
+// indice en la lista de jugadores del jugador activo(su turno)
+int jugador_activo = 0;
 int sockets_array[4];
 
 typedef struct sock_info{
@@ -79,7 +82,7 @@ void seleccionar_monstruo(char* client_message){
   //si la seleccion fue aleatoria
   if (tipo == 4){
     //elije numero entre 1 y 3
-    tipo = rand() % 4 +1;
+    tipo = rand() % 3 + 1;
   }
   if (tipo == 1){
     monstruo.tipo = "Great JagRuz";
@@ -233,7 +236,6 @@ void impresion_estadisticas(){
     server_send_message(sockets_array[i], 5, marco_bot);
     
   }
-  
 }
 
 void *thread_cliente(void *arg){
