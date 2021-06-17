@@ -397,6 +397,8 @@ void *thread_cliente(void *arg){
             server_send_message(s->cfd, 7, mensaje);
             jugadores -= 1;
             jugadores_activos -=1;
+            printf("JUGADORES: %i, %i\n", jugadores_activos, jugadores);
+            pthread_exit(NULL);
 
 
         }

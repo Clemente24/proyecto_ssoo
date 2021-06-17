@@ -113,6 +113,7 @@ int main (int argc, char *argv[]){
 
     case 7:{//desconectar al jugador
       close(server_socket);
+      pthread_exit(NULL);
     break;
     }
    }
