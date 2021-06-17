@@ -106,11 +106,17 @@ int main (int argc, char *argv[]){
       }
     break;
     
-    
+    //Caso finalizacion del juego, Server pregunta si  quiere seguir jugando
     case 6:
+      manejo_caso(server_socket, 6);
     break;
-  }
-}
+
+    case 7:{//desconectar al jugador
+      close(server_socket);
+    break;
+    }
+   }
+ }
   // Se cierra el socket
   close(server_socket);
   free(IP);

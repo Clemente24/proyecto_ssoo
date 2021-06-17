@@ -211,6 +211,8 @@ void turno_monstruo(){
   }
 }
 
+
+
 void impresion_estadisticas(){
   
   for (int i=0; i<jugadores;i++){
@@ -237,6 +239,7 @@ void impresion_estadisticas(){
     
   }
 }
+
 
 void *thread_cliente(void *arg){
   s_info *s = (s_info *)arg;
@@ -339,28 +342,83 @@ void *thread_cliente(void *arg){
       if(validar_respuesta(4,opciones,client_message)){
         //Funcion que ejecuta poder
         ejecutar_poder(lista_jugadores[jugador_activo],client_message);
-        //turno siguiente jugador
-        if (es_turno_monster()){
-          printf("TURNO MONSTER");
-          //ejecutar turno monstruo
-          turno_monstruo();
+
+        //Si el monstruo muere el juego se termina
+        //Correr funcion que termina el juego
+        if (monstruo.vida == 0){
+            printf("Han logrado vencer a %s!\n", monstruo.tipo );
+            //Reiniciamos a la cantidad de jugadores
+            jugadores_activos = jugadores;
+            //LE enviamos un mensaje a todos los jugadores para preguntar si desean seguir jugando
+            for (int i=0; i< jugadores; i++){
+                char * marco_top = "------------------------JUEGO FINALIZADO----------------------------\n";
+                server_send_message(sockets_array[i], 5, marco_top);
+                //Ahora Vemos quien quiere seguir jugando
+                char * mensaje = "Desea desafiar al siguiente jefe?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
+                server_send_message(sockets_array[i], 6, mensaje);
+            }
+        }else{
+                //turno siguiente jugador
+            if (es_turno_monster()){
+                printf("TURNO MONSTER\n");
+                //ejecutar turno monstruo
+                turno_monstruo();
+                //Si el turno termina por destruir a todos
+                if(jugadores_activos == 0){
+                    //El juego se termina
+                }
+            }else
+                jugador_activo = proximo_jugador();
+                impresion_estadisticas();
+                seleccion_de_poder(sockets_array[jugador_activo]);
+                monstruo.vida = 0;
+                turno += 1;
         }
-        jugador_activo = proximo_jugador();
-        impresion_estadisticas();
-        seleccion_de_poder(sockets_array[jugador_activo]);
-        turno += 1;
-      }
-      else{
+      }else{
         char * mensaje = "Input no valido\n";
         server_send_message(s->cfd, 5, mensaje);
         seleccion_de_poder(s->cfd);
-      }  
+      } 
       break;}
+
+    case 6:{//Recibe confirmacion si desea seguir jugando
+      char * client_message = server_receive_payload(s->cfd);
+      int opciones[2] = {1,2};
+      if(validar_respuesta(2,opciones,client_message)){
+        int seleccion = *client_message - '0';
+        //Ver que hacer con la respuesta
+        //Se quiere quedar
+        if (seleccion == 1){
+            //Asumimos que puede cambiar su nombre
+            char * mensaje = "Ingresa un nuevo nombre:";
+            server_send_message(s->cfd, 0, mensaje);
+        }else{
+            char * mensaje = "Gracias por jugar! Ahora seras desconectado\n\n";
+            server_send_message(s->cfd, 7, mensaje);
+            jugadores -= 1;
+            jugadores_activos -=1;
+
+
+        }
+
+      }
+      else{
+        char * mensaje = "Input no valido\nDesea seguir jugando?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
+        server_send_message(s->cfd, 6, mensaje);
+
+
+     }
     
+     break;}
+
     }
+
   }
   free(s);
 }
+
+
+
 int main(int argc, char *argv[]){
   // Se define una IP y un puerto
 
