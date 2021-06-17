@@ -13,12 +13,9 @@
 
 int inicio_juego = 0;
 int turno = 0;
-// numero jugadores
-int jugadores = 0;
-// cantidad de jugadores activos
-int jugadores_activos = 0;
-// indice en la lista de jugadores del jugador activo(su turno)
-int jugador_activo = 0;
+int jugadores = 0;         // numero jugadores
+int jugadores_activos = 0; // cantidad de jugadores activos
+int jugador_activo = 0;    // indice en la lista de jugadores del jugador activo(su turno)
 int sockets_array[4];
 int distraido = 0; // 0: no hay; eoc: indice ultimo cazador que uso habilidad distraido. Revisa cada turno si es distinto de 0. De serlo, se ejecuta distraer y vuelve a 0.
 
@@ -188,7 +185,6 @@ void enviar_mensaje_a_todos(char *msj)
 void ejecutar_poder(Jugador jugador, char *client_message)
 {
   int seleccion = *client_message - '0';
-  // printf("seleccion %i", seleccion);
   Monstruo *puntero_monstruo = &(monstruo);
   Jugador *puntero_jugador = &(lista_jugadores[jugador_activo]);
   if (seleccion == 0)
@@ -208,14 +204,28 @@ void ejecutar_poder(Jugador jugador, char *client_message)
     else if (seleccion == 2)
       cazador_corte_cruzado(puntero_jugador, puntero_monstruo); // Ok
     else if (seleccion == 3)
-      cazador_distraer(); // Falta logica de var global "distraido"
+    {
+      distraido = jugador_activo; // Falta que se controle en cada turno y monstruo actue en base a esto
+      printf("[Cazador] Distraer\n");
+    }
   }
   else if (jugador.clase == "Medico")
   {
     if (seleccion == 1)
       medico_curar(puntero_jugador, &(jugador)); // "Jugador 2" debe ser elegido (Corregir)
     else if (seleccion == 2)
-      medico_destello_regenerador(puntero_jugador, &(jugador), puntero_monstruo); // "Jugador 2" debe ser random (Corregir)
+    {
+      int loop = 1;
+      Jugador *puntero_otro_jugador;
+      while (loop)
+      {
+        int indice = rand() % jugadores;
+        puntero_otro_jugador = &(lista_jugadores[indice]);
+        if (puntero_otro_jugador->activo == 1)
+          loop = 0;
+      }
+      medico_destello_regenerador(puntero_jugador, puntero_otro_jugador, puntero_monstruo); // OK
+    }
     else if (seleccion == 3)
       medico_descarga_vital(puntero_jugador, puntero_monstruo); // OK
   }
