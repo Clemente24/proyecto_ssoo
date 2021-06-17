@@ -3,34 +3,34 @@
 
 /* ---- CLASES ----*/
 
-int calculo_ataque(Jugador jugador, int ataque)
+int calculo_ataque(Jugador *jugador, int ataque)
 {
-    if (jugador.inyeccion_sql > 0)
+    if (jugador->inyeccion_sql > 0)
     {
-        jugador.inyeccion_sql--;
+        jugador->inyeccion_sql--;
         return 2 * ataque;
     }
     return ataque;
 }
 
 /* Habilidades Cazador */
-void cazador_estocada(Jugador jugador, Monstruo monstruo)
+void cazador_estocada(Jugador *jugador, Monstruo *monstruo)
 {
     int ataque = calculo_ataque(jugador, 1000);
-    monstruo.vida = monstruo.vida - ataque;
-    if (monstruo.vida < 0)
-        monstruo.vida = 0;
-    if (monstruo.sangrado < 3)
-        monstruo.sangrado++;
+    monstruo->vida = monstruo->vida - ataque;
+    if (monstruo->vida < 0)
+        monstruo->vida = 0;
+    if (monstruo->sangrado < 3)
+        monstruo->sangrado++;
     printf("[Cazador] Estocada\n");
 }
 
-void cazador_corte_cruzado(Jugador jugador, Monstruo monstruo)
+void cazador_corte_cruzado(Jugador *jugador, Monstruo *monstruo)
 {
     int ataque = calculo_ataque(jugador, 3000);
-    monstruo.vida = monstruo.vida - ataque;
-    if (monstruo.vida < 0)
-        monstruo.vida = 0;
+    monstruo->vida = monstruo->vida - ataque;
+    if (monstruo->vida < 0)
+        monstruo->vida = 0;
     printf("[Cazador] Corte cruzado\n");
 }
 
@@ -40,73 +40,74 @@ void cazador_distraer()
 }
 
 /* Habilidades Medico */
-void medico_curar(Jugador medico, Jugador jugador)
+void medico_curar(Jugador *medico, Jugador *jugador)
 {
     int vida_actual = 0;
     int curar = calculo_ataque(medico, 2000);
-    vida_actual = jugador.vida + curar;
-    if (vida_actual > jugador.vida_maxima)
-        vida_actual = jugador.vida_maxima;
-    jugador.vida = vida_actual;
+    vida_actual = jugador->vida + curar;
+    if (vida_actual > jugador->vida_maxima)
+        vida_actual = jugador->vida_maxima;
+    jugador->vida = vida_actual;
     printf("[Medico] Curar\n");
 }
 
-void medico_destello_regenerador(Jugador medico, Jugador jugador, Monstruo monstruo)
+void medico_destello_regenerador(Jugador *medico, Jugador *jugador, Monstruo *monstruo)
 {
     int ataque = 0;
     ataque = (rand() % (2000 - 750 + 1)) + 750; // Sacado de: https://www.geeksforgeeks.org/generating-random-number-range-c/
     int ataque_bono = calculo_ataque(medico, ataque);
-    monstruo.vida = monstruo.vida - ataque_bono;
+    monstruo->vida = monstruo->vida - ataque_bono;
     int mas_vida = 0;
     mas_vida = (int)ceil(ataque_bono / 2);
-    jugador.vida = jugador.vida + mas_vida;
-    if (monstruo.vida < 0)
-        monstruo.vida = 0;
-    if (jugador.vida > jugador.vida_maxima)
-        jugador.vida = jugador.vida_maxima;
+    jugador->vida = jugador->vida + mas_vida;
+    if (monstruo->vida < 0)
+        monstruo->vida = 0;
+    if (jugador->vida > jugador->vida_maxima)
+        jugador->vida = jugador->vida_maxima;
     printf("[Medico] Destello Regenerador\n");
 }
 
-void medico_descarga_vital(Jugador jugador, Monstruo monstruo)
+void medico_descarga_vital(Jugador *jugador, Monstruo *monstruo)
 {
     int descarga = 0;
-    descarga = 2 * (jugador.vida_maxima - jugador.vida);
+    descarga = 2 * (jugador->vida_maxima - jugador->vida);
     int ataque = calculo_ataque(jugador, descarga);
-    monstruo.vida = monstruo.vida - ataque;
-    if (monstruo.vida < 0)
-        monstruo.vida = 0;
+    monstruo->vida = monstruo->vida - ataque;
+    if (monstruo->vida < 0)
+        monstruo->vida = 0;
     printf("[Medico] Descarga vital\n");
 }
 
 /* Habilidades Hacker */
-void hacker_inyeccion_sql(Jugador jugador)
+void hacker_inyeccion_sql(Jugador *jugador)
 {
-    jugador.inyeccion_sql = 2;
+    jugador->inyeccion_sql = 2;
     printf("[Hacker] Inyeccion SQL\n");
 }
 
-void hacker_ataque_ddos(Jugador jugador, Monstruo monstruo)
+void hacker_ataque_ddos(Jugador *jugador, Monstruo *monstruo)
 {
     int ataque = calculo_ataque(jugador, 1500);
-    monstruo.vida = monstruo.vida - ataque;
-    if (monstruo.vida < 0)
-        monstruo.vida = 0;
+    printf("Daño: %i\n", ataque);
+    monstruo->vida = monstruo->vida - ataque;
+    if (monstruo->vida < 0)
+        monstruo->vida = 0;
     printf("[Hacker] Ataque DDOS\n");
 }
 
-void hacker_fuerza_bruta(Jugador jugador, Monstruo monstruo)
+void hacker_fuerza_bruta(Jugador *jugador, Monstruo *monstruo)
 {
-    if (jugador.fuerza_bruta < 3)
+    if (jugador->fuerza_bruta < 2)
     {
-        jugador.fuerza_bruta++;
+        jugador->fuerza_bruta++;
     }
     else
     {
-        jugador.fuerza_bruta = 0;
+        jugador->fuerza_bruta = 0;
         int ataque = calculo_ataque(jugador, 10000);
-        monstruo.vida = monstruo.vida - ataque;
-        if (monstruo.vida < 0)
-            monstruo.vida = 0;
+        monstruo->vida = monstruo->vida - ataque;
+        if (monstruo->vida < 0)
+            monstruo->vida = 0;
     }
     printf("[Hacker] Fuerza bruta\n");
 }

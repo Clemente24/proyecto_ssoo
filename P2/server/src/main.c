@@ -31,31 +31,6 @@ typedef struct sock_info
   int socket_lider;
 } s_info;
 
-typedef struct jugador
-{
-  char *nombre;
-  char *clase;
-  int lider;
-  int vida;
-  int vida_maxima;
-  int activo;
-  int fuerza_bruta;  // Para tipo Hacker, si es >2 inflinge daño
-  int inyeccion_sql; // Bonus dado por Hacker, dura 2 turnos
-  int espina_venenosa;
-  int reprobado;
-  int sangrado;
-} Jugador;
-
-typedef struct monstruo
-{
-  char *tipo;
-  int vida;
-  int vida_maxima;
-  int sangrado;
-  int inyeccion_sql;
-  int fuerza_bruta;
-} Monstruo;
-
 Jugador lista_jugadores[4];
 Monstruo monstruo;
 
@@ -213,7 +188,9 @@ void enviar_mensaje_a_todos(char *msj)
 void ejecutar_poder(Jugador jugador, char *client_message)
 {
   int seleccion = *client_message - '0';
-  printf("seleccion %i", seleccion);
+  // printf("seleccion %i", seleccion);
+  Monstruo *puntero_monstruo = &(monstruo);
+  Jugador *puntero_jugador = &(lista_jugadores[jugador_activo]);
   if (seleccion == 0)
   {
     lista_jugadores[jugador_activo].activo = 0;
@@ -227,29 +204,29 @@ void ejecutar_poder(Jugador jugador, char *client_message)
   if (jugador.clase == "Cazador")
   {
     if (seleccion == 1)
-      cazador_estocada(jugador, monstruo); // Monstruo debe controlar su sangrado
+      cazador_estocada(puntero_jugador, puntero_monstruo); // Monstruo debe controlar su sangrado
     else if (seleccion == 2)
-      cazador_corte_cruzado(jugador, monstruo); // Ok
+      cazador_corte_cruzado(puntero_jugador, puntero_monstruo); // Ok
     else if (seleccion == 3)
       cazador_distraer(); // Falta logica de var global "distraido"
   }
   else if (jugador.clase == "Medico")
   {
     if (seleccion == 1)
-      medico_curar(jugador, jugador); // "Jugador 2" debe ser elegido (Corregir)
+      medico_curar(puntero_jugador, &(jugador)); // "Jugador 2" debe ser elegido (Corregir)
     else if (seleccion == 2)
-      medico_destello_regenerador(jugador, jugador, monstruo); // "Jugador 2" debe ser random (Corregir)
+      medico_destello_regenerador(puntero_jugador, &(jugador), puntero_monstruo); // "Jugador 2" debe ser random (Corregir)
     else if (seleccion == 3)
-      medico_descarga_vital(jugador, monstruo); // OK
+      medico_descarga_vital(puntero_jugador, puntero_monstruo); // OK
   }
   else
   {
     if (seleccion == 1)
-      hacker_inyeccion_sql(jugador); // "Jugador" debe ser elegido (Corregir)
+      hacker_inyeccion_sql(puntero_jugador); // "Jugador" debe ser elegido (Corregir)
     else if (seleccion == 2)
-      hacker_ataque_ddos(jugador, monstruo); // OK
+      hacker_ataque_ddos(puntero_jugador, puntero_monstruo); // OK
     else if (seleccion == 3)
-      hacker_fuerza_bruta(jugador, monstruo); // OK
+      hacker_fuerza_bruta(puntero_jugador, puntero_monstruo); // OK
   }
 }
 
@@ -421,7 +398,7 @@ void *thread_cliente(void *arg)
         //turno siguiente jugador
         if (es_turno_monster())
         {
-          printf("TURNO MONSTER");
+          printf("TURNO MONSTER\n");
           //ejecutar turno monstruo
           turno_monstruo();
         }

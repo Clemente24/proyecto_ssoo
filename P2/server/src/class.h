@@ -31,19 +31,19 @@ typedef struct monstruo
 
 /*----CLASES----*/
 /* Habilidades Cazador */
-void cazador_estocada(Jugador jugador, Monstruo monstruo); // FALTA CONTROLAR SANGRADO (MONSTRUO)
-void cazador_corte_cruzado(Jugador jugador, Monstruo monstruo);
+void cazador_estocada(Jugador *jugador, Monstruo *monstruo); // FALTA CONTROLAR SANGRADO (MONSTRUO)
+void cazador_corte_cruzado(Jugador *jugador, Monstruo *monstruo);
 void cazador_distraer(); // Falta logica de var global "distraido"
 
 /* Habilidades Medico */
-void medico_curar(Jugador medico, Jugador jugador);                                   //FALTA QUE SE ELIJA A QUIEN CURAR
-void medico_destello_regenerador(Jugador medico, Jugador jugador, Monstruo monstruo); // FALTA RANDOM JUGADOR
-void medico_descarga_vital(Jugador jugador, Monstruo monstruo);
+void medico_curar(Jugador *medico, Jugador *jugador);                                    //FALTA QUE SE ELIJA A QUIEN CURAR
+void medico_destello_regenerador(Jugador *medico, Jugador *jugador, Monstruo *monstruo); // FALTA RANDOM JUGADOR
+void medico_descarga_vital(Jugador *jugador, Monstruo *monstruo);
 
 /* Habilidades Hacker */
-void hacker_inyeccion_sql(Jugador jugador); // FALTA ELEGIR JUGADOR
-void hacker_ataque_ddos(Jugador jugador, Monstruo monstruo);
-void hacker_fuerza_bruta(Jugador jugador, Monstruo monstruo);
+void hacker_inyeccion_sql(Jugador *jugador); // FALTA ELEGIR JUGADOR
+void hacker_ataque_ddos(Jugador *jugador, Monstruo *monstruo);
+void hacker_fuerza_bruta(Jugador *jugador, Monstruo *monstruo);
 
 /*----MONSTRUO----*/
 void monstruo_estocada(Monstruo monstruo, Jugador jugador); // FALTA CONTROLAR SANGRADO (JUGADOR)
