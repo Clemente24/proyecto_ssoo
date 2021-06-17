@@ -306,6 +306,8 @@ void *thread_cliente(void *arg){
       {
       char * client_message = server_receive_payload(s->cfd);
       // si todos los jugadores han seleccionado nombre y clase
+      printf("Client message en caso 2: %s\n", client_message);
+      printf("Jugadores :%i\n Jugadores activos: %i \n\n", jugadores, jugadores_activos);
       if (jugadores == jugadores_activos){
         inicio_juego =1;
         char * mensaje = "Seleccione el tipo de monstruo:\n[1]Great JagRuz\n[2]Ruzalos\n[3]Ruiz, el Gemelo Malvado del Profesor Ruz\n[4]Aleatorio\n";
@@ -347,15 +349,17 @@ void *thread_cliente(void *arg){
         //Correr funcion que termina el juego
         if (monstruo.vida == 0){
             printf("Han logrado vencer a %s!\n", monstruo.tipo );
-            //Reiniciamos a la cantidad de jugadores
-            jugadores_activos = jugadores;
+            //Reiniciamos a la cantidad de jugadores, los activos son 0
+            jugadores_activos = 0;
             //LE enviamos un mensaje a todos los jugadores para preguntar si desean seguir jugando
             for (int i=0; i< jugadores; i++){
                 char * marco_top = "------------------------JUEGO FINALIZADO----------------------------\n";
                 server_send_message(sockets_array[i], 5, marco_top);
+                impresion_estadisticas();
                 //Ahora Vemos quien quiere seguir jugando
                 char * mensaje = "Desea desafiar al siguiente jefe?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
                 server_send_message(sockets_array[i], 6, mensaje);
+                //ELEGIR NUEVO JUGADOR ACTIVO (NUEVO LIDER)
             }
         }else{
                 //turno siguiente jugador
@@ -394,9 +398,10 @@ void *thread_cliente(void *arg){
             server_send_message(s->cfd, 0, mensaje);
         }else{
             char * mensaje = "Gracias por jugar! Ahora seras desconectado\n\n";
+            server_send_message(s->cfd, 5, mensaje);
+            //PAquete para desconectar:
             server_send_message(s->cfd, 7, mensaje);
             jugadores -= 1;
-            jugadores_activos -=1;
             printf("JUGADORES: %i, %i\n", jugadores_activos, jugadores);
             pthread_exit(NULL);
 
