@@ -35,10 +35,13 @@ typedef struct jugador{
   int vida;
   int vida_maxima;
   int activo;
+  int distraer;
+  int infected;
 }Jugador;
 
 typedef struct monstruo{
   char* tipo; 
+  int salto;
   int vida;
   int vida_maxima;
 }Monstruo;
@@ -113,6 +116,100 @@ int es_turno_monster(){
     }
     return 1;
   }
+}
+void atack(int player, int vidas){
+    if (lista_jugadores[player].distraer){  //Caso tienen poder distraer 1=lo tiene, 2=ultimo en tenerlo, 0 no lo tiene
+      for (int i=0; i<jugadores; i++){
+          if (lista_jugadores[i].distraer==2 && lista_jugadores[i].activo==1) {
+            lista_jugadores[i].distraer=0;
+            atack(i,vidas);
+          }
+      }
+      lista_jugadores[player].distraer=2;
+    } else{
+      lista_jugadores[player].vida -= vidas;
+    }               
+
+}
+void atack_all(int vidas){
+    for (int i=0; i<jugadores; i++){
+      if (lista_jugadores[i].activo){
+        if (lista_jugadores[i].distraer==1){
+          for (int j=0; j<jugadores; j++){
+          if (lista_jugadores[j].distraer==2 && lista_jugadores[j].activo==1) {
+            lista_jugadores[j].distraer=0;
+          }
+      }
+          lista_jugadores[i].distraer=2;
+        }
+        lista_jugadores[i].vida -= vidas;
+      }
+    }
+    printf("atacando");
+}
+
+void jagruz_atack(){
+     int num;
+     num = rand() % 10;
+     printf("%d \n",num);
+     if (num<5){
+       int jug;
+         jug = rand() % jugadores_activos;
+         for (int i=0; i<jugadores; i++){
+             if (lista_jugadores[i].activo){
+               if (jug==i){
+                 atack(jug,1000);
+               }
+             } else {
+               jug +=1;
+             }
+         }
+     } else{
+             atack_all(1000);
+         }
+
+     }
+    
+
+void ruzalos_atack(){
+    int num;
+     num = rand() % 10;
+     printf("%d \n",num);
+     if (num<4 && monstruo.salto==0){
+       int jug;
+         jug = rand() % jugadores_activos;
+         for (int i=0; i<jugadores; i++){
+             if (lista_jugadores[i].activo){
+               if (jug==i){
+                 atack(jug,1500);
+               }
+             } else {
+               jug +=1;
+             }
+         }
+         monstruo.salto=1;
+     } else{
+         monstruo.salto=0;
+         int jug;
+         jug = rand() % jugadores_activos;
+         for (int i=0; i< jugadores; i++){
+             if (lista_jugadores[i].activo){
+               if (jug==i){
+                 if (lista_jugadores[jug].infected>0){
+                  atack(jug,500);
+                  lista_jugadores[jug].infected -= 1;
+                  } else {
+                      atack(jug,400);
+                      lista_jugadores[jug].infected = 3;
+                  }
+               }
+             } else {
+               jug +=1;
+             }
+         }
+        
+
+     }
 }
 
 int proximo_jugador(){
@@ -203,9 +300,11 @@ void ejecutar_poder(Jugador jugador, char* client_message){
 void turno_monstruo(){
   char * marco_top = "------------------------TURNO MONSTRUO----------------------------\n";
   enviar_mensaje_a_todos(marco_top);
-  if (monstruo.tipo == "Great JagRuz"){
+  if (strcmp(monstruo.tipo, "Great JagRuz") == 0){
+    jagruz_atack();
   }
-  else if (monstruo.tipo == "Ruzalos"){
+  else if (strcmp(monstruo.tipo, "Ruzalos") == 0){
+    ruzalos_atack();
   }
   else{
   }
