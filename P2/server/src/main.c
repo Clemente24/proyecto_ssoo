@@ -69,6 +69,12 @@ void seleccionar_clase(char *client_message, int indice)
     lista_jugadores[indice].vida = 2500;
     lista_jugadores[indice].vida_maxima = 2500;
   }
+  lista_jugadores[indice].distraer = 0;
+  lista_jugadores[indice].fuerza_bruta = 0;
+  lista_jugadores[indice].inyeccion_sql = 0;
+  lista_jugadores[indice].reprobado = 0;
+  lista_jugadores[indice].sangrado = 0;
+  lista_jugadores[indice].infected = 0;
 }
 
 void seleccionar_monstruo(char *client_message)
@@ -98,6 +104,10 @@ void seleccionar_monstruo(char *client_message)
     monstruo.vida = 25000;
     monstruo.vida_maxima = 25000;
   }
+  monstruo.inyeccion_sql = 0;
+  monstruo.fuerza_bruta = 0;
+  monstruo.sangrado = 0;
+  monstruo.salto = 0;
 }
 int es_turno_monster()
 {
@@ -325,6 +335,8 @@ void ejecutar_poder(Jugador jugador, char *client_message)
     else if (seleccion == 3)
     {
       jugador.distraer = 1;
+      char *mensaje = "[Cazador] Distraer";
+      enviar_mensaje_a_todos(mensaje);
       printf("[Cazador] Distraer\n");
     }
   }
