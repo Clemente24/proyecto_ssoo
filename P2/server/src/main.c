@@ -35,6 +35,7 @@ typedef struct jugador{
   int vida;
   int vida_maxima;
   int activo;
+  int conectado;
 }Jugador;
 
 typedef struct monstruo{
@@ -216,26 +217,33 @@ void turno_monstruo(){
 void impresion_estadisticas(){
   
   for (int i=0; i<jugadores;i++){
-    char * marco_top = "------------------------ESTADO JUEGO----------------------------\n";
-    char * marco_bot = "----------------------------------------------------------------\n";
-    server_send_message(sockets_array[i], 5, marco_top);
-    char str_turno[100];
-    sprintf(str_turno, "Turno numero: %i          Turno de: %s\n", turno, lista_jugadores[jugador_activo].nombre);
-    server_send_message(sockets_array[i], 5, str_turno);
-    
-    char str_final[100];
-    sprintf(str_final, "%s             vida: %i/%i\n",monstruo.tipo,monstruo.vida,monstruo.vida_maxima);
-    server_send_message(sockets_array[i], 5, str_final);
+      //Mandamos solo a jugadores conectados
+      if (lista_jugadores[i].conectado ){
+            char * marco_top = "------------------------ESTADO JUEGO----------------------------\n";
+            char * marco_bot = "----------------------------------------------------------------\n";
+            server_send_message(sockets_array[i], 5, marco_top);
+            char str_turno[100];
+            sprintf(str_turno, "Turno numero: %i          Turno de: %s\n", turno, lista_jugadores[jugador_activo].nombre);
+            server_send_message(sockets_array[i], 5, str_turno);
+            
+            char str_final[100];
+            sprintf(str_final, "%s             vida: %i/%i\n",monstruo.tipo,monstruo.vida,monstruo.vida_maxima);
+            server_send_message(sockets_array[i], 5, str_final);
 
-    server_send_message(sockets_array[i], 5, marco_bot);
+            server_send_message(sockets_array[i], 5, marco_bot);
+      
 
-    for(int j=0; j<jugadores;j++){
-      char str_final[100];
-      sprintf(str_final, "%s[%s]             vida: %i/%i\n",lista_jugadores[j].nombre,lista_jugadores[j].clase,
-      lista_jugadores[j].vida,lista_jugadores[j].vida_maxima);
-      server_send_message(sockets_array[i], 5, str_final);
+
+        for(int j=0; j<jugadores;j++){
+            if (lista_jugadores[j].conectado ){
+                char str_final[100];
+                sprintf(str_final, "%s[%s]             vida: %i/%i\n",lista_jugadores[j].nombre,lista_jugadores[j].clase,
+                lista_jugadores[j].vida,lista_jugadores[j].vida_maxima);
+                server_send_message(sockets_array[i], 5, str_final);
+            }
+        }
+        server_send_message(sockets_array[i], 5, marco_bot);
     }
-    server_send_message(sockets_array[i], 5, marco_bot);
     
   }
 }
@@ -403,6 +411,9 @@ void *thread_cliente(void *arg){
             server_send_message(s->cfd, 7, mensaje);
             jugadores -= 1;
             printf("JUGADORES: %i, %i\n", jugadores_activos, jugadores);
+            //inactivamos al jugador
+            lista_jugadores[s->num].activo = 0;
+            lista_jugadores[s->num].conectado = 0;
             pthread_exit(NULL);
 
 
@@ -507,6 +518,7 @@ int main(int argc, char *argv[]){
 
       Jugador jugador;
       jugador.activo = 1;
+      jugador.conectado = 1;
       lista_jugadores[jugadores] = jugador;
       pthread_t id;
       pthread_create(&id,NULL,(void *)thread_cliente,(void *)clie_sock);
