@@ -456,6 +456,14 @@ void *thread_cliente(void *arg){
     {
     case 0: //recibe nombre jugador envia soliciutd de clase
     {
+
+    //   if(lista_jugadores[0].lider){
+    //       if(lista_jugadores[s->num].lider){
+    //         s ->lider = 1;
+    //         printf("Asignamos lider al socket del jugador %s\n", lista_jugadores[s->num].nombre);
+    //       } 
+    //   }
+
       char *client_message = server_receive_payload(s->cfd);
       lista_jugadores[s->num].nombre = client_message;
       char *mensaje = "Seleccione la clase: \n[1]Cazador\n[2]Medico\n[3]Hacker\n";
@@ -500,6 +508,7 @@ void *thread_cliente(void *arg){
     case 2: //recibe inicio juego envia tipo de monstruo
     {
       char *client_message = server_receive_payload(s->cfd);
+      printf("Jugadores: %i, jygadores activos: %i\n", jugadores, jugadores_activos);
       // si todos los jugadores han seleccionado nombre y clase
       if (jugadores == jugadores_activos)
       {
@@ -546,6 +555,8 @@ void *thread_cliente(void *arg){
         //Funcion que ejecuta poder
         ejecutar_poder(lista_jugadores[jugador_activo],client_message);
 
+        //matamos al monstruo para testeo
+        monstruo.vida = 0;
         //Si el monstruo muere el juego se termina
         //Correr funcion que termina el juego
         if (monstruo.vida == 0){
@@ -554,13 +565,15 @@ void *thread_cliente(void *arg){
             jugadores_activos = 0;
             //LE enviamos un mensaje a todos los jugadores para preguntar si desean seguir jugando
             for (int i=0; i< jugadores; i++){
-                char * marco_top = "------------------------JUEGO FINALIZADO----------------------------\n";
-                server_send_message(sockets_array[i], 5, marco_top);
-                impresion_estadisticas();
-                //Ahora Vemos quien quiere seguir jugando
-                char * mensaje = "Desea desafiar al siguiente jefe?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
-                server_send_message(sockets_array[i], 6, mensaje);
-                //ELEGIR NUEVO JUGADOR ACTIVO (NUEVO LIDER)
+                if(lista_jugadores[i].conectado){
+                    char * marco_top = "------------------------JUEGO FINALIZADO----------------------------\n";
+                    server_send_message(sockets_array[i], 5, marco_top);
+                    impresion_estadisticas();
+                    //Ahora Vemos quien quiere seguir jugando
+                    char * mensaje = "Desea desafiar al siguiente jefe?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
+                    server_send_message(sockets_array[i], 6, mensaje);
+                    //ELEGIR NUEVO JUGADOR ACTIVO (NUEVO LIDER)
+                }
             }
         }else{
                 //turno siguiente jugador
@@ -576,7 +589,6 @@ void *thread_cliente(void *arg){
                 jugador_activo = proximo_jugador();
                 impresion_estadisticas();
                 seleccion_de_poder(sockets_array[jugador_activo]);
-                monstruo.vida = 0;
                 turno += 1;
         }
       }else{
@@ -596,19 +608,87 @@ void *thread_cliente(void *arg){
         if (seleccion == 1){
             //Asumimos que puede cambiar su nombre
             char * mensaje = "Ingresa un nuevo nombre:";
+            //Manejo de numero de jugador luego de que desea seguir jugando:
+
+
+            //Actualizamos s->num del jugador solo si el lider se fue, por ende restamos 1  al s->num y no hay problema
+            if (s->num != lista_jugadores[s->num].numero){
+                s->num -=1;
+            }
+
+            // //Chequeamos si es lider luego de un nuevo juego, para modificar el socket info.
+            printf("S->num: %d\n", s->num);
+            printf("Nombre jugador: %s\n", lista_jugadores[s->num].nombre);
+            printf("Es lider segun la lista de jugadores? %i\n", lista_jugadores[s->num].lider);
+            if(lista_jugadores[s->num].lider){
+                printf("%s Es lider\n", lista_jugadores[s->num].nombre);
+                s->lider = 1;
+            }
             server_send_message(s->cfd, 0, mensaje);
         }else{
             char * mensaje = "Gracias por jugar! Ahora seras desconectado\n\n";
             server_send_message(s->cfd, 5, mensaje);
-            //PAquete para desconectar:
-            server_send_message(s->cfd, 7, mensaje);
-            jugadores -= 1;
-            printf("JUGADORES: %i, %i\n", jugadores_activos, jugadores);
             //inactivamos al jugador
             lista_jugadores[s->num].activo = 0;
             lista_jugadores[s->num].conectado = 0;
-            pthread_exit(NULL);
 
+            //Caso si es lider y no esta solo
+            if(lista_jugadores[s->num].lider && jugadores > 1){
+                char * mensaje;
+
+                // sprintf(mensaje, "Ahora %s es el lider!", lista_jugadores[1].nombre);
+                // enviar_mensaje_a_todos(mensaje);
+                //Editamos el socket del lider actual
+                s->lider = 0;
+                //Buscamos al siguiente lider
+                int siguiente = rand() % (jugadores - 1) + 1;//Numero entre 0 y jugadores
+                //Si siguiente es 0, asignamos como 1.
+                if(siguiente == 0){
+                    siguiente = 1;
+                }
+                printf("Ahora %s es el lider!\n", lista_jugadores[siguiente].nombre);
+                lista_jugadores[siguiente].lider = 1;
+                lista_jugadores[s->num].lider = 0;
+            }
+
+            printf("Salimos del caso del lider\n");
+
+
+            //Reordenamos los jugadores y sus sockets (No es eficiente LOL)
+            Jugador aux[4];
+            int sockets_array_aux[4];
+            for (int j = 0; j<jugadores; j++){
+                aux[j] = lista_jugadores[j];
+                sockets_array_aux[j] = sockets_array[j];
+            }
+
+            int aux_counter = 1;
+            for (int j = 0; j<jugadores; j++){
+                if(lista_jugadores[j].conectado){
+                    if(lista_jugadores[j].lider){
+                        //El lider siempre va al principio del array
+                        aux[0] = lista_jugadores[j];
+                        aux[0].numero = 0;
+                        sockets_array_aux[0] = sockets_array[j] ;
+                    }else{
+                        aux[aux_counter].numero = aux_counter;
+                        aux[aux_counter] = lista_jugadores[j];
+                        sockets_array_aux[aux_counter] = sockets_array[j];
+                        aux_counter +=1;
+                    }
+                }
+            }
+            for (int j = 0; j<jugadores; j++){
+                lista_jugadores[j] = aux[j];
+                sockets_array[j] = sockets_array_aux[j];
+            }
+            //Disminuimos la cantidad de jugadores
+            jugadores -= 1;
+            printf("Despues de desconectar a alguien:\n");
+            printf("Jugadores: %i, jygadores activos: %i\n", jugadores, jugadores_activos);
+            //Paquete para desconectar:
+            server_send_message(s->cfd, 7, mensaje);
+            pthread_exit(NULL);
 
         }
 
@@ -714,6 +794,7 @@ int main(int argc, char *argv[]){
       Jugador jugador;
       jugador.activo = 1;
       jugador.conectado = 1;
+      jugador.numero = jugadores;
       lista_jugadores[jugadores] = jugador;
       pthread_t id;
       pthread_create(&id, NULL, (void *)thread_cliente, (void *)clie_sock);

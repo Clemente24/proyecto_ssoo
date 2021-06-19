@@ -18,6 +18,8 @@ typedef struct jugador
     int sangrado;
     int distraer;
     int infected;
+    int conectado;//Para diferenciar si estan conectados luego de retirarse del juego.
+    int numero; //Para manejar conflictos con s-> num
 } Jugador;
 
 typedef struct monstruo
