@@ -577,6 +577,8 @@ void *thread_cliente(void *arg){
         //Funcion que ejecuta poder
         ejecutar_poder(lista_jugadores[jugador_activo],client_message);
 
+        printf("Nombre: %s\n Numero: %i", lista_jugadores[s->num].nombre, lista_jugadores[s->num].numero);
+
         
         
         // //Chequeo de status
@@ -760,6 +762,8 @@ void *thread_cliente(void *arg){
             // printf("Jugadores: %i, jygadores activos: %i\n", jugadores, jugadores_activos);
             //Paquete para desconectar:
             server_send_message(s->cfd, 7, mensaje);
+            //Test de free
+            free(s);
             pthread_exit(NULL);
 
         }
@@ -874,6 +878,9 @@ int main(int argc, char *argv[]){
       jugadores += 1;
     }
   }
+
+  free(players_info);
+
 
   return 0;
 }
