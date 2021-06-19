@@ -617,11 +617,11 @@ void *thread_cliente(void *arg){
             }
 
             // //Chequeamos si es lider luego de un nuevo juego, para modificar el socket info.
-            printf("S->num: %d\n", s->num);
-            printf("Nombre jugador: %s\n", lista_jugadores[s->num].nombre);
-            printf("Es lider segun la lista de jugadores? %i\n", lista_jugadores[s->num].lider);
+            // printf("S->num: %d\n", s->num);
+            // printf("Nombre jugador: %s\n", lista_jugadores[s->num].nombre);
+            // printf("Es lider segun la lista de jugadores? %i\n", lista_jugadores[s->num].lider);
             if(lista_jugadores[s->num].lider){
-                printf("%s Es lider\n", lista_jugadores[s->num].nombre);
+                // printf("%s Es lider\n", lista_jugadores[s->num].nombre);
                 s->lider = 1;
             }
             server_send_message(s->cfd, 0, mensaje);
@@ -631,6 +631,11 @@ void *thread_cliente(void *arg){
             //inactivamos al jugador
             lista_jugadores[s->num].activo = 0;
             lista_jugadores[s->num].conectado = 0;
+
+            //Actualizamos s->num del jugador solo si el lider se fue, por ende restamos 1  al s->num y no hay problema
+            if (s->num != lista_jugadores[s->num].numero){
+                s->num -=1;
+            }
 
             //Caso si es lider y no esta solo
             if(lista_jugadores[s->num].lider && jugadores > 1){
@@ -646,7 +651,10 @@ void *thread_cliente(void *arg){
                 if(siguiente == 0){
                     siguiente = 1;
                 }
-                printf("Ahora %s es el lider!\n", lista_jugadores[siguiente].nombre);
+                // printf("Ahora %s es el lider!\n", lista_jugadores[siguiente].nombre);
+                char message[255] = "";
+                sprintf(message, "Ahora %s es el lider!\n", lista_jugadores[siguiente].nombre);
+                enviar_mensaje_a_todos(message);
                 lista_jugadores[siguiente].lider = 1;
                 lista_jugadores[s->num].lider = 0;
             }
@@ -684,8 +692,8 @@ void *thread_cliente(void *arg){
             }
             //Disminuimos la cantidad de jugadores
             jugadores -= 1;
-            printf("Despues de desconectar a alguien:\n");
-            printf("Jugadores: %i, jygadores activos: %i\n", jugadores, jugadores_activos);
+            // printf("Despues de desconectar a alguien:\n");
+            // printf("Jugadores: %i, jygadores activos: %i\n", jugadores, jugadores_activos);
             //Paquete para desconectar:
             server_send_message(s->cfd, 7, mensaje);
             pthread_exit(NULL);
