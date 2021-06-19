@@ -258,7 +258,7 @@ void ruzalos_atack()
 int proximo_jugador()
 {
   // caso de hay solo un jugador
-  printf("Jugadores activos: %i\n", jugadores_activos);
+//   printf("Jugadores activos: %i\n", jugadores_activos);
   if (jugadores_activos == 1)
   {
     for (int i = 0; i < jugadores; i++)
@@ -272,12 +272,9 @@ int proximo_jugador()
   //caso de hay mas de un jugador
   //comenzamos desde el siguiente jugador despues del actual a revisar
   int j = jugador_activo + 1;
-  printf("J de proximo jugador: %i\n", j);
   while (1)
   {
-    // revisamos solo los activos
-    printf("lista_jugadores[j mod jugadores].activo: %i\n", lista_jugadores[j % jugadores].activo);
-     printf("j mod jugadores: %i\n",j % jugadores);
+    // // revisamos solo los activos
     if (lista_jugadores[j % jugadores].activo == 1)
     {
 
@@ -325,6 +322,7 @@ void ejecutar_poder(Jugador jugador, char *client_message)
   Jugador *puntero_jugador = &(lista_jugadores[jugador_activo]);
   if (seleccion == 0)
   {
+    printf("EL JUGADOR SE RINDE\n");
     lista_jugadores[jugador_activo].activo = 0;
     lista_jugadores[jugador_activo].vida = 0;
     jugadores_activos -= 1;
@@ -432,6 +430,23 @@ void impresion_estadisticas(){
   }
 }
 
+void finalizar_juego(){
+    jugadores_activos = 0;
+    //LE enviamos un mensaje a todos los jugadores para preguntar si desean seguir jugando
+    for (int i=0; i< jugadores; i++){
+        if(lista_jugadores[i].conectado){
+            char * marco_top = "------------------------JUEGO FINALIZADO----------------------------\n*\n*\n*\n";
+            server_send_message(sockets_array[i], 5, marco_top);
+            // impresion_estadisticas();
+            //Ahora Vemos quien quiere seguir jugando
+            char * mensaje = "Desea desafiar al siguiente jefe?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
+            server_send_message(sockets_array[i], 6, mensaje);
+            //Reseteamos los turnos
+            turno = 0;
+        }
+    }
+
+}
 
 void *thread_cliente(void *arg){
   s_info *s = (s_info *)arg;
@@ -556,34 +571,35 @@ void *thread_cliente(void *arg){
       int opciones[4] = {0, 1, 2, 3};
       if (validar_respuesta(4, opciones, client_message))
       {
-        //Funcion que ejecuta poder
-        ejecutar_poder(lista_jugadores[jugador_activo],client_message);
-
         //matamos al monstruo para testeo
         // monstruo.vida = 0;
+
+        //Verificamos si el jugador actual ha muerto
+        
+        //Si todos mueren, o se rinden, se termina el juego.
+        if(jugadores_activos == 0){
+            //El juego se termina
+            char  mensaje[100];
+            sprintf(mensaje,"Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
+            printf("Jugadores han perdido\n");
+            enviar_mensaje_a_todos(mensaje);
+            //Codigo finalizar juego
+            //Reiniciamos a la cantidad de jugadores, los activos son 0
+            finalizar_juego();
+        }
         //Si el monstruo muere el juego se termina
-        //Correr funcion que termina el juego
-        if (monstruo.vida == 0){
+        else if (monstruo.vida == 0){
             char  mensaje[100];
             sprintf(mensaje,"Han logrado vencer a %s!\n*\n*\n*\n", monstruo.tipo);
             printf("Han logrado vencer a %s!\n", monstruo.tipo );
             enviar_mensaje_a_todos(mensaje);
+            //Codigo finalizar juego
             //Reiniciamos a la cantidad de jugadores, los activos son 0
-            jugadores_activos = 0;
-            //LE enviamos un mensaje a todos los jugadores para preguntar si desean seguir jugando
-            for (int i=0; i< jugadores; i++){
-                if(lista_jugadores[i].conectado){
-                    char * marco_top = "------------------------JUEGO FINALIZADO----------------------------\n*\n*\n*\n";
-                    server_send_message(sockets_array[i], 5, marco_top);
-                    // impresion_estadisticas();
-                    //Ahora Vemos quien quiere seguir jugando
-                    char * mensaje = "Desea desafiar al siguiente jefe?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
-                    server_send_message(sockets_array[i], 6, mensaje);
-                    //Reseteamos los turnos
-                    turno = 0;
-                }
-            }
+            finalizar_juego();
+
         }else{
+            //Funcion que ejecuta poder
+            ejecutar_poder(lista_jugadores[jugador_activo],client_message);
             //turno siguiente jugador
             if (es_turno_monster()){
                 printf("TURNO MONSTER\n");
@@ -593,12 +609,10 @@ void *thread_cliente(void *arg){
                 //ejecutar turno monstruo
                 turno_monstruo();
                 //Reiniciamos, ahora le toca nuevamente al jugador 0.
-                jugador_activo = 0;
+                // jugador_activo = 0;
                 //Si el turno termina por destruir a todos
-                if(jugadores_activos == 0){
-                    //El juego se termina
-                }
             }else
+                printf("JUGADORES ACTIVOS:%i\n", jugadores_activos);
                 jugador_activo = proximo_jugador();
                 printf("Jugador activo: %i\n", jugador_activo);
                 impresion_estadisticas();
