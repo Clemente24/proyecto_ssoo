@@ -20,6 +20,7 @@ int jugadores_activos = 0;
 // indice en la lista de jugadores del jugador activo(su turno)
 int jugador_activo = 0;
 int sockets_array[4];
+int poderes_array[9];
 
 typedef struct sock_info
 {
@@ -54,6 +55,9 @@ void seleccionar_clase(char *client_message, int indice)
     lista_jugadores[indice].clase = "Cazador";
     lista_jugadores[indice].vida = 5000;
     lista_jugadores[indice].vida_maxima = 5000;
+    poderes_array[0]=1;
+    poderes_array[1]=1;
+    poderes_array[2]=1;
   }
 
   else if (clase == 2)
@@ -61,6 +65,9 @@ void seleccionar_clase(char *client_message, int indice)
     lista_jugadores[indice].clase = "Medico";
     lista_jugadores[indice].vida = 3000;
     lista_jugadores[indice].vida_maxima = 3000;
+    poderes_array[3]=1;
+    poderes_array[4]=1;
+    poderes_array[5]=1;
   }
 
   else
@@ -68,6 +75,9 @@ void seleccionar_clase(char *client_message, int indice)
     lista_jugadores[indice].clase = "Hacker";
     lista_jugadores[indice].vida = 2500;
     lista_jugadores[indice].vida_maxima = 2500;
+    poderes_array[6]=1;
+    poderes_array[7]=1;
+    poderes_array[8]=1;
   }
   lista_jugadores[indice].distraer = 0;
   lista_jugadores[indice].fuerza_bruta = 0;
@@ -143,7 +153,11 @@ void atack(int player, int vidas)
   }
   else
   {
-    lista_jugadores[player].vida -= vidas;
+    if (lista_jugadores[player].reprobado){
+      lista_jugadores[player].vida -= vidas*1.5;
+      } else {
+        lista_jugadores[player].vida -= vidas;
+      }
   }
 }
 void atack_all(int vidas)
@@ -163,7 +177,11 @@ void atack_all(int vidas)
         }
         lista_jugadores[i].distraer = 2;
       }
-      lista_jugadores[i].vida -= vidas;
+      if (lista_jugadores[i].reprobado){
+      lista_jugadores[i].vida -= vidas*1.5;
+      } else {
+        lista_jugadores[i].vida -= vidas;
+      }
     }
   }
   printf("atacando");
@@ -238,12 +256,12 @@ void ruzalos_atack()
           if (lista_jugadores[jug].infected > 0)
           {
             atack(jug, 500);
-            lista_jugadores[jug].infected -= 1;
+            //lista_jugadores[jug].infected -= 1;
           }
           else
           {
             atack(jug, 400);
-            lista_jugadores[jug].infected = 3;
+            lista_jugadores[jug].infected = 2;
           }
         }
       }
@@ -253,6 +271,75 @@ void ruzalos_atack()
       }
     }
   }
+}
+
+void ruiz_atack(){
+    int num;
+     num = rand() % 10;
+     printf("%d \n",num);
+     int jug;
+        jug = rand() % jugadores_activos;
+        for (int i = 0; i < jugadores; i++)
+            {
+              if (lista_jugadores[i].activo)
+              {
+                if (jug == i)
+                {
+                  break;
+                }
+              }
+              else
+              {
+                jug += 1;
+              }
+            }
+     if (num<4){
+         //Copiar habilidad de un jugador
+         int habilidad;
+         int ok =1;
+        habilidad = rand() % 9;
+        while(ok) {
+          if (poderes_array[habilidad]==1){
+            ok=0;
+          } else {
+            habilidad = rand() % 9;
+          }
+        }
+        
+        if (habilidad==0){
+          monstruo_estocada(&monstruo, &lista_jugadores[jug]);
+        }
+        if (habilidad==1){
+          monstruo_corte_cruzado(&monstruo,&lista_jugadores[jug]);
+        }
+        if (habilidad==2){
+          monstruo_distraer();
+        }
+        if (habilidad==3){
+          monstruo_curar(&monstruo);
+        }
+        if (habilidad==4){
+          monstruo_destello_regenerador(&monstruo,&lista_jugadores[jug]);
+        }
+        if (habilidad==5){
+          monstruo_descarga_vital(&monstruo,&lista_jugadores[jug]);
+        }
+        if (habilidad==6){
+          monstruo_inyeccion_sql(&monstruo);
+        }
+        if (habilidad==7){
+          monstruo_ataque_ddos(&monstruo, &lista_jugadores[jug]);
+        }
+        if (habilidad==8){
+          monstruo_fuerza_bruta(&monstruo, &lista_jugadores[jug]);
+        }
+     } else{
+         if (num<6){
+           lista_jugadores[jug].reprobado=1;
+     } else{        //ultimo caso
+          atack_all(100*turno)  ;
+     }
+     }
 }
 
 int proximo_jugador()
@@ -385,6 +472,7 @@ void turno_monstruo()
   }
   else
   {
+    ruiz_atack();
   }
 }
 
