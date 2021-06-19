@@ -137,6 +137,19 @@ int es_turno_monster()
     return 1;
   }
 }
+
+
+void enviar_mensaje_a_todos(char *msj)
+{
+  for (int i = 0; i < jugadores; i++)
+  {
+    if (lista_jugadores[i].conectado){
+      server_send_message(sockets_array[i], 5, msj);
+    }
+    
+  }
+}
+
 void atack(int player, int vidas)
 {
   if (lista_jugadores[player].distraer)
@@ -203,6 +216,9 @@ void jagruz_atack()
         if (jug == i)
         {
           atack(jug, 1000);
+          char mensaje[100];
+          sprintf(mensaje, "Great JagRuz le da un RazJuñazo a %s!\n", lista_jugadores[jug].nombre);
+          enviar_mensaje_a_todos(mensaje);
         }
       }
       else
@@ -213,7 +229,10 @@ void jagruz_atack()
   }
   else
   {
-    atack_all(1000);
+    atack_all(500);
+    char mensaje[100];
+    sprintf(mensaje, "Great JagRuz les da un RazColetazo a todos!\n");
+    enviar_mensaje_a_todos(mensaje);
   }
 }
 
@@ -233,6 +252,9 @@ void ruzalos_atack()
         if (jug == i)
         {
           atack(jug, 1500);
+          char mensaje[100];
+          sprintf(mensaje, "Ruzalos salta sobre %s!\n", lista_jugadores[jug].nombre);
+          enviar_mensaje_a_todos(mensaje);
         }
       }
       else
@@ -262,6 +284,9 @@ void ruzalos_atack()
           {
             atack(jug, 400);
             lista_jugadores[jug].infected = 2;
+            char mensaje[100];
+            sprintf(mensaje, "Ruzalos ha envenenado a %s!\n", lista_jugadores[jug].nombre);
+            enviar_mensaje_a_todos(mensaje);
           }
         }
       }
@@ -391,16 +416,6 @@ void seleccion_de_poder(int socket)
   }
 }
 
-void enviar_mensaje_a_todos(char *msj)
-{
-  for (int i = 0; i < jugadores; i++)
-  {
-    if (lista_jugadores[i].conectado){
-      server_send_message(sockets_array[i], 5, msj);
-    }
-    
-  }
-}
 
 void ejecutar_poder(Jugador jugador, char *client_message)
 {
@@ -531,6 +546,8 @@ void finalizar_juego(){
             server_send_message(sockets_array[i], 6, mensaje);
             //Reseteamos los turnos
             turno = 0;
+            //Reseteamos a los jugadores activos
+            jugadores_activos = 0;
         }
     }
 
@@ -582,6 +599,11 @@ void *thread_cliente(void *arg){
     {
       char *client_message = server_receive_payload(s->cfd);
       int opciones[3] = {1, 2, 3};
+      //Actualizar s->num
+      if (s->num != lista_jugadores[s->num].numero){
+        s->num = lista_jugadores[s->num].numero;
+      }
+
       if (validar_respuesta(3, opciones, client_message))
       {
         seleccionar_clase(client_message, s->num);
@@ -763,7 +785,7 @@ void *thread_cliente(void *arg){
 
             //Actualizamos s->num del jugador solo si el lider se fue, por ende restamos 1  al s->num y no hay problema
             if (s->num != lista_jugadores[s->num].numero){
-                s->num -=1;
+                s->num = lista_jugadores[s->num].numero;
             }
 
             //Activamos al jugador
@@ -787,7 +809,7 @@ void *thread_cliente(void *arg){
 
             //Actualizamos s->num del jugador solo si el lider se fue, por ende restamos 1  al s->num y no hay problema
             if (s->num != lista_jugadores[s->num].numero){
-                s->num -=1;
+                s->num =lista_jugadores[s->num].numero;
             }
 
             //Caso si es lider y no esta solo

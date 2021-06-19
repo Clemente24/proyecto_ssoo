@@ -23,6 +23,7 @@ void* get_input(void *arg){
   response[pos] = '\0';
   client_send_message(info->server_socket,info->solicitud, response);
   free(info);
+  free(response);
   
 }
 
