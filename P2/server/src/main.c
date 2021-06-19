@@ -322,7 +322,7 @@ void ejecutar_poder(Jugador jugador, char *client_message)
   Jugador *puntero_jugador = &(lista_jugadores[jugador_activo]);
   if (seleccion == 0)
   {
-    printf("EL JUGADOR SE RINDE\n");
+    // printf("EL JUGADOR SE RINDE\n");
     lista_jugadores[jugador_activo].activo = 0;
     lista_jugadores[jugador_activo].vida = 0;
     jugadores_activos -= 1;
@@ -574,17 +574,37 @@ void *thread_cliente(void *arg){
         //matamos al monstruo para testeo
         // monstruo.vida = 0;
 
-        //Verificamos si el jugador actual ha muerto
+        //Funcion que ejecuta poder
+        ejecutar_poder(lista_jugadores[jugador_activo],client_message);
+
         
+        
+        // //Chequeo de status
+        // int derrotados = 0;
+        // for (int j = 0; j< jugadores ; j++){
+        //     // printf("Jugador %s Y su vida %i\n", lista_jugadores[j].nombre, lista_jugadores[j].vida);
+        //     if (lista_jugadores[j].vida <= 0){
+        //         derrotados += 1;
+        //         //Si es que su vida es 0 y sigue activo, lo inactivamos
+        //         if(lista_jugadores[j].activo){
+        //             lista_jugadores[j].activo = 0;
+        //             jugadores_activos -=1;
+        //             char  mensaje[100];
+        //             sprintf(mensaje,"El jugador %s a caido!\n", lista_jugadores[j].nombre);
+        //             enviar_mensaje_a_todos(mensaje);
+        //         }
+        //     }
+        // }
+
         //Si todos mueren, o se rinden, se termina el juego.
         if(jugadores_activos == 0){
             //El juego se termina
             char  mensaje[100];
             sprintf(mensaje,"Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
             printf("Jugadores han perdido\n");
+            // printf("Jugadores activos: %i\n", jugadores_activos);
             enviar_mensaje_a_todos(mensaje);
             //Codigo finalizar juego
-            //Reiniciamos a la cantidad de jugadores, los activos son 0
             finalizar_juego();
         }
         //Si el monstruo muere el juego se termina
@@ -598,8 +618,6 @@ void *thread_cliente(void *arg){
             finalizar_juego();
 
         }else{
-            //Funcion que ejecuta poder
-            ejecutar_poder(lista_jugadores[jugador_activo],client_message);
             //turno siguiente jugador
             if (es_turno_monster()){
                 printf("TURNO MONSTER\n");
@@ -608,9 +626,23 @@ void *thread_cliente(void *arg){
                 enviar_mensaje_a_todos(mensaje);
                 //ejecutar turno monstruo
                 turno_monstruo();
-                //Reiniciamos, ahora le toca nuevamente al jugador 0.
-                // jugador_activo = 0;
-                //Si el turno termina por destruir a todos
+
+                //Chequeo de status
+                int derrotados = 0;
+                for (int j = 0; j< jugadores ; j++){
+                    // printf("Jugador %s Y su vida %i\n", lista_jugadores[j].nombre, lista_jugadores[j].vida);
+                    if (lista_jugadores[j].vida <= 0){
+                        derrotados += 1;
+                        //Si es que su vida es 0 y sigue activo, lo inactivamos
+                        if(lista_jugadores[j].activo){
+                            lista_jugadores[j].activo = 0;
+                            jugadores_activos -=1;
+                            char  mensaje[100];
+                            sprintf(mensaje,"El jugador %s a caido!\n", lista_jugadores[j].nombre);
+                            enviar_mensaje_a_todos(mensaje);
+                        }
+                    }
+                }
             }else
                 printf("JUGADORES ACTIVOS:%i\n", jugadores_activos);
                 jugador_activo = proximo_jugador();
@@ -670,7 +702,6 @@ void *thread_cliente(void *arg){
 
             //Caso si es lider y no esta solo
             if(lista_jugadores[s->num].lider && jugadores > 1){
-                char * mensaje;
 
                 // sprintf(mensaje, "Ahora %s es el lider!", lista_jugadores[1].nombre);
                 // enviar_mensaje_a_todos(mensaje);
@@ -689,6 +720,10 @@ void *thread_cliente(void *arg){
                 lista_jugadores[siguiente].lider = 1;
                 lista_jugadores[s->num].lider = 0;
             }
+
+            char message[255] = "";
+            sprintf(message, "El jugador %s Se ha desconectado\n", lista_jugadores[s->num].nombre);
+            enviar_mensaje_a_todos(message);
 
 
             //Reordenamos los jugadores y sus sockets (No es eficiente LOL)
