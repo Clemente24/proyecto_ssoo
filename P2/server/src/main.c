@@ -676,7 +676,7 @@ void *thread_cliente(void *arg){
     }
     case 4:
     { //recibe accion envia un turno nuevo a siguiente jugador
-
+      printf("INICIO CASO 4\n");
       char *client_message = server_receive_payload(s->cfd);
       int opciones[4] = {0, 1, 2, 3};
       if (validar_respuesta(4, opciones, client_message))
@@ -710,22 +710,15 @@ void *thread_cliente(void *arg){
         }else{
             //Funcion que ejecuta poder
             ejecutar_poder(lista_jugadores[jugador_activo],client_message);
-            //turno siguiente jugador
-            if (es_turno_monster()){
+
+
+            if (es_turno_monster() && jugadores_activos > 0){
                 printf("TURNO MONSTER\n");
                 char mensaje [50];
                 sprintf(mensaje, "Turno de %s\n\n", monstruo.tipo);
                 enviar_mensaje_a_todos(mensaje);
                 //ejecutar turno monstruo
                 turno_monstruo();
-                
-                //Buscamos al primer jugador activo:
-                for(int j = 0; j< jugadores; j++){
-                    if (lista_jugadores[j].activo){
-                        jugador_activo = j;
-                        j = jugadores;
-                    }
-                }
 
                 //Chequeo de status
                 int derrotados = 0;
@@ -743,11 +736,34 @@ void *thread_cliente(void *arg){
                         }
                     }
                 }
-            }else
-                jugador_activo = proximo_jugador();
+                                
+                //Buscamos al primer jugador activo:
+                // for(int j = 0; j< jugadores; j++){
+                //     if (lista_jugadores[j].activo){
+                //         jugador_activo;
+                //         printf("Jugador activo siguiente: %i\n", jugador_activo);
+                //         j = jugadores;
+                //     }
+                // }
+            }
+            
+            printf("Cambiando de jugador activo \n");
+            if(jugadores_activos > 0){
+                jugador_activo = proximo_jugador();                           
                 impresion_estadisticas();
                 seleccion_de_poder(sockets_array[jugador_activo]);
                 turno += 1;
+            }
+            if(jugadores_activos == 0){
+                char  mensaje[100];
+                sprintf(mensaje,"Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
+                printf("Jugadores han perdido\n");
+                // printf("Jugadores activos: %i\n", jugadores_activos);
+                enviar_mensaje_a_todos(mensaje);
+                //Codigo finalizar juego
+                finalizar_juego();
+            }
+
         }
       }else{
         char * mensaje = "Input no valido\n";
