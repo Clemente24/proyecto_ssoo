@@ -13,6 +13,7 @@
 
 int inicio_juego = 0;
 int turno = 0;
+int termino_juego = 0;
 // numero jugadores
 int jugadores = 0;
 // cantidad de jugadores activos
@@ -663,6 +664,7 @@ void *thread_cliente(void *arg){
       lista_jugadores[s->num].nombre = client_message;
       char *mensaje = "Seleccione la clase: \n[1]Cazador\n[2]Medico\n[3]Hacker\n";
       server_send_message(s->cfd, 1, mensaje);
+      free(client_message);
       break;
     }
 
@@ -698,6 +700,7 @@ void *thread_cliente(void *arg){
         char *mensaje = "Input no valido\nSeleccione la clase: \n[1]Cazador\n[2]Medico\n[3]Hacker\n";
         server_send_message(s->cfd, 1, mensaje);
       }
+      free(client_message);
       break;
     }
 
@@ -718,7 +721,7 @@ void *thread_cliente(void *arg){
         char *mensaje = "Hay jugadores en conexion!!, espere un tiempo\nPresione enter para iniciar el juego\n";
         server_send_message(s->cfd, 2, mensaje);
       }
-
+      free(client_message);
       break;
     }
 
@@ -740,6 +743,7 @@ void *thread_cliente(void *arg){
         char *mensaje = "Input no valido\nSeleccione el tipo de monstruo:\n[1]Great JagRuz\n[2]Ruzalos\n[3]Ruiz, el Gemelo Malvado del Profesor Ruz\n[4]Aleatorio\n";
         server_send_message(s->cfd, 3, mensaje);
       }
+      free(client_message);
       break;
     }
     case 4:
@@ -872,6 +876,7 @@ void *thread_cliente(void *arg){
         server_send_message(s->cfd, 5, mensaje);
         seleccion_de_poder(s->cfd);
       } 
+      free(client_message);
       break;}
 
     case 6:{//Recibe confirmacion si desea seguir jugando
@@ -934,6 +939,7 @@ void *thread_cliente(void *arg){
             server_send_message(s->cfd, 7, mensaje);
             //Test de free
             free(s);
+
             pthread_exit(NULL);
 
         }
@@ -943,7 +949,7 @@ void *thread_cliente(void *arg){
         char * mensaje = "Input no valido\nDesea seguir jugando?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
         server_send_message(s->cfd, 6, mensaje);
      }
-    
+     free(client_message);
      break;}
     }
   }
@@ -1008,14 +1014,13 @@ int main(int argc, char *argv[]){
   socklen_t addr_size = sizeof(client_addr[0]);
 
   // Se inicializa una estructura propia para guardar los n°s de sockets de los clientes.
-  PlayersInfo *players_info = malloc(sizeof(PlayersInfo));
+  PlayersInfo players_info[4];
 
   int socket_lider;
   // Guardaremos los sockets en un arreglo e iremos alternando a quién escuchar.
-
-  while (1)
+  while (!termino_juego)
   {
-    if (jugadores < 4)
+    if (jugadores < 4 && !inicio_juego)
     {
       players_info->sockets_c[jugadores] = accept(server_socket, (struct sockaddr *)&client_addr[jugadores], &addr_size);
 
@@ -1049,10 +1054,10 @@ int main(int argc, char *argv[]){
       pthread_detach(id);
       jugadores += 1;
     }
+    if(desconectados == jugadores){
+      termino_juego = 1;
+    }
   }
-
-  free(players_info);
-
 
   return 0;
 }
