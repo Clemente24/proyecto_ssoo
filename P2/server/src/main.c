@@ -482,18 +482,15 @@ void ejecutar_poder(Jugador jugador, char *client_message)
   {
     if (seleccion == 1){
       cazador_estocada(puntero_jugador, puntero_monstruo); // Monstruo debe controlar su sangrado
-      if(monstruo.sangrado < 3){
-        monstruo.sangrado += 1;
-      }
       char mensaje[100];
-      sprintf(mensaje, "%s (Cazador) Utiliza estocada\n!",puntero_jugador -> nombre);
+      sprintf(mensaje, "%s (Cazador) Utiliza estocada!\n",puntero_jugador -> nombre);
       enviar_mensaje_a_todos(mensaje);
     }
     else if (seleccion == 2){
 
       cazador_corte_cruzado(puntero_jugador, puntero_monstruo); // Ok
       char mensaje[100];
-      sprintf(mensaje, "%s (Cazador) Utiliza corte cruzado\n!",puntero_jugador -> nombre);
+      sprintf(mensaje, "%s (Cazador) Utiliza corte cruzado!\n",puntero_jugador -> nombre);
       enviar_mensaje_a_todos(mensaje);
       }
     else if (seleccion == 3)
@@ -509,7 +506,7 @@ void ejecutar_poder(Jugador jugador, char *client_message)
     if (seleccion == 1){
       medico_curar(puntero_jugador, &(jugador)); // "Jugador 2" debe ser elegido (Corregir)
       char mensaje[100];
-      sprintf(mensaje, "%s (Medico) Utiliza curar\n!",puntero_jugador->nombre);
+      sprintf(mensaje, "%s (Medico) Utiliza curar!\n",puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
     else if (seleccion == 2)
@@ -525,13 +522,13 @@ void ejecutar_poder(Jugador jugador, char *client_message)
       }
       medico_destello_regenerador(puntero_jugador, puntero_otro_jugador, puntero_monstruo); // OK
       char mensaje[100];
-      sprintf(mensaje, "%s (Medico) Utiliza destello regenerador, ayudando a %s\n!",puntero_jugador->nombre, puntero_otro_jugador->nombre);
+      sprintf(mensaje, "%s (Medico) Utiliza destello regenerador, ayudando a %s!\n",puntero_jugador->nombre, puntero_otro_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
     else if (seleccion == 3){
       medico_descarga_vital(puntero_jugador, puntero_monstruo); // OK
       char mensaje[100];
-      sprintf(mensaje, "%s (Medico) Utiliza descarga vital\n!",puntero_jugador->nombre);
+      sprintf(mensaje, "%s (Medico) Utiliza descarga vital!\n",puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
   }
@@ -540,19 +537,19 @@ void ejecutar_poder(Jugador jugador, char *client_message)
     if (seleccion == 1){
       hacker_inyeccion_sql(puntero_jugador); // "Jugador" debe ser elegido (Corregir)
       char mensaje[100];
-      sprintf(mensaje, "%s (Hacker) Utiliza inyeccion sql \n!",puntero_jugador->nombre);
+      sprintf(mensaje, "%s (Hacker) Utiliza inyeccion sql!\n",puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
     else if (seleccion == 2){
       hacker_ataque_ddos(puntero_jugador, puntero_monstruo); // OK
       char mensaje[100];
-      sprintf(mensaje, "%s (Hacker) Utiliza ataque DDoS\n!",puntero_jugador->nombre);
+      sprintf(mensaje, "%s (Hacker) Utiliza ataque DDoS!\n",puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
     else if (seleccion == 3){
       hacker_fuerza_bruta(puntero_jugador, puntero_monstruo); // OK
       char mensaje[100];
-      sprintf(mensaje, "%s (Hacker) Utiliza fuerza bruta\n!",puntero_jugador->nombre);
+      sprintf(mensaje, "%s (Hacker) Utiliza fuerza bruta!\n",puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
   }
