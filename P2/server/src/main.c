@@ -684,9 +684,6 @@ void *thread_cliente(void *arg){
         //matamos al monstruo para testeo
         // monstruo.vida = 0;
 
-        //Funcion que ejecuta poder
-        ejecutar_poder(lista_jugadores[jugador_activo],client_message);
-
         // printf("Nombre: %s\n Numero: %i", lista_jugadores[s->num].nombre, lista_jugadores[s->num].numero);
 
         //Si todos mueren, o se rinden, se termina el juego.
@@ -711,6 +708,8 @@ void *thread_cliente(void *arg){
             finalizar_juego();
 
         }else{
+            //Funcion que ejecuta poder
+            ejecutar_poder(lista_jugadores[jugador_activo],client_message);
             //turno siguiente jugador
             if (es_turno_monster()){
                 printf("TURNO MONSTER\n");
