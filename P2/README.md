@@ -40,6 +40,10 @@ Los paquetes que se utilizan son 11, y los clasificamos en:
 ***Formato payload***: envío de información 
 ***Descripción:*** este paquete cumple la función de enviar información al cliente en distintas situaciones y etapas del juego, principalmente cuando no se espera una respuesta luego de enviarlo. Principalmente, canal de comunicación general.
 
+***ID:*** 6 
+***Formato payload***: solicitud de seguir jugando
+***Descripción:*** se envía al jugador las opciones de seguir jugando o no.
+
 ### Enviados por el cliente:
 ***ID:*** 0  
 ***Formato payload***: nombre del jugador  
@@ -61,8 +65,14 @@ Los paquetes que se utilizan son 11, y los clasificamos en:
 ***Formato payload***: elección de poder  
 ***Descripción:*** este paquete contiene el poder elegido por el jugador en cada turno.
 
+***ID:*** 6 
+***Formato payload***: elección de seguir jugando
+***Descripción:*** este paquete contiene la respuesta sobre continuar jugando.
+
 ## Deciciones de diseño
 
 - Sangrado se acumula por el resto de la batalla
 - Sangrado en jugadores hace 100 por stack, debido a que tienen menos vida que un monstruo
 - El veneno de espina venenosa afecta por 2 turnos ademas del primer turno en donde es infectado, haciendo la suma 3 turnos.
+- EL daño por status se hace despues de que todos atacan.
+- Cuando el monstruo utiliza distraer, pierde su turno.
