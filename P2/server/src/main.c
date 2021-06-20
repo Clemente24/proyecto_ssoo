@@ -291,7 +291,7 @@ void ruzalos_atack()
           else
           {
             atack(jug, 400);
-            lista_jugadores[jug].infected = 2;
+            lista_jugadores[jug].infected = 3;
             char mensaje[100];
             sprintf(mensaje, "Ruzalos ha envenenado a %s!\n", lista_jugadores[jug].nombre);
             enviar_mensaje_a_todos(mensaje);
@@ -480,10 +480,19 @@ void ejecutar_poder(Jugador jugador, char *client_message)
 
   if (jugador.clase == "Cazador")
   {
-    if (seleccion == 1)
+    if (seleccion == 1){
       cazador_estocada(puntero_jugador, puntero_monstruo); // Monstruo debe controlar su sangrado
-    else if (seleccion == 2)
+      char mensaje[100];
+      sprintf(mensaje, "%s (Cazador) Utiliza estocada\n!",puntero_jugador -> nombre);
+      enviar_mensaje_a_todos(mensaje);
+    }
+    else if (seleccion == 2){
+
       cazador_corte_cruzado(puntero_jugador, puntero_monstruo); // Ok
+      char mensaje[100];
+      sprintf(mensaje, "%s (Cazador) Utiliza corte cruzado\n!",puntero_jugador -> nombre);
+      enviar_mensaje_a_todos(mensaje);
+      }
     else if (seleccion == 3)
     {
       jugador.distraer = 1;
@@ -494,8 +503,12 @@ void ejecutar_poder(Jugador jugador, char *client_message)
   }
   else if (jugador.clase == "Medico")
   {
-    if (seleccion == 1)
+    if (seleccion == 1){
       medico_curar(puntero_jugador, &(jugador)); // "Jugador 2" debe ser elegido (Corregir)
+      char mensaje[100];
+      sprintf(mensaje, "%s (Medico) Utiliza curar\n!",puntero_jugador->nombre);
+      enviar_mensaje_a_todos(mensaje);
+    }
     else if (seleccion == 2)
     {
       int loop = 1;
@@ -508,18 +521,37 @@ void ejecutar_poder(Jugador jugador, char *client_message)
           loop = 0;
       }
       medico_destello_regenerador(puntero_jugador, puntero_otro_jugador, puntero_monstruo); // OK
+      char mensaje[100];
+      sprintf(mensaje, "%s (Medico) Utiliza destello regenerador, ayudando a %s\n!",puntero_jugador->nombre, puntero_otro_jugador->nombre);
+      enviar_mensaje_a_todos(mensaje);
     }
-    else if (seleccion == 3)
+    else if (seleccion == 3){
       medico_descarga_vital(puntero_jugador, puntero_monstruo); // OK
+      char mensaje[100];
+      sprintf(mensaje, "%s (Medico) Utiliza descarga vital\n!",puntero_jugador->nombre);
+      enviar_mensaje_a_todos(mensaje);
+    }
   }
   else
   {
-    if (seleccion == 1)
+    if (seleccion == 1){
       hacker_inyeccion_sql(puntero_jugador); // "Jugador" debe ser elegido (Corregir)
-    else if (seleccion == 2)
+      char mensaje[100];
+      sprintf(mensaje, "%s (Hacker) Utiliza inyeccion sql \n!",puntero_jugador->nombre);
+      enviar_mensaje_a_todos(mensaje);
+    }
+    else if (seleccion == 2){
       hacker_ataque_ddos(puntero_jugador, puntero_monstruo); // OK
-    else if (seleccion == 3)
+      char mensaje[100];
+      sprintf(mensaje, "%s (Hacker) Utiliza ataque DDoS\n!",puntero_jugador->nombre);
+      enviar_mensaje_a_todos(mensaje);
+    }
+    else if (seleccion == 3){
       hacker_fuerza_bruta(puntero_jugador, puntero_monstruo); // OK
+      char mensaje[100];
+      sprintf(mensaje, "%s (Hacker) Utiliza fuerza bruta\n!",puntero_jugador->nombre);
+      enviar_mensaje_a_todos(mensaje);
+    }
   }
 }
 
@@ -759,6 +791,26 @@ void *thread_cliente(void *arg){
                 int derrotados = 0;
                 for (int j = 0; j< jugadores ; j++){
                     // printf("Jugador %s Y su vida %i\n", lista_jugadores[j].nombre, lista_jugadores[j].vida);
+                    //Si esta activo vemos sus stats (envenenado, sangrando etc)
+                    if (lista_jugadores[j].activo){
+                        if(lista_jugadores[j].infected <= 3 && lista_jugadores[j].infected > 0){
+                            if (lista_jugadores[j].infected == 3){
+                                //Si se infecto en este turno no pasa nada, por que ya recibio el daño correspondiente
+                                lista_jugadores[j].infected -= 1;
+                            }else{
+                                lista_jugadores[j].infected -= 1;
+                                atack(j, 400);
+                                char mensaje[100];
+                                sprintf(mensaje, "%s (%s) Recibe daño por espina venenosa (Turnos restantes: %i)\n!",
+                                lista_jugadores[j].nombre, 
+                                lista_jugadores[j].clase,
+                                lista_jugadores[j].infected);
+                                enviar_mensaje_a_todos(mensaje);
+                            }
+                        }
+
+
+                    }
                     if (lista_jugadores[j].vida <= 0){
                         derrotados += 1;
                         //Si es que su vida es 0 y sigue activo, lo inactivamos
