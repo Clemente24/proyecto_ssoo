@@ -284,6 +284,9 @@ void ruzalos_atack()
           {
             atack(jug, 500);
             //lista_jugadores[jug].infected -= 1;
+            char mensaje[100];
+            sprintf(mensaje, "%s recibe daño por doble espina!\n", lista_jugadores[jug].nombre);
+            enviar_mensaje_a_todos(mensaje);
           }
           else
           {
@@ -338,36 +341,69 @@ void ruiz_atack(){
         
         if (habilidad==0){
           monstruo_estocada(&monstruo, &lista_jugadores[jug]);
+          char mensaje[100];
+          sprintf(mensaje, "Ruiz utiliza estocada!\n");
+          enviar_mensaje_a_todos(mensaje);
         }
         if (habilidad==1){
           monstruo_corte_cruzado(&monstruo,&lista_jugadores[jug]);
+          char mensaje[100];
+          sprintf(mensaje, "Ruiz utiliza corte cruzado!\n");
+          enviar_mensaje_a_todos(mensaje);
         }
         if (habilidad==2){
           monstruo_distraer();
+          char mensaje[100];
+          sprintf(mensaje, "Ruiz utiliza distraer!\n");
+          enviar_mensaje_a_todos(mensaje);
         }
         if (habilidad==3){
           monstruo_curar(&monstruo);
+          char mensaje[100];
+          sprintf(mensaje, "Ruiz utiliza curar!\n");
+          enviar_mensaje_a_todos(mensaje);          
         }
         if (habilidad==4){
           monstruo_destello_regenerador(&monstruo,&lista_jugadores[jug]);
+          char mensaje[100];
+          sprintf(mensaje, "Ruiz utiliza destello regenerador!\n");
+          enviar_mensaje_a_todos(mensaje);
         }
         if (habilidad==5){
           monstruo_descarga_vital(&monstruo,&lista_jugadores[jug]);
+          char mensaje[100];
+          sprintf(mensaje, "Ruiz utiliza descarga vital!\n");
+          enviar_mensaje_a_todos(mensaje);
         }
         if (habilidad==6){
           monstruo_inyeccion_sql(&monstruo);
+          char mensaje[100];
+          sprintf(mensaje, "Ruiz utiliza inyeccion sql!\n");
+          enviar_mensaje_a_todos(mensaje);
         }
         if (habilidad==7){
           monstruo_ataque_ddos(&monstruo, &lista_jugadores[jug]);
+          char mensaje[100];
+          sprintf(mensaje, "Ruiz utiliza ataque DDoS!\n");
+          enviar_mensaje_a_todos(mensaje);
         }
         if (habilidad==8){
           monstruo_fuerza_bruta(&monstruo, &lista_jugadores[jug]);
+          char mensaje[100];
+          sprintf(mensaje, "Ruiz utiliza fuerza bruta!\n");
+          enviar_mensaje_a_todos(mensaje);
         }
      } else{
          if (num<6){
            lista_jugadores[jug].reprobado=1;
+            char mensaje[100];
+            sprintf(mensaje, "Ruiz a reprobado a %s!\n", lista_jugadores[jug].nombre);
+            enviar_mensaje_a_todos(mensaje);
      } else{        //ultimo caso
-          atack_all(100*turno)  ;
+          atack_all(100*turno);
+          char mensaje[100];
+          sprintf(mensaje, "Ruiz a escrito en la consola sudo rm -rf!\n");
+          enviar_mensaje_a_todos(mensaje);
      }
      }
 }
