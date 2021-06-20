@@ -311,7 +311,7 @@ void enviar_mensaje_a_todos(char *msj)
   }
 }
 
-void ejecutar_poder(Jugador jugador, char *client_message)
+void ejecutar_poder(Jugador jugador, char *client_message, int socket)
 {
   int seleccion = *client_message - '0';
   Monstruo *puntero_monstruo = &(monstruo);
@@ -335,7 +335,7 @@ void ejecutar_poder(Jugador jugador, char *client_message)
     else if (seleccion == 3)
     {
       jugador.distraer = 1;
-      char *mensaje = "[Cazador] Distraer";
+      char *mensaje = "[Cazador] Distraer\n";
       enviar_mensaje_a_todos(mensaje);
       printf("[Cazador] Distraer\n");
     }
@@ -358,16 +358,24 @@ void ejecutar_poder(Jugador jugador, char *client_message)
       medico_destello_regenerador(puntero_jugador, puntero_otro_jugador, puntero_monstruo); // OK
     }
     else if (seleccion == 3)
-      medico_descarga_vital(puntero_jugador, puntero_monstruo); // OK
+    {
+      medico_descarga_vital(puntero_jugador, puntero_monstruo);
+      char *mensaje = "[Medico] Descarga Vital\n";
+      enviar_mensaje_a_todos(mensaje);
+    }
   }
   else
   {
     if (seleccion == 1)
-      hacker_inyeccion_sql(puntero_jugador); // "Jugador" debe ser elegido (Corregir)
+    {
+      printf("[Hacker] Inyeccion SQL");
+    }
     else if (seleccion == 2)
-      hacker_ataque_ddos(puntero_jugador, puntero_monstruo); // OK
+      hacker_ataque_ddos(puntero_jugador, puntero_monstruo);
     else if (seleccion == 3)
-      hacker_fuerza_bruta(puntero_jugador, puntero_monstruo); // OK
+    {
+      hacker_fuerza_bruta(puntero_jugador, puntero_monstruo);
+    }
   }
 }
 
@@ -533,24 +541,91 @@ void *thread_cliente(void *arg)
       if (validar_respuesta(4, opciones, client_message))
       {
         //Funcion que ejecuta poder
-        ejecutar_poder(lista_jugadores[jugador_activo], client_message);
-        //turno siguiente jugador
-        if (es_turno_monster())
+        int control = 0;
+        int seleccion = *client_message - '0';
+        if (strcmp(lista_jugadores[jugador_activo].clase, "Medico") == 0 || strcmp(lista_jugadores[jugador_activo].clase, "Hacker") == 0)
         {
-          printf("TURNO MONSTER");
-          //ejecutar turno monstruo
-          turno_monstruo();
+          if (seleccion == 1)
+            control = 1;
         }
-        jugador_activo = proximo_jugador();
-        impresion_estadisticas();
-        seleccion_de_poder(sockets_array[jugador_activo]);
-        turno += 1;
+        if (control == 1)
+        {
+          //Caso 5
+          char *mensaje = "Selecciona un jugador: Seleccione el tipo de monstruo:\n[1]Great JagRuz\n[2]Ruzalos\n[3]Ruiz, el Gemelo Malvado del Profesor Ruz\n[4]Aleatorio\n";
+          server_send_message(s->cfd, 9, mensaje);
+        }
+        else
+        {
+          //Caso normal
+          ejecutar_poder(lista_jugadores[jugador_activo], client_message, s->cfd);
+          //turno siguiente jugador
+          if (es_turno_monster())
+          {
+            printf("TURNO MONSTER");
+            //ejecutar turno monstruo
+            turno_monstruo();
+          }
+          jugador_activo = proximo_jugador();
+          impresion_estadisticas();
+          seleccion_de_poder(sockets_array[jugador_activo]);
+          turno += 1;
+        }
       }
       else
       {
         char *mensaje = "Input no valido\n";
         server_send_message(s->cfd, 5, mensaje);
         seleccion_de_poder(s->cfd);
+      }
+      break;
+    }
+    case 5:
+    { //recibe jugador inyeccion_sql
+
+      char *client_message = server_receive_payload(s->cfd);
+      int opciones[4] = {1, 2, 3, 4};
+
+      if (validar_respuesta(4, opciones, client_message))
+      {
+        int indice = *client_message - '0';
+        if (indice == jugador_activo)
+        {
+          char *mensaje = "No puedes usar este efecto sobre ti!\nSelecciona otro jugador:";
+          server_send_message(s->cfd, 9, mensaje);
+        }
+        else if (lista_jugadores[indice].activo == 0)
+        {
+          char *mensaje = "Jugador no activo!\nSelecciona otro jugador:";
+          server_send_message(s->cfd, 9, mensaje);
+        }
+        else
+        {
+          Jugador *puntero_jugador = &(lista_jugadores[indice]);
+          Jugador *puntero = &(lista_jugadores[jugador_activo]);
+          if (strcmp(lista_jugadores[jugador_activo].clase, "Medico") == 0)
+          {
+            medico_curar(puntero, puntero_jugador);
+          }
+          else
+          {
+            hacker_inyeccion_sql(puntero_jugador);
+          }
+          if (es_turno_monster())
+          {
+            printf("TURNO MONSTER");
+            //ejecutar turno monstruo
+            turno_monstruo();
+          }
+          jugador_activo = proximo_jugador();
+          impresion_estadisticas();
+          seleccion_de_poder(sockets_array[jugador_activo]);
+          turno += 1;
+        }
+      }
+      else
+      {
+        char *mensaje = "Input no valido\nSeleccione el jugador:";
+        server_send_message(s->cfd, 9, mensaje);
       }
       break;
     }
