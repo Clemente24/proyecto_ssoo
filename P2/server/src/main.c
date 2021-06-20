@@ -26,7 +26,6 @@ int jugador_activo = 0;
 int sockets_array[4];
 int poderes_array[9];
 
-
 typedef struct sock_info
 {
   int cfd;
@@ -60,9 +59,9 @@ void seleccionar_clase(char *client_message, int indice)
     lista_jugadores[indice].clase = "Cazador";
     lista_jugadores[indice].vida = 5000;
     lista_jugadores[indice].vida_maxima = 5000;
-    poderes_array[0]=1;
-    poderes_array[1]=1;
-    poderes_array[2]=1;
+    poderes_array[0] = 1;
+    poderes_array[1] = 1;
+    poderes_array[2] = 1;
   }
 
   else if (clase == 2)
@@ -70,9 +69,9 @@ void seleccionar_clase(char *client_message, int indice)
     lista_jugadores[indice].clase = "Medico";
     lista_jugadores[indice].vida = 3000;
     lista_jugadores[indice].vida_maxima = 3000;
-    poderes_array[3]=1;
-    poderes_array[4]=1;
-    poderes_array[5]=1;
+    poderes_array[3] = 1;
+    poderes_array[4] = 1;
+    poderes_array[5] = 1;
   }
 
   else
@@ -80,9 +79,9 @@ void seleccionar_clase(char *client_message, int indice)
     lista_jugadores[indice].clase = "Hacker";
     lista_jugadores[indice].vida = 2500;
     lista_jugadores[indice].vida_maxima = 2500;
-    poderes_array[6]=1;
-    poderes_array[7]=1;
-    poderes_array[8]=1;
+    poderes_array[6] = 1;
+    poderes_array[7] = 1;
+    poderes_array[8] = 1;
   }
   lista_jugadores[indice].distraer = 0;
   lista_jugadores[indice].fuerza_bruta = 0;
@@ -126,7 +125,7 @@ void seleccionar_monstruo(char *client_message)
 }
 int es_turno_monster()
 {
-//   printf("Jugador activo:%i jugadores:%i\n", jugador_activo, jugadores);
+  //   printf("Jugador activo:%i jugadores:%i\n", jugador_activo, jugadores);
   if (jugador_activo == jugadores)
   {
     return 1;
@@ -144,15 +143,14 @@ int es_turno_monster()
   }
 }
 
-
 void enviar_mensaje_a_todos(char *msj)
 {
   for (int i = 0; i < jugadores; i++)
   {
-    if (lista_jugadores[i].conectado){
+    if (lista_jugadores[i].conectado)
+    {
       server_send_message(sockets_array[i], 5, msj);
     }
-    
   }
 }
 
@@ -172,11 +170,14 @@ void atack(int player, int vidas)
   }
   else
   {
-    if (lista_jugadores[player].reprobado){
-      lista_jugadores[player].vida -= vidas*1.5;
-      } else {
-        lista_jugadores[player].vida -= vidas;
-      }
+    if (lista_jugadores[player].reprobado)
+    {
+      lista_jugadores[player].vida -= vidas * 1.5;
+    }
+    else
+    {
+      lista_jugadores[player].vida -= vidas;
+    }
   }
 }
 void atack_all(int vidas)
@@ -196,9 +197,12 @@ void atack_all(int vidas)
         }
         lista_jugadores[i].distraer = 2;
       }
-      if (lista_jugadores[i].reprobado){
-      lista_jugadores[i].vida -= vidas*1.5;
-      } else {
+      if (lista_jugadores[i].reprobado)
+      {
+        lista_jugadores[i].vida -= vidas * 1.5;
+      }
+      else
+      {
         lista_jugadores[i].vida -= vidas;
       }
     }
@@ -307,112 +311,132 @@ void ruzalos_atack()
   }
 }
 
-void ruiz_atack(){
-    int num;
-     num = rand() % 10;
-     printf("%d \n",num);
-     int jug;
-        jug = rand() % jugadores_activos;
-        for (int i = 0; i < jugadores; i++)
-            {
-              if (lista_jugadores[i].activo)
-              {
-                if (jug == i)
-                {
-                  break;
-                }
-              }
-              else
-              {
-                jug += 1;
-              }
-            }
-     if (num<4){
-         //Copiar habilidad de un jugador
-         int habilidad;
-         int ok =1;
+void ruiz_atack()
+{
+  int num;
+  num = rand() % 10;
+  printf("%d \n", num);
+  int jug;
+  jug = rand() % jugadores_activos;
+  for (int i = 0; i < jugadores; i++)
+  {
+    if (lista_jugadores[i].activo)
+    {
+      if (jug == i)
+      {
+        break;
+      }
+    }
+    else
+    {
+      jug += 1;
+    }
+  }
+  if (num < 4)
+  {
+    //Copiar habilidad de un jugador
+    int habilidad;
+    int ok = 1;
+    habilidad = rand() % 9;
+    while (ok)
+    {
+      if (poderes_array[habilidad] == 1)
+      {
+        ok = 0;
+      }
+      else
+      {
         habilidad = rand() % 9;
-        while(ok) {
-          if (poderes_array[habilidad]==1){
-            ok=0;
-          } else {
-            habilidad = rand() % 9;
-          }
-        }
-        
-        if (habilidad==0){
-          monstruo_estocada(&monstruo, &lista_jugadores[jug]);
-          char mensaje[100];
-          sprintf(mensaje, "Ruiz utiliza estocada!\n");
-          enviar_mensaje_a_todos(mensaje);
-        }
-        if (habilidad==1){
-          monstruo_corte_cruzado(&monstruo,&lista_jugadores[jug]);
-          char mensaje[100];
-          sprintf(mensaje, "Ruiz utiliza corte cruzado!\n");
-          enviar_mensaje_a_todos(mensaje);
-        }
-        if (habilidad==2){
-          monstruo_distraer();
-          char mensaje[100];
-          sprintf(mensaje, "Ruiz utiliza distraer!\n");
-          enviar_mensaje_a_todos(mensaje);
-        }
-        if (habilidad==3){
-          monstruo_curar(&monstruo);
-          char mensaje[100];
-          sprintf(mensaje, "Ruiz utiliza curar!\n");
-          enviar_mensaje_a_todos(mensaje);          
-        }
-        if (habilidad==4){
-          monstruo_destello_regenerador(&monstruo,&lista_jugadores[jug]);
-          char mensaje[100];
-          sprintf(mensaje, "Ruiz utiliza destello regenerador!\n");
-          enviar_mensaje_a_todos(mensaje);
-        }
-        if (habilidad==5){
-          monstruo_descarga_vital(&monstruo,&lista_jugadores[jug]);
-          char mensaje[100];
-          sprintf(mensaje, "Ruiz utiliza descarga vital!\n");
-          enviar_mensaje_a_todos(mensaje);
-        }
-        if (habilidad==6){
-          monstruo_inyeccion_sql(&monstruo);
-          char mensaje[100];
-          sprintf(mensaje, "Ruiz utiliza inyeccion sql!\n");
-          enviar_mensaje_a_todos(mensaje);
-        }
-        if (habilidad==7){
-          monstruo_ataque_ddos(&monstruo, &lista_jugadores[jug]);
-          char mensaje[100];
-          sprintf(mensaje, "Ruiz utiliza ataque DDoS!\n");
-          enviar_mensaje_a_todos(mensaje);
-        }
-        if (habilidad==8){
-          monstruo_fuerza_bruta(&monstruo, &lista_jugadores[jug]);
-          char mensaje[100];
-          sprintf(mensaje, "Ruiz utiliza fuerza bruta!\n");
-          enviar_mensaje_a_todos(mensaje);
-        }
-     } else{
-         if (num<6){
-           lista_jugadores[jug].reprobado=1;
-            char mensaje[100];
-            sprintf(mensaje, "Ruiz a reprobado a %s!\n", lista_jugadores[jug].nombre);
-            enviar_mensaje_a_todos(mensaje);
-     } else{        //ultimo caso
-          atack_all(100*turno);
-          char mensaje[100];
-          sprintf(mensaje, "Ruiz a escrito en la consola sudo rm -rf!\n");
-          enviar_mensaje_a_todos(mensaje);
-     }
-     }
+      }
+    }
+
+    if (habilidad == 0)
+    {
+      monstruo_estocada(&monstruo, &lista_jugadores[jug]);
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz utiliza estocada!\n");
+      enviar_mensaje_a_todos(mensaje);
+    }
+    if (habilidad == 1)
+    {
+      monstruo_corte_cruzado(&monstruo, &lista_jugadores[jug]);
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz utiliza corte cruzado!\n");
+      enviar_mensaje_a_todos(mensaje);
+    }
+    if (habilidad == 2)
+    {
+      monstruo_distraer();
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz utiliza distraer!\n");
+      enviar_mensaje_a_todos(mensaje);
+    }
+    if (habilidad == 3)
+    {
+      monstruo_curar(&monstruo);
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz utiliza curar!\n");
+      enviar_mensaje_a_todos(mensaje);
+    }
+    if (habilidad == 4)
+    {
+      monstruo_destello_regenerador(&monstruo, &lista_jugadores[jug]);
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz utiliza destello regenerador!\n");
+      enviar_mensaje_a_todos(mensaje);
+    }
+    if (habilidad == 5)
+    {
+      monstruo_descarga_vital(&monstruo, &lista_jugadores[jug]);
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz utiliza descarga vital!\n");
+      enviar_mensaje_a_todos(mensaje);
+    }
+    if (habilidad == 6)
+    {
+      monstruo_inyeccion_sql(&monstruo);
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz utiliza inyeccion sql!\n");
+      enviar_mensaje_a_todos(mensaje);
+    }
+    if (habilidad == 7)
+    {
+      monstruo_ataque_ddos(&monstruo, &lista_jugadores[jug]);
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz utiliza ataque DDoS!\n");
+      enviar_mensaje_a_todos(mensaje);
+    }
+    if (habilidad == 8)
+    {
+      monstruo_fuerza_bruta(&monstruo, &lista_jugadores[jug]);
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz utiliza fuerza bruta!\n");
+      enviar_mensaje_a_todos(mensaje);
+    }
+  }
+  else
+  {
+    if (num < 6)
+    {
+      lista_jugadores[jug].reprobado = 1;
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz a reprobado a %s!\n", lista_jugadores[jug].nombre);
+      enviar_mensaje_a_todos(mensaje);
+    }
+    else
+    { //ultimo caso
+      atack_all(100 * turno);
+      char mensaje[100];
+      sprintf(mensaje, "Ruiz a escrito en la consola sudo rm -rf!\n");
+      enviar_mensaje_a_todos(mensaje);
+    }
+  }
 }
 
 int proximo_jugador()
 {
   // caso de hay solo un jugador
-//   printf("Jugadores activos: %i\n", jugadores_activos);
+  //   printf("Jugadores activos: %i\n", jugadores_activos);
   if (jugadores_activos == 1)
   {
     for (int i = 0; i < jugadores; i++)
@@ -425,7 +449,7 @@ int proximo_jugador()
   }
   //caso de hay mas de un jugador
   //comenzamos desde el siguiente jugador despues del actual a revisar
-//   printf("Jugador_activo + 1 %i\n", jugador_activo + 1);
+  //   printf("Jugador_activo + 1 %i\n", jugador_activo + 1);
 
   int j = jugador_activo + 1;
   while (1)
@@ -462,7 +486,6 @@ void seleccion_de_poder(int socket)
   }
 }
 
-
 void ejecutar_poder(Jugador jugador, char *client_message)
 {
   int seleccion = *client_message - '0';
@@ -481,19 +504,21 @@ void ejecutar_poder(Jugador jugador, char *client_message)
 
   if (jugador.clase == "Cazador")
   {
-    if (seleccion == 1){
+    if (seleccion == 1)
+    {
       cazador_estocada(puntero_jugador, puntero_monstruo); // Monstruo debe controlar su sangrado
       char mensaje[100];
-      sprintf(mensaje, "%s (Cazador) Utiliza estocada!\n",puntero_jugador -> nombre);
+      sprintf(mensaje, "%s (Cazador) Utiliza estocada!\n", puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
-    else if (seleccion == 2){
+    else if (seleccion == 2)
+    {
 
       cazador_corte_cruzado(puntero_jugador, puntero_monstruo); // Ok
       char mensaje[100];
-      sprintf(mensaje, "%s (Cazador) Utiliza corte cruzado!\n",puntero_jugador -> nombre);
+      sprintf(mensaje, "%s (Cazador) Utiliza corte cruzado!\n", puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
-      }
+    }
     else if (seleccion == 3)
     {
       jugador.distraer = 1;
@@ -504,10 +529,11 @@ void ejecutar_poder(Jugador jugador, char *client_message)
   }
   else if (jugador.clase == "Medico")
   {
-    if (seleccion == 1){
+    if (seleccion == 1)
+    {
       medico_curar(puntero_jugador, &(jugador)); // "Jugador 2" debe ser elegido (Corregir)
       char mensaje[100];
-      sprintf(mensaje, "%s (Medico) Utiliza curar!\n",puntero_jugador->nombre);
+      sprintf(mensaje, "%s (Medico) Utiliza curar!\n", puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
     else if (seleccion == 2)
@@ -523,34 +549,38 @@ void ejecutar_poder(Jugador jugador, char *client_message)
       }
       medico_destello_regenerador(puntero_jugador, puntero_otro_jugador, puntero_monstruo); // OK
       char mensaje[100];
-      sprintf(mensaje, "%s (Medico) Utiliza destello regenerador, ayudando a %s!\n",puntero_jugador->nombre, puntero_otro_jugador->nombre);
+      sprintf(mensaje, "%s (Medico) Utiliza destello regenerador, ayudando a %s!\n", puntero_jugador->nombre, puntero_otro_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
-    else if (seleccion == 3){
+    else if (seleccion == 3)
+    {
       medico_descarga_vital(puntero_jugador, puntero_monstruo); // OK
       char mensaje[100];
-      sprintf(mensaje, "%s (Medico) Utiliza descarga vital!\n",puntero_jugador->nombre);
+      sprintf(mensaje, "%s (Medico) Utiliza descarga vital!\n", puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
   }
   else
   {
-    if (seleccion == 1){
+    if (seleccion == 1)
+    {
       hacker_inyeccion_sql(puntero_jugador); // "Jugador" debe ser elegido (Corregir)
       char mensaje[100];
-      sprintf(mensaje, "%s (Hacker) Utiliza inyeccion sql!\n",puntero_jugador->nombre);
+      sprintf(mensaje, "%s (Hacker) Utiliza inyeccion sql!\n", puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
-    else if (seleccion == 2){
+    else if (seleccion == 2)
+    {
       hacker_ataque_ddos(puntero_jugador, puntero_monstruo); // OK
       char mensaje[100];
-      sprintf(mensaje, "%s (Hacker) Utiliza ataque DDoS!\n",puntero_jugador->nombre);
+      sprintf(mensaje, "%s (Hacker) Utiliza ataque DDoS!\n", puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
-    else if (seleccion == 3){
+    else if (seleccion == 3)
+    {
       hacker_fuerza_bruta(puntero_jugador, puntero_monstruo); // OK
       char mensaje[100];
-      sprintf(mensaje, "%s (Hacker) Utiliza fuerza bruta!\n",puntero_jugador->nombre);
+      sprintf(mensaje, "%s (Hacker) Utiliza fuerza bruta!\n", puntero_jugador->nombre);
       enviar_mensaje_a_todos(mensaje);
     }
   }
@@ -574,64 +604,66 @@ void turno_monstruo()
   }
 }
 
+void impresion_estadisticas()
+{
 
+  for (int i = 0; i < jugadores; i++)
+  {
+    //Mandamos solo a jugadores conectados
+    if (lista_jugadores[i].conectado)
+    {
+      char *marco_top = "------------------------ESTADO JUEGO----------------------------\n";
+      char *marco_bot = "----------------------------------------------------------------\n";
+      server_send_message(sockets_array[i], 5, marco_top);
+      char str_turno[100];
+      sprintf(str_turno, "Turno numero: %i          Turno de: %s\n", turno, lista_jugadores[jugador_activo].nombre);
+      server_send_message(sockets_array[i], 5, str_turno);
 
-void impresion_estadisticas(){
-  
-  for (int i=0; i<jugadores;i++){
-      //Mandamos solo a jugadores conectados
-      if (lista_jugadores[i].conectado ){
-            char * marco_top = "------------------------ESTADO JUEGO----------------------------\n";
-            char * marco_bot = "----------------------------------------------------------------\n";
-            server_send_message(sockets_array[i], 5, marco_top);
-            char str_turno[100];
-            sprintf(str_turno, "Turno numero: %i          Turno de: %s\n", turno, lista_jugadores[jugador_activo].nombre);
-            server_send_message(sockets_array[i], 5, str_turno);
-            
-            char str_final[100];
-            sprintf(str_final, "%s             vida: %i/%i\n",monstruo.tipo,monstruo.vida,monstruo.vida_maxima);
-            server_send_message(sockets_array[i], 5, str_final);
+      char str_final[100];
+      sprintf(str_final, "%s             vida: %i/%i\n", monstruo.tipo, monstruo.vida, monstruo.vida_maxima);
+      server_send_message(sockets_array[i], 5, str_final);
 
-            server_send_message(sockets_array[i], 5, marco_bot);
-      
+      server_send_message(sockets_array[i], 5, marco_bot);
 
-
-        for(int j=0; j<jugadores;j++){
-            if (lista_jugadores[j].conectado ){
-                char str_final[100];
-                sprintf(str_final, "%s[%s]             vida: %i/%i\n",lista_jugadores[j].nombre,lista_jugadores[j].clase,
-                lista_jugadores[j].vida,lista_jugadores[j].vida_maxima);
-                server_send_message(sockets_array[i], 5, str_final);
-                server_send_message(sockets_array[i], 5, marco_bot);
-            }
+      for (int j = 0; j < jugadores; j++)
+      {
+        if (lista_jugadores[j].conectado)
+        {
+          char str_final[100];
+          sprintf(str_final, "%s[%s]             vida: %i/%i\n", lista_jugadores[j].nombre, lista_jugadores[j].clase,
+                  lista_jugadores[j].vida, lista_jugadores[j].vida_maxima);
+          server_send_message(sockets_array[i], 5, str_final);
+          server_send_message(sockets_array[i], 5, marco_bot);
         }
-        
+      }
     }
-    
   }
 }
 
-void finalizar_juego(){
-    jugadores_activos = 0;
-    //LE enviamos un mensaje a todos los jugadores para preguntar si desean seguir jugando
-    for (int i=0; i< jugadores; i++){
-        if(lista_jugadores[i].conectado){
-            char * marco_top = "------------------------JUEGO FINALIZADO----------------------------\n*\n*\n*\n";
-            server_send_message(sockets_array[i], 5, marco_top);
-            // impresion_estadisticas();
-            //Ahora Vemos quien quiere seguir jugando
-            char * mensaje = "Desea desafiar al siguiente jefe?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
-            server_send_message(sockets_array[i], 6, mensaje);
-            //Reseteamos los turnos
-            turno = 0;
-            //Reseteamos a los jugadores activos
-            jugadores_activos = 0;
-        }
+void finalizar_juego()
+{
+  jugadores_activos = 0;
+  //LE enviamos un mensaje a todos los jugadores para preguntar si desean seguir jugando
+  for (int i = 0; i < jugadores; i++)
+  {
+    if (lista_jugadores[i].conectado)
+    {
+      char *marco_top = "------------------------JUEGO FINALIZADO----------------------------\n*\n*\n*\n";
+      server_send_message(sockets_array[i], 5, marco_top);
+      // impresion_estadisticas();
+      //Ahora Vemos quien quiere seguir jugando
+      char *mensaje = "Desea desafiar al siguiente jefe?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
+      server_send_message(sockets_array[i], 6, mensaje);
+      //Reseteamos los turnos
+      turno = 0;
+      //Reseteamos a los jugadores activos
+      jugadores_activos = 0;
     }
-
+  }
 }
 
-void *thread_cliente(void *arg){
+void *thread_cliente(void *arg)
+{
   s_info *s = (s_info *)arg;
   if (s->lider)
   {
@@ -664,7 +696,7 @@ void *thread_cliente(void *arg){
       lista_jugadores[s->num].nombre = client_message;
       char *mensaje = "Seleccione la clase: \n[1]Cazador\n[2]Medico\n[3]Hacker\n";
       server_send_message(s->cfd, 1, mensaje);
-      free(client_message);
+      //free(client_message);
       break;
     }
 
@@ -709,7 +741,7 @@ void *thread_cliente(void *arg){
       char *client_message = server_receive_payload(s->cfd);
       // printf("Jugadores: %i, jugadores activos: %i\n", jugadores, jugadores_activos);
       // si todos los jugadores han seleccionado nombre y clase
-    //   printf("Jugadores:%i DEsconectados:%i \n", jugadores, desconectados);
+      //   printf("Jugadores:%i DEsconectados:%i \n", jugadores, desconectados);
       if ((jugadores - desconectados) == jugadores_activos)
       {
         inicio_juego = 1;
@@ -752,239 +784,605 @@ void *thread_cliente(void *arg){
       int opciones[4] = {0, 1, 2, 3};
       if (validar_respuesta(4, opciones, client_message))
       {
-        //Funcion que ejecuta poder
-        ejecutar_poder(lista_jugadores[jugador_activo],client_message);
-        //Si todos mueren, o se rinden, se termina el juego.
-        if(jugadores_activos == 0){
-            //El juego se termina
-            char  mensaje[100];
-            sprintf(mensaje,"Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
-            printf("Jugadores han perdido\n");
-            // printf("Jugadores activos: %i\n", jugadores_activos);
-            enviar_mensaje_a_todos(mensaje);
-            //Codigo finalizar juego
-            finalizar_juego();
+        // Ver si tiene seleccion
+        int control = 0;
+        int seleccion = *client_message - '0';
+        if (strcmp(lista_jugadores[jugador_activo].clase, "Medico") == 0 || strcmp(lista_jugadores[jugador_activo].clase, "Hacker") == 0)
+        {
+          if (seleccion == 1)
+            control = 1;
         }
-        //Si el monstruo muere el juego se termina
-        else if (monstruo.vida == 0){
-            char  mensaje[100];
-            sprintf(mensaje,"Han logrado vencer a %s!\n*\n*\n*\n", monstruo.tipo);
-            printf("Han logrado vencer a %s!\n", monstruo.tipo );
-            enviar_mensaje_a_todos(mensaje);
-            //Codigo finalizar juego
-            //Reiniciamos a la cantidad de jugadores, los activos son 0
-            finalizar_juego();
-
-        }else{
-            if (es_turno_monster() && jugadores_activos > 0){
+        if (control == 1)
+        {
+          if (jugadores_activos > 1)
+          //Caso 5
+          {
+            char *mensaje = "Selecciona un jugador:\n";
+            server_send_message(s->cfd, 5, mensaje);
+            for (int j = 0; j < jugadores; j++)
+            {
+              char str_final[100];
+              sprintf(str_final, "[%i] %s [%s]             vida: %i/%i\n", j, lista_jugadores[j].nombre, lista_jugadores[j].clase,
+                      lista_jugadores[j].vida, lista_jugadores[j].vida_maxima);
+              server_send_message(s->cfd, 5, str_final);
+            }
+            char *mensaje_2 = " \n";
+            server_send_message(s->cfd, 8, mensaje_2);
+          }
+          else
+          {
+            char *mensaje = "No hay jugadores al que aplicar el efecto! Pierdes el turno\n";
+            server_send_message(s->cfd, 5, mensaje);
+            if (jugadores_activos == 0)
+            {
+              //El juego se termina
+              char mensaje[100];
+              sprintf(mensaje, "Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
+              printf("Jugadores han perdido\n");
+              // printf("Jugadores activos: %i\n", jugadores_activos);
+              enviar_mensaje_a_todos(mensaje);
+              //Codigo finalizar juego
+              finalizar_juego();
+            }
+            //Si el monstruo muere el juego se termina
+            else if (monstruo.vida == 0)
+            {
+              char mensaje[100];
+              sprintf(mensaje, "Han logrado vencer a %s!\n*\n*\n*\n", monstruo.tipo);
+              printf("Han logrado vencer a %s!\n", monstruo.tipo);
+              enviar_mensaje_a_todos(mensaje);
+              //Codigo finalizar juego
+              //Reiniciamos a la cantidad de jugadores, los activos son 0
+              finalizar_juego();
+            }
+            else
+            {
+              if (es_turno_monster() && jugadores_activos > 0)
+              {
                 printf("TURNO MONSTER\n");
-                char mensaje [50];
+                char mensaje[50];
                 sprintf(mensaje, "Turno de %s\n\n", monstruo.tipo);
                 enviar_mensaje_a_todos(mensaje);
                 //ejecutar turno monstruo
                 turno_monstruo();
 
                 //Chequeo status monstruo
-                if(monstruo.sangrado > 0){
-                    monstruo.vida -= (monstruo.sangrado * 500);
-                    sprintf(mensaje, "%s Recibe %i de daño por sangrar! (Stacks: %i)\n",
-                    monstruo.tipo, 
-                    (monstruo.sangrado * 500),
-                    monstruo.sangrado);
-                    enviar_mensaje_a_todos(mensaje);
+                if (monstruo.sangrado > 0)
+                {
+                  monstruo.vida -= (monstruo.sangrado * 500);
+                  sprintf(mensaje, "%s Recibe %i de daño por sangrar! (Stacks: %i)\n",
+                          monstruo.tipo,
+                          (monstruo.sangrado * 500),
+                          monstruo.sangrado);
+                  enviar_mensaje_a_todos(mensaje);
                 }
 
                 //Chequeo de status
                 int derrotados = 0;
-                for (int j = 0; j< jugadores ; j++){
-                    // printf("Jugador %s Y su vida %i\n", lista_jugadores[j].nombre, lista_jugadores[j].vida);
-                    //Si esta activo vemos sus stats (envenenado, sangrando etc)
-                    if (lista_jugadores[j].activo){
-                        //Chequeo infected
-                        if(lista_jugadores[j].infected <= 3 && lista_jugadores[j].infected > 0){
-                            if (lista_jugadores[j].infected == 3){
-                                //Si se infecto en este turno no pasa nada, por que ya recibio el daño correspondiente
-                                lista_jugadores[j].infected -= 1;
-                            }else{
-                                lista_jugadores[j].infected -= 1;
-                                atack(j, 400);
-                                char mensaje[100];
-                                sprintf(mensaje, "%s (%s) Recibe daño por espina venenosa! (Turnos restantes: %i)\n",
-                                lista_jugadores[j].nombre, 
+                for (int j = 0; j < jugadores; j++)
+                {
+                  // printf("Jugador %s Y su vida %i\n", lista_jugadores[j].nombre, lista_jugadores[j].vida);
+                  //Si esta activo vemos sus stats (envenenado, sangrando etc)
+                  if (lista_jugadores[j].activo)
+                  {
+                    //Chequeo infected
+                    if (lista_jugadores[j].infected <= 3 && lista_jugadores[j].infected > 0)
+                    {
+                      if (lista_jugadores[j].infected == 3)
+                      {
+                        //Si se infecto en este turno no pasa nada, por que ya recibio el daño correspondiente
+                        lista_jugadores[j].infected -= 1;
+                      }
+                      else
+                      {
+                        lista_jugadores[j].infected -= 1;
+                        atack(j, 400);
+                        char mensaje[100];
+                        sprintf(mensaje, "%s (%s) Recibe daño por espina venenosa! (Turnos restantes: %i)\n",
+                                lista_jugadores[j].nombre,
                                 lista_jugadores[j].clase,
                                 lista_jugadores[j].infected);
-                                enviar_mensaje_a_todos(mensaje);
-                            }
-                            
-                        }
-                        //Chequeo sangrado
-                        if(lista_jugadores[j].sangrado > 0){
-                            atack(j, 100 * lista_jugadores[j].sangrado);
-                            sprintf(mensaje, "%s (%s) Recibe (%i) de daño por sangrado!\n",
-                                lista_jugadores[j].nombre, 
-                                lista_jugadores[j].clase,
-                                100 * lista_jugadores[j].sangrado);
-                        }
-
+                        enviar_mensaje_a_todos(mensaje);
+                      }
                     }
-                    if (lista_jugadores[j].vida <= 0){
-                        derrotados += 1;
-                        //Si es que su vida es 0 y sigue activo, lo inactivamos
-                        if(lista_jugadores[j].activo){
-                            lista_jugadores[j].activo = 0;
-                            jugadores_activos -=1;
-                            char  mensaje[100];
-                            sprintf(mensaje,"El jugador %s a caido!\n", lista_jugadores[j].nombre);
-                            enviar_mensaje_a_todos(mensaje);
-                        }
+                    //Chequeo sangrado
+                    if (lista_jugadores[j].sangrado > 0)
+                    {
+                      atack(j, 100 * lista_jugadores[j].sangrado);
+                      sprintf(mensaje, "%s (%s) Recibe (%i) de daño por sangrado!\n",
+                              lista_jugadores[j].nombre,
+                              lista_jugadores[j].clase,
+                              100 * lista_jugadores[j].sangrado);
                     }
+                  }
+                  if (lista_jugadores[j].vida <= 0)
+                  {
+                    derrotados += 1;
+                    //Si es que su vida es 0 y sigue activo, lo inactivamos
+                    if (lista_jugadores[j].activo)
+                    {
+                      lista_jugadores[j].activo = 0;
+                      jugadores_activos -= 1;
+                      char mensaje[100];
+                      sprintf(mensaje, "El jugador %s a caido!\n", lista_jugadores[j].nombre);
+                      enviar_mensaje_a_todos(mensaje);
+                    }
+                  }
                 }
-                                
-            }
-            
-            // printf("Cambiando de jugador activo \n");
-            if(jugadores_activos > 0){
-                jugador_activo = proximo_jugador();                           
+              }
+
+              // printf("Cambiando de jugador activo \n");
+              if (jugadores_activos > 0)
+              {
+                jugador_activo = proximo_jugador();
                 impresion_estadisticas();
                 char *marco_top = "------------------------TURNO JUGADOR----------------------------\n";
                 enviar_mensaje_a_todos(marco_top);
                 seleccion_de_poder(sockets_array[jugador_activo]);
                 turno += 1;
-            }
-            if(jugadores_activos == 0){
-                char  mensaje[100];
-                sprintf(mensaje,"Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
+              }
+              if (jugadores_activos == 0)
+              {
+                char mensaje[100];
+                sprintf(mensaje, "Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
                 printf("Jugadores han perdido\n");
                 // printf("Jugadores activos: %i\n", jugadores_activos);
                 enviar_mensaje_a_todos(mensaje);
                 //Codigo finalizar juego
                 finalizar_juego();
-            }
-            if(monstruo.vida == 0){
-                char  mensaje[100];
-                sprintf(mensaje,"Han logrado vencer a %s!\n*\n*\n*\n", monstruo.tipo);
-                printf("Han logrado vencer a %s!\n", monstruo.tipo );
+              }
+              if (monstruo.vida == 0)
+              {
+                char mensaje[100];
+                sprintf(mensaje, "Han logrado vencer a %s!\n*\n*\n*\n", monstruo.tipo);
+                printf("Han logrado vencer a %s!\n", monstruo.tipo);
                 enviar_mensaje_a_todos(mensaje);
                 //Codigo finalizar juego
                 //Reiniciamos a la cantidad de jugadores, los activos son 0
                 finalizar_juego();
+              }
+            }
+          }
+        }
+        else
+        {
+          //Funcion que ejecuta poder
+          ejecutar_poder(lista_jugadores[jugador_activo], client_message);
+          //Si todos mueren, o se rinden, se termina el juego.
+          if (jugadores_activos == 0)
+          {
+            //El juego se termina
+            char mensaje[100];
+            sprintf(mensaje, "Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
+            printf("Jugadores han perdido\n");
+            // printf("Jugadores activos: %i\n", jugadores_activos);
+            enviar_mensaje_a_todos(mensaje);
+            //Codigo finalizar juego
+            finalizar_juego();
+          }
+          //Si el monstruo muere el juego se termina
+          else if (monstruo.vida == 0)
+          {
+            char mensaje[100];
+            sprintf(mensaje, "Han logrado vencer a %s!\n*\n*\n*\n", monstruo.tipo);
+            printf("Han logrado vencer a %s!\n", monstruo.tipo);
+            enviar_mensaje_a_todos(mensaje);
+            //Codigo finalizar juego
+            //Reiniciamos a la cantidad de jugadores, los activos son 0
+            finalizar_juego();
+          }
+          else
+          {
+            if (es_turno_monster() && jugadores_activos > 0)
+            {
+              printf("TURNO MONSTER\n");
+              char mensaje[50];
+              sprintf(mensaje, "Turno de %s\n\n", monstruo.tipo);
+              enviar_mensaje_a_todos(mensaje);
+              //ejecutar turno monstruo
+              turno_monstruo();
+
+              //Chequeo status monstruo
+              if (monstruo.sangrado > 0)
+              {
+                monstruo.vida -= (monstruo.sangrado * 500);
+                sprintf(mensaje, "%s Recibe %i de daño por sangrar! (Stacks: %i)\n",
+                        monstruo.tipo,
+                        (monstruo.sangrado * 500),
+                        monstruo.sangrado);
+                enviar_mensaje_a_todos(mensaje);
+              }
+
+              //Chequeo de status
+              int derrotados = 0;
+              for (int j = 0; j < jugadores; j++)
+              {
+                // printf("Jugador %s Y su vida %i\n", lista_jugadores[j].nombre, lista_jugadores[j].vida);
+                //Si esta activo vemos sus stats (envenenado, sangrando etc)
+                if (lista_jugadores[j].activo)
+                {
+                  //Chequeo infected
+                  if (lista_jugadores[j].infected <= 3 && lista_jugadores[j].infected > 0)
+                  {
+                    if (lista_jugadores[j].infected == 3)
+                    {
+                      //Si se infecto en este turno no pasa nada, por que ya recibio el daño correspondiente
+                      lista_jugadores[j].infected -= 1;
+                    }
+                    else
+                    {
+                      lista_jugadores[j].infected -= 1;
+                      atack(j, 400);
+                      char mensaje[100];
+                      sprintf(mensaje, "%s (%s) Recibe daño por espina venenosa! (Turnos restantes: %i)\n",
+                              lista_jugadores[j].nombre,
+                              lista_jugadores[j].clase,
+                              lista_jugadores[j].infected);
+                      enviar_mensaje_a_todos(mensaje);
+                    }
+                  }
+                  //Chequeo sangrado
+                  if (lista_jugadores[j].sangrado > 0)
+                  {
+                    atack(j, 100 * lista_jugadores[j].sangrado);
+                    sprintf(mensaje, "%s (%s) Recibe (%i) de daño por sangrado!\n",
+                            lista_jugadores[j].nombre,
+                            lista_jugadores[j].clase,
+                            100 * lista_jugadores[j].sangrado);
+                  }
+                }
+                if (lista_jugadores[j].vida <= 0)
+                {
+                  derrotados += 1;
+                  //Si es que su vida es 0 y sigue activo, lo inactivamos
+                  if (lista_jugadores[j].activo)
+                  {
+                    lista_jugadores[j].activo = 0;
+                    jugadores_activos -= 1;
+                    char mensaje[100];
+                    sprintf(mensaje, "El jugador %s a caido!\n", lista_jugadores[j].nombre);
+                    enviar_mensaje_a_todos(mensaje);
+                  }
+                }
+              }
             }
 
+            // printf("Cambiando de jugador activo \n");
+            if (jugadores_activos > 0)
+            {
+              jugador_activo = proximo_jugador();
+              impresion_estadisticas();
+              char *marco_top = "------------------------TURNO JUGADOR----------------------------\n";
+              enviar_mensaje_a_todos(marco_top);
+              seleccion_de_poder(sockets_array[jugador_activo]);
+              turno += 1;
+            }
+            if (jugadores_activos == 0)
+            {
+              char mensaje[100];
+              sprintf(mensaje, "Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
+              printf("Jugadores han perdido\n");
+              // printf("Jugadores activos: %i\n", jugadores_activos);
+              enviar_mensaje_a_todos(mensaje);
+              //Codigo finalizar juego
+              finalizar_juego();
+            }
+            if (monstruo.vida == 0)
+            {
+              char mensaje[100];
+              sprintf(mensaje, "Han logrado vencer a %s!\n*\n*\n*\n", monstruo.tipo);
+              printf("Han logrado vencer a %s!\n", monstruo.tipo);
+              enviar_mensaje_a_todos(mensaje);
+              //Codigo finalizar juego
+              //Reiniciamos a la cantidad de jugadores, los activos son 0
+              finalizar_juego();
+            }
+          }
         }
-      }else{
-        char * mensaje = "Input no valido\n";
+      }
+      else
+      {
+        char *mensaje = "Input no valido\n";
         server_send_message(s->cfd, 5, mensaje);
         seleccion_de_poder(s->cfd);
-      } 
+      }
       free(client_message);
-      break;}
+      break;
+    }
 
-    case 6:{//Recibe confirmacion si desea seguir jugando
-      char * client_message = server_receive_payload(s->cfd);
-      int opciones[2] = {1,2};
-      if(validar_respuesta(2,opciones,client_message)){
+    case 5:
+    { //recibe jugador inyeccion_sql
+
+      char *client_message = server_receive_payload(s->cfd);
+      int opciones[4] = {0, 1, 2, 3};
+
+      if (validar_respuesta(4, opciones, client_message))
+      {
+        int indice = *client_message - '0';
+        if (indice == jugador_activo)
+        {
+          char *mensaje = "No puedes usar este efecto sobre ti!\nSelecciona otro jugador:";
+          server_send_message(s->cfd, 8, mensaje);
+        }
+        else if (lista_jugadores[indice].activo == 0)
+        {
+          char *mensaje = "Jugador no activo!\nSelecciona otro jugador:";
+          server_send_message(s->cfd, 8, mensaje);
+        }
+        else
+        {
+          Jugador *puntero_jugador = &(lista_jugadores[indice]);
+          Jugador *puntero = &(lista_jugadores[jugador_activo]);
+          if (strcmp(lista_jugadores[jugador_activo].clase, "Medico") == 0)
+          {
+            medico_curar(puntero, puntero_jugador);
+          }
+          else
+          {
+            hacker_inyeccion_sql(puntero_jugador);
+          }
+          if (es_turno_monster())
+          {
+            printf("TURNO MONSTER");
+            //ejecutar turno monstruo
+            turno_monstruo();
+          }
+          if (jugadores_activos == 0)
+          {
+            //El juego se termina
+            char mensaje[100];
+            sprintf(mensaje, "Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
+            printf("Jugadores han perdido\n");
+            // printf("Jugadores activos: %i\n", jugadores_activos);
+            enviar_mensaje_a_todos(mensaje);
+            //Codigo finalizar juego
+            finalizar_juego();
+          }
+          //Si el monstruo muere el juego se termina
+          else if (monstruo.vida == 0)
+          {
+            char mensaje[100];
+            sprintf(mensaje, "Han logrado vencer a %s!\n*\n*\n*\n", monstruo.tipo);
+            printf("Han logrado vencer a %s!\n", monstruo.tipo);
+            enviar_mensaje_a_todos(mensaje);
+            //Codigo finalizar juego
+            //Reiniciamos a la cantidad de jugadores, los activos son 0
+            finalizar_juego();
+          }
+          else
+          {
+            if (es_turno_monster() && jugadores_activos > 0)
+            {
+              printf("TURNO MONSTER\n");
+              char mensaje[50];
+              sprintf(mensaje, "Turno de %s\n\n", monstruo.tipo);
+              enviar_mensaje_a_todos(mensaje);
+              //ejecutar turno monstruo
+              turno_monstruo();
+
+              //Chequeo status monstruo
+              if (monstruo.sangrado > 0)
+              {
+                monstruo.vida -= (monstruo.sangrado * 500);
+                sprintf(mensaje, "%s Recibe %i de daño por sangrar! (Stacks: %i)\n",
+                        monstruo.tipo,
+                        (monstruo.sangrado * 500),
+                        monstruo.sangrado);
+                enviar_mensaje_a_todos(mensaje);
+              }
+
+              //Chequeo de status
+              int derrotados = 0;
+              for (int j = 0; j < jugadores; j++)
+              {
+                // printf("Jugador %s Y su vida %i\n", lista_jugadores[j].nombre, lista_jugadores[j].vida);
+                //Si esta activo vemos sus stats (envenenado, sangrando etc)
+                if (lista_jugadores[j].activo)
+                {
+                  //Chequeo infected
+                  if (lista_jugadores[j].infected <= 3 && lista_jugadores[j].infected > 0)
+                  {
+                    if (lista_jugadores[j].infected == 3)
+                    {
+                      //Si se infecto en este turno no pasa nada, por que ya recibio el daño correspondiente
+                      lista_jugadores[j].infected -= 1;
+                    }
+                    else
+                    {
+                      lista_jugadores[j].infected -= 1;
+                      atack(j, 400);
+                      char mensaje[100];
+                      sprintf(mensaje, "%s (%s) Recibe daño por espina venenosa! (Turnos restantes: %i)\n",
+                              lista_jugadores[j].nombre,
+                              lista_jugadores[j].clase,
+                              lista_jugadores[j].infected);
+                      enviar_mensaje_a_todos(mensaje);
+                    }
+                  }
+                  //Chequeo sangrado
+                  if (lista_jugadores[j].sangrado > 0)
+                  {
+                    atack(j, 100 * lista_jugadores[j].sangrado);
+                    sprintf(mensaje, "%s (%s) Recibe (%i) de daño por sangrado!\n",
+                            lista_jugadores[j].nombre,
+                            lista_jugadores[j].clase,
+                            100 * lista_jugadores[j].sangrado);
+                  }
+                }
+                if (lista_jugadores[j].vida <= 0)
+                {
+                  derrotados += 1;
+                  //Si es que su vida es 0 y sigue activo, lo inactivamos
+                  if (lista_jugadores[j].activo)
+                  {
+                    lista_jugadores[j].activo = 0;
+                    jugadores_activos -= 1;
+                    char mensaje[100];
+                    sprintf(mensaje, "El jugador %s a caido!\n", lista_jugadores[j].nombre);
+                    enviar_mensaje_a_todos(mensaje);
+                  }
+                }
+              }
+            }
+
+            // printf("Cambiando de jugador activo \n");
+            if (jugadores_activos > 0)
+            {
+              jugador_activo = proximo_jugador();
+              impresion_estadisticas();
+              char *marco_top = "------------------------TURNO JUGADOR----------------------------\n";
+              enviar_mensaje_a_todos(marco_top);
+              seleccion_de_poder(sockets_array[jugador_activo]);
+              turno += 1;
+            }
+            if (jugadores_activos == 0)
+            {
+              char mensaje[100];
+              sprintf(mensaje, "Han sido vencidos por %s!!!!!\n*\n*\n*\n", monstruo.tipo);
+              printf("Jugadores han perdido\n");
+              // printf("Jugadores activos: %i\n", jugadores_activos);
+              enviar_mensaje_a_todos(mensaje);
+              //Codigo finalizar juego
+              finalizar_juego();
+            }
+            if (monstruo.vida == 0)
+            {
+              char mensaje[100];
+              sprintf(mensaje, "Han logrado vencer a %s!\n*\n*\n*\n", monstruo.tipo);
+              printf("Han logrado vencer a %s!\n", monstruo.tipo);
+              enviar_mensaje_a_todos(mensaje);
+              //Codigo finalizar juego
+              //Reiniciamos a la cantidad de jugadores, los activos son 0
+              finalizar_juego();
+            }
+          }
+        }
+      }else
+      {
+        char *mensaje = "Input no valido.\n";
+        server_send_message(s->cfd, 8, mensaje);
+      }
+      free(client_message);
+      break;
+    }
+    case 6:
+    { //Recibe confirmacion si desea seguir jugando
+      char *client_message = server_receive_payload(s->cfd);
+      int opciones[2] = {1, 2};
+      if (validar_respuesta(2, opciones, client_message))
+      {
         int seleccion = *client_message - '0';
         //Ver que hacer con la respuesta
         //Se quiere quedar
-        if (seleccion == 1){
-            //Asumimos que puede cambiar su nombre
-            char * mensaje = "Ingresa un nuevo nombre:";
+        if (seleccion == 1)
+        {
+          //Asumimos que puede cambiar su nombre
+          char *mensaje = "Ingresa un nuevo nombre:";
 
+          //Activamos al jugador
+          lista_jugadores[s->num].activo = 1;
 
-            //Activamos al jugador
-            lista_jugadores[s->num].activo = 1;
-
-            if(lista_jugadores[s->num].lider){
-                // printf("%s Es lider\n", lista_jugadores[s->num].nombre);
-                s->lider = 1;
-            }
-            server_send_message(s->cfd, 0, mensaje);
-        }else{
-            char * mensaje = "Gracias por jugar! Ahora seras desconectado\n\n";
-            server_send_message(s->cfd, 5, mensaje);
-            //inactivamos al jugador
-            lista_jugadores[s->num].activo = 0;
-            lista_jugadores[s->num].conectado = 0;
-
-            //Caso si es lider y no esta solo
-            if(lista_jugadores[s->num].lider && jugadores > 1){
-                s->lider = 0;
-                //Buscamos al siguiente lider
-                int siguiente = rand() % (jugadores - 1) + 1;//Numero entre 1 y jugadores
-                //Si no lo encontramos randommente, buscamos a uno activo:
-                if(!lista_jugadores[siguiente].conectado){
-                    for (int k = 0; k < jugadores; k++){
-                        if (lista_jugadores[k].conectado){
-                            siguiente = k;
-                        }
-                    }
-                }
-                //Si siguiente es 0, asignamos como 1.
-                if(siguiente == 0){
-                    siguiente = 1;
-                }
-                char message[255] = "";
-                sprintf(message, "Ahora %s es el lider!\n", lista_jugadores[siguiente].nombre);
-                enviar_mensaje_a_todos(message);
-                lista_jugadores[siguiente].lider = 1;
-                lista_jugadores[s->num].lider = 0;
-            }
-
-            char message[255] = "";
-            sprintf(message, "El jugador %s Se ha desconectado\n", lista_jugadores[s->num].nombre);
-            enviar_mensaje_a_todos(message);
-
-            //Paquete para desconectar:
-            desconectados += 1;
-            server_send_message(s->cfd, 7, mensaje);
-            //Test de free
-            free(s);
-
-            pthread_exit(NULL);
-
+          if (lista_jugadores[s->num].lider)
+          {
+            // printf("%s Es lider\n", lista_jugadores[s->num].nombre);
+            s->lider = 1;
+          }
+          server_send_message(s->cfd, 0, mensaje);
         }
+        else
+        {
+          char *mensaje = "Gracias por jugar! Ahora seras desconectado\n\n";
+          server_send_message(s->cfd, 5, mensaje);
+          //inactivamos al jugador
+          lista_jugadores[s->num].activo = 0;
+          lista_jugadores[s->num].conectado = 0;
 
+          //Caso si es lider y no esta solo
+          if (lista_jugadores[s->num].lider && jugadores > 1)
+          {
+            s->lider = 0;
+            //Buscamos al siguiente lider
+            int siguiente = rand() % (jugadores - 1) + 1; //Numero entre 1 y jugadores
+            //Si no lo encontramos randommente, buscamos a uno activo:
+            if (!lista_jugadores[siguiente].conectado)
+            {
+              for (int k = 0; k < jugadores; k++)
+              {
+                if (lista_jugadores[k].conectado)
+                {
+                  siguiente = k;
+                }
+              }
+            }
+            //Si siguiente es 0, asignamos como 1.
+            if (siguiente == 0)
+            {
+              siguiente = 1;
+            }
+            char message[255] = "";
+            sprintf(message, "Ahora %s es el lider!\n", lista_jugadores[siguiente].nombre);
+            enviar_mensaje_a_todos(message);
+            lista_jugadores[siguiente].lider = 1;
+            lista_jugadores[s->num].lider = 0;
+          }
+
+          char message[255] = "";
+          sprintf(message, "El jugador %s Se ha desconectado\n", lista_jugadores[s->num].nombre);
+          enviar_mensaje_a_todos(message);
+
+          //Paquete para desconectar:
+          desconectados += 1;
+          server_send_message(s->cfd, 7, mensaje);
+          //Test de free
+          free(s);
+
+          pthread_exit(NULL);
+        }
       }
-      else{
-        char * mensaje = "Input no valido\nDesea seguir jugando?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
+      else
+      {
+        char *mensaje = "Input no valido\nDesea seguir jugando?: \n[1]Si! (Continuar)\n[2]No. (Desconectarse)\n\n";
         server_send_message(s->cfd, 6, mensaje);
-     }
-     free(client_message);
-     break;}
+      }
+      free(client_message);
+      break;
+    }
     }
   }
   free(s);
 }
 
-
-
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[])
+{
   // Se define una IP y un puerto
 
   //Valores default
-  char * IP = "0.0.0.0";
+  char *IP = "0.0.0.0";
   int PORT = 8080;
   //Manejo de flags
   int i;
   int defined_ip = 0;
   int defined_port = 0;
-  for (int i = 0; i < argc; i++){
-      //Flag de direccion ip
-      if (strcmp("-i", argv[i]) == 0 && i + 1 < argc){
-          IP = argv[i + 1];
-          defined_ip = 1;
-      }
-      if(strcmp("-p", argv[i]) == 0 && i + 1 < argc){
-          PORT = atoi(argv[i + 1]);
-          defined_port = 1;
-      }
+  for (int i = 0; i < argc; i++)
+  {
+    //Flag de direccion ip
+    if (strcmp("-i", argv[i]) == 0 && i + 1 < argc)
+    {
+      IP = argv[i + 1];
+      defined_ip = 1;
+    }
+    if (strcmp("-p", argv[i]) == 0 && i + 1 < argc)
+    {
+      PORT = atoi(argv[i + 1]);
+      defined_port = 1;
+    }
   }
-  if (!defined_ip || !defined_port){
-      printf ("Para correr, debe llamar de la siguiente manera:\n>./server -i <ip_address> -p <tcp_port>\n\n");
-      return 0;
+  if (!defined_ip || !defined_port)
+  {
+    printf("Para correr, debe llamar de la siguiente manera:\n>./server -i <ip_address> -p <tcp_port>\n\n");
+    return 0;
   }
-  
-  
+
   //Seteamos randomness con una seed
   srand(time(0));
   // Se define la estructura para almacenar info del socket del servidor al momento de su creación
@@ -1041,20 +1439,21 @@ int main(int argc, char *argv[]){
       }
       clie_sock->socket_lider = socket_lider;
 
-
       Jugador jugador;
       jugador.activo = 1;
       jugador.conectado = 1;
       lista_jugadores[jugadores] = jugador;
-      if(!clie_sock ->lider){
-          lista_jugadores[jugadores].lider = 0;
+      if (!clie_sock->lider)
+      {
+        lista_jugadores[jugadores].lider = 0;
       }
       pthread_t id;
       pthread_create(&id, NULL, (void *)thread_cliente, (void *)clie_sock);
       pthread_detach(id);
       jugadores += 1;
     }
-    if(desconectados == jugadores){
+    if (desconectados == jugadores)
+    {
       termino_juego = 1;
     }
   }
