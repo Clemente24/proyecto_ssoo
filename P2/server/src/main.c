@@ -17,6 +17,9 @@ int turno = 0;
 int jugadores = 0;
 // cantidad de jugadores activos
 int jugadores_activos = 0;
+
+//Cantidad de jugadores desconectados
+int desconectados = 0;
 // indice en la lista de jugadores del jugador activo(su turno)
 int jugador_activo = 0;
 int sockets_array[4];
@@ -30,6 +33,9 @@ typedef struct sock_info
   int lider;
   int socket_lider;
   int new_round_num;
+  //Variables para que haya concurrencia luego de que se termina un juego y se desea hacer uno nuevo
+  char* name;
+  char* clase;
 } s_info;
 
 Jugador lista_jugadores[4];
@@ -588,13 +594,31 @@ void *thread_cliente(void *arg){
     //         printf("Asignamos lider al socket del jugador %s\n", lista_jugadores[s->num].nombre);
     //       } 
     //   }
-      //Actualizamos el num del socket si es que hay un nuevo juego
-      if(s -> new_round_num != -1){//Significa que tiene que cambiar el num
-          s -> num = s -> new_round_num;
-          s -> new_round_num = -1;
-      }
+      //Verificamos si hubo cambio en la posicion de jugadores
+    //   if (lista_jugadores[s -> num].numero_antiguo != s -> num){
+    //       printf("Jugador antiguo: \n");
+    //       //buscamos al jugador con numero antiguo igual a s->num
+    //       for (int j = 0; j < jugadores; j ++){
+    //           if (lista_jugadores[j].numero_antiguo == s -> num){
+    //               s->num = lista_jugadores[j].numero;
+    //           }
+    //       }
+
+
+    //   }
+
 
       char *client_message = server_receive_payload(s->cfd);
+      //Buscamos al jugador con s->num = numero;
+    //   for (int j = 0; j < jugadores; j++){
+    //       if(s->num == lista_jugadores[j].numero_antiguo){
+    //           //Modificamos al jugador que antes tenia el socket number con numero antiguo, donde sea que este.
+    //           lista_jugadores[j].nombre = client_message;
+    //           //Asignamos nombre al socket
+    //           s->name = client_message;
+    //       }
+
+    //   }
       lista_jugadores[s->num].nombre = client_message;
       char *mensaje = "Seleccione la clase: \n[1]Cazador\n[2]Medico\n[3]Hacker\n";
       server_send_message(s->cfd, 1, mensaje);
@@ -612,8 +636,20 @@ void *thread_cliente(void *arg){
 
       if (validar_respuesta(3, opciones, client_message))
       {
+        //Buscamos al jugador con s->num = numero;
+        // for (int j = 0; j < jugadores; j++){
+        //     if(s->num == lista_jugadores[j].numero_antiguo){
+        //         //Modificamos al jugador que antes tenia el socket number con numero antiguo, donde sea que este.
+        //         lista_jugadores[j].nombre = client_message;
+        //         //Seguridad, por si el array es modificado mientras otros jugadores estan.
+        //         s->clase = client_message;
+        //         seleccionar_clase(client_message, j);
+        //         printf("El jugador %s numero: %i esta seleccionando clase\n",lista_jugadores[j].nombre, lista_jugadores[j].numero);
+        //     }
+
+        // }
+
         seleccionar_clase(client_message, s->num);
-        printf("El jugador %s numero: %i esta seleccionando clase\n",lista_jugadores[s->num].nombre, lista_jugadores[s->num].numero);
         // sumamos un jugador a los activos
         jugadores_activos += 1;
         if (s->lider)
@@ -646,7 +682,7 @@ void *thread_cliente(void *arg){
       char *client_message = server_receive_payload(s->cfd);
       // printf("Jugadores: %i, jugadores activos: %i\n", jugadores, jugadores_activos);
       // si todos los jugadores han seleccionado nombre y clase
-      if (jugadores == jugadores_activos)
+      if ((jugadores - desconectados) == jugadores_activos)
       {
         inicio_juego = 1;
         char *mensaje = "Seleccione el tipo de monstruo:\n[1]Great JagRuz\n[2]Ruzalos\n[3]Ruiz, el Gemelo Malvado del Profesor Ruz\n[4]Aleatorio\n";
@@ -846,53 +882,52 @@ void *thread_cliente(void *arg){
 
 
             //Reordenamos los jugadores y sus sockets (No es eficiente LOL)
-            Jugador aux[4];
+            // Jugador aux[4];
 
 
-            int sockets_array_aux[4];
+            // int sockets_array_aux[4];
+
             // for (int j = 0; j<jugadores; j++){
             //     aux[j] = lista_jugadores[j];
             //     sockets_array_aux[j] = sockets_array[j];
             // }
 
-            int aux_counter = 1;
-            int contador_desconectados = 0;
-            for (int j = 0; j<jugadores; j++){
-                if(lista_jugadores[j].conectado){
-                    if(lista_jugadores[j].lider){
-                        //El lider siempre va al principio del array
-                        aux[0] = lista_jugadores[j];
-                        aux[0].numero = 0;
-                        aux[0].numero_antiguo = j;
-                        sockets_array_aux[0] = sockets_array[j];
-                    }else if(!lista_jugadores[j].lider){
-                        lista_jugadores[j].numero = aux_counter;
-                        aux[aux_counter] = lista_jugadores[j];
-                        aux[aux_counter].numero = aux_counter;
-                        aux[aux_counter].numero_antiguo = j;
-                        sockets_array_aux[aux_counter] = sockets_array[j];
-                        aux_counter +=1;
-                    }
-                }else{
-                    int final_lista = (jugadores - 1) - contador_desconectados;
+            // int aux_counter = 1;
+            // int contador_desconectados = 0;
+            // for (int j = 0; j<jugadores; j++){
+            //     if(lista_jugadores[j].conectado){
+            //         if(lista_jugadores[j].lider){
+            //             //El lider siempre va al principio del array
+            //             aux[0] = lista_jugadores[j];
+            //             aux[0].numero = 0;
+            //             sockets_array_aux[0] = sockets_array[j];
+            //         }else if(!lista_jugadores[j].lider){
+            //             lista_jugadores[j].numero = aux_counter;
+            //             aux[aux_counter] = lista_jugadores[j];
+            //             aux[aux_counter].numero = aux_counter;
+            //             sockets_array_aux[aux_counter] = sockets_array[j];
+            //             aux_counter +=1;
+            //         }
+            //     }else{
+            //         int final_lista = (jugadores - 1) - contador_desconectados;
 
-                    lista_jugadores[j].numero = final_lista;
-                    aux[final_lista] = lista_jugadores[j];
-                    aux[final_lista].numero = final_lista;
-                    aux[final_lista].numero_antiguo = j;
-                    sockets_array_aux[final_lista] = sockets_array[j];
-                    contador_desconectados += 1;
-                }
-            }
+            //         lista_jugadores[j].numero = final_lista;
+            //         aux[final_lista] = lista_jugadores[j];
+            //         aux[final_lista].numero = final_lista;
+            //         sockets_array_aux[final_lista] = sockets_array[j];
+            //         contador_desconectados += 1;
+            //     }
+            // }
 
-            for (int j = 0; j<jugadores; j++){
-                lista_jugadores[j] = aux[j];
-                sockets_array[j] = sockets_array_aux[j];
-                printf("Asignacion: Numero %i, Nombre %s, es_lider %i, numero antiguo: %i\n\n", lista_jugadores[j].numero, lista_jugadores[j].nombre, lista_jugadores[j].lider,  lista_jugadores[j].numero_antiguo);
-            }
+            // for (int j = 0; j<jugadores; j++){
+            //     lista_jugadores[j] = aux[j];
+            //     sockets_array[j] = sockets_array_aux[j];
+            //     printf("Asignacion: Numero %i, Nombre %s, es_lider %i, numero antiguo: %i\n\n", lista_jugadores[j].numero, lista_jugadores[j].nombre, lista_jugadores[j].lider,  lista_jugadores[j].numero_antiguo);
+            // }
             //Disminuimos la cantidad de jugadores
-            jugadores -= 1;
+            // jugadores -= 1;
             //Paquete para desconectar:
+            desconectados =+ 1;
             server_send_message(s->cfd, 7, mensaje);
             //Test de free
             free(s);
