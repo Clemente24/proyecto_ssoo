@@ -16,7 +16,7 @@ Compilar con el comando `make` tanto el servidor como el cliente. Luego, para ej
 
 ## Protocolo de comunicación
 
-Los paquetes que se utilizan son 11, y los clasificamos en:
+Los paquetes que se utilizan son 16, y los clasificamos en:
 
 ### Enviados por el servidor:
 
