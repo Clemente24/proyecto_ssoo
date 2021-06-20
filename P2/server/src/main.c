@@ -125,7 +125,7 @@ void seleccionar_monstruo(char *client_message)
 }
 int es_turno_monster()
 {
-  printf("Jugador activo:%i jugadores:%i\n", jugador_activo, jugadores);
+//   printf("Jugador activo:%i jugadores:%i\n", jugador_activo, jugadores);
   if (jugador_activo == jugadores)
   {
     return 1;
@@ -424,14 +424,14 @@ int proximo_jugador()
   }
   //caso de hay mas de un jugador
   //comenzamos desde el siguiente jugador despues del actual a revisar
-  printf("Jugador_activo + 1 %i\n", jugador_activo + 1);
+//   printf("Jugador_activo + 1 %i\n", jugador_activo + 1);
 
   int j = jugador_activo + 1;
   while (1)
   {
     // // revisamos solo los activos
-    printf("j: %i\n", j);
-    printf("j mod jugadores %i\n", j % jugadores);
+    // printf("j: %i\n", j);
+    // printf("j mod jugadores %i\n", j % jugadores);
     if (lista_jugadores[j % jugadores].activo == 1)
     {
 
@@ -712,7 +712,6 @@ void *thread_cliente(void *arg){
     }
     case 4:
     { //recibe accion envia un turno nuevo a siguiente jugador
-      printf("INICIO CASO 4\n");
       char *client_message = server_receive_payload(s->cfd);
       int opciones[4] = {0, 1, 2, 3};
       if (validar_respuesta(4, opciones, client_message))
@@ -783,7 +782,7 @@ void *thread_cliente(void *arg){
                 // }
             }
             
-            printf("Cambiando de jugador activo \n");
+            // printf("Cambiando de jugador activo \n");
             if(jugadores_activos > 0){
                 jugador_activo = proximo_jugador();                           
                 impresion_estadisticas();
