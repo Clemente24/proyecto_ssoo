@@ -86,7 +86,7 @@ Los paquetes que se utilizan son 11, y los clasificamos en:
 **_Formato payload_**: elección de seguir jugando
 **_Descripción:_** este paquete contiene la respuesta sobre continuar jugando.
 
-## Deciciones de diseño
+## Decisiones de diseño
 
 - Sangrado se acumula por el resto de la batalla
 - Sangrado en jugadores hace 100 por stack, debido a que tienen menos vida que un monstruo
