@@ -752,7 +752,8 @@ void *thread_cliente(void *arg){
         // monstruo.vida = 0;
 
         // printf("Nombre: %s\n Numero: %i", lista_jugadores[s->num].nombre, lista_jugadores[s->num].numero);
-
+        //Funcion que ejecuta poder
+        ejecutar_poder(lista_jugadores[jugador_activo],client_message);
         //Si todos mueren, o se rinden, se termina el juego.
         if(jugadores_activos == 0){
             //El juego se termina
@@ -775,8 +776,6 @@ void *thread_cliente(void *arg){
             finalizar_juego();
 
         }else{
-            //Funcion que ejecuta poder
-            ejecutar_poder(lista_jugadores[jugador_activo],client_message);
 
 
             if (es_turno_monster() && jugadores_activos > 0){
@@ -803,6 +802,7 @@ void *thread_cliente(void *arg){
                     // printf("Jugador %s Y su vida %i\n", lista_jugadores[j].nombre, lista_jugadores[j].vida);
                     //Si esta activo vemos sus stats (envenenado, sangrando etc)
                     if (lista_jugadores[j].activo){
+                        //Chequeo infected
                         if(lista_jugadores[j].infected <= 3 && lista_jugadores[j].infected > 0){
                             if (lista_jugadores[j].infected == 3){
                                 //Si se infecto en este turno no pasa nada, por que ya recibio el daño correspondiente
@@ -811,14 +811,22 @@ void *thread_cliente(void *arg){
                                 lista_jugadores[j].infected -= 1;
                                 atack(j, 400);
                                 char mensaje[100];
-                                sprintf(mensaje, "%s (%s) Recibe daño por espina venenosa (Turnos restantes: %i)\n!",
+                                sprintf(mensaje, "%s (%s) Recibe daño por espina venenosa! (Turnos restantes: %i)\n",
                                 lista_jugadores[j].nombre, 
                                 lista_jugadores[j].clase,
                                 lista_jugadores[j].infected);
                                 enviar_mensaje_a_todos(mensaje);
                             }
+                            
                         }
-
+                        //Chequeo sangrado
+                        if(lista_jugadores[j].sangrado > 0){
+                            atack(j, 100 * lista_jugadores[j].sangrado);
+                            sprintf(mensaje, "%s (%s) Recibe (%i) de daño por sangrado!\n",
+                                lista_jugadores[j].nombre, 
+                                lista_jugadores[j].clase,
+                                100 * lista_jugadores[j].sangrado);
+                        }
 
                     }
                     if (lista_jugadores[j].vida <= 0){
@@ -840,6 +848,8 @@ void *thread_cliente(void *arg){
             if(jugadores_activos > 0){
                 jugador_activo = proximo_jugador();                           
                 impresion_estadisticas();
+                char *marco_top = "------------------------TURNO JUGADOR----------------------------\n";
+                enviar_mensaje_a_todos(marco_top);
                 seleccion_de_poder(sockets_array[jugador_activo]);
                 turno += 1;
             }
@@ -850,6 +860,15 @@ void *thread_cliente(void *arg){
                 // printf("Jugadores activos: %i\n", jugadores_activos);
                 enviar_mensaje_a_todos(mensaje);
                 //Codigo finalizar juego
+                finalizar_juego();
+            }
+            if(monstruo.vida == 0){
+                char  mensaje[100];
+                sprintf(mensaje,"Han logrado vencer a %s!\n*\n*\n*\n", monstruo.tipo);
+                printf("Han logrado vencer a %s!\n", monstruo.tipo );
+                enviar_mensaje_a_todos(mensaje);
+                //Codigo finalizar juego
+                //Reiniciamos a la cantidad de jugadores, los activos son 0
                 finalizar_juego();
             }
 

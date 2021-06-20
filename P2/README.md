@@ -64,4 +64,5 @@ Los paquetes que se utilizan son 11, y los clasificamos en:
 ## Deciciones de diseño
 
 - Sangrado se acumula por el resto de la batalla
+- Sangrado en jugadores hace 100 por stack, debido a que tienen menos vida que un monstruo
 - El veneno de espina venenosa afecta por 2 turnos ademas del primer turno en donde es infectado, haciendo la suma 3 turnos.
