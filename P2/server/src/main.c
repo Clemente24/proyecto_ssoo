@@ -550,9 +550,36 @@ void *thread_cliente(void *arg)
         }
         if (control == 1)
         {
+          if (jugadores > 1)
           //Caso 5
-          char *mensaje = "Selecciona un jugador: Seleccione el tipo de monstruo:\n[1]Great JagRuz\n[2]Ruzalos\n[3]Ruiz, el Gemelo Malvado del Profesor Ruz\n[4]Aleatorio\n";
-          server_send_message(s->cfd, 9, mensaje);
+          {
+            char *mensaje = "Selecciona un jugador:\n";
+            server_send_message(s->cfd, 5, mensaje);
+            for (int j = 0; j < jugadores; j++)
+            {
+              char str_final[100];
+              sprintf(str_final, "[%i]%s[%s]             vida: %i/%i\n", j, lista_jugadores[j].nombre, lista_jugadores[j].clase,
+                      lista_jugadores[j].vida, lista_jugadores[j].vida_maxima);
+              server_send_message(s->cfd, 5, str_final);
+            }
+            char *mensaje_2 = " \n";
+            server_send_message(s->cfd, 9, mensaje_2);
+          }
+          else
+          {
+            char *mensaje = "No hay jugadores al que aplicar el efecto! Pierdes el turno\n";
+            server_send_message(s->cfd, 5, mensaje);
+            if (es_turno_monster())
+            {
+              printf("TURNO MONSTER");
+              //ejecutar turno monstruo
+              turno_monstruo();
+            }
+            jugador_activo = proximo_jugador();
+            impresion_estadisticas();
+            seleccion_de_poder(sockets_array[jugador_activo]);
+            turno += 1;
+          }
         }
         else
         {
@@ -583,7 +610,7 @@ void *thread_cliente(void *arg)
     { //recibe jugador inyeccion_sql
 
       char *client_message = server_receive_payload(s->cfd);
-      int opciones[4] = {1, 2, 3, 4};
+      int opciones[4] = {0, 1, 2, 3};
 
       if (validar_respuesta(4, opciones, client_message))
       {
