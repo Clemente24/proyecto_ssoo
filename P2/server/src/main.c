@@ -482,6 +482,9 @@ void ejecutar_poder(Jugador jugador, char *client_message)
   {
     if (seleccion == 1){
       cazador_estocada(puntero_jugador, puntero_monstruo); // Monstruo debe controlar su sangrado
+      if(monstruo.sangrado < 3){
+        monstruo.sangrado += 1;
+      }
       char mensaje[100];
       sprintf(mensaje, "%s (Cazador) Utiliza estocada\n!",puntero_jugador -> nombre);
       enviar_mensaje_a_todos(mensaje);
@@ -787,6 +790,16 @@ void *thread_cliente(void *arg){
                 //ejecutar turno monstruo
                 turno_monstruo();
 
+                //Chequeo status monstruo
+                if(monstruo.sangrado > 0){
+                    monstruo.vida -= (monstruo.sangrado * 500);
+                    sprintf(mensaje, "%s Recibe %i de daño por sangrar! (Stacks: %i)\n",
+                    monstruo.tipo, 
+                    (monstruo.sangrado * 500),
+                    monstruo.sangrado);
+                    enviar_mensaje_a_todos(mensaje);
+                }
+
                 //Chequeo de status
                 int derrotados = 0;
                 for (int j = 0; j< jugadores ; j++){
@@ -824,14 +837,6 @@ void *thread_cliente(void *arg){
                     }
                 }
                                 
-                //Buscamos al primer jugador activo:
-                // for(int j = 0; j< jugadores; j++){
-                //     if (lista_jugadores[j].activo){
-                //         jugador_activo;
-                //         printf("Jugador activo siguiente: %i\n", jugador_activo);
-                //         j = jugadores;
-                //     }
-                // }
             }
             
             // printf("Cambiando de jugador activo \n");

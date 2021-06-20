@@ -11,7 +11,7 @@ Autores:
 
 ## Cómo ejecutar
 
-Compilar con el comando ```make``` tanto el servidor como el cliente. Luego, para ejecutar el servidor se debe correr ```./server``` en el directorio /P2/server y para el cliente ```./client``` en el directorio /P2/client.
+Compilar con el comando ```make``` tanto el servidor como el cliente. Luego, para ejecutar el servidor se debe correr ```./server -p <port> -i <ip>``` en el directorio /P2/server y para el cliente ```./client -p <port> -i <ip>``` en el directorio /P2/client.
 
 ## Protocolo de comunicación
 Los paquetes que se utilizan son 11, y los clasificamos en:
@@ -60,3 +60,8 @@ Los paquetes que se utilizan son 11, y los clasificamos en:
 ***ID:*** 4  
 ***Formato payload***: elección de poder  
 ***Descripción:*** este paquete contiene el poder elegido por el jugador en cada turno.
+
+## Deciciones de diseño
+
+- Sangrado se acumula por el resto de la batalla
+- El veneno de espina venenosa afecta por 2 turnos ademas del primer turno en donde es infectado, haciendo la suma 3 turnos.
